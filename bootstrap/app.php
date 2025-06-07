@@ -11,7 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // أضف الـ SetLanguage middleware للـ web group
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLanguage::class,
+        ]);
+        
+        // يمكنك أيضاً إضافة alias للـ middleware
+        $middleware->alias([
+            'set.language' => \App\Http\Middleware\SetLanguage::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
