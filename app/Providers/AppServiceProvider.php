@@ -16,7 +16,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Share language data with all views
         View::composer('*', function ($view) {
             $view->with([
                 'currentLanguage' => LanguageHelper::getCurrentLanguage(),
@@ -26,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
                 'bootstrapCss' => LanguageHelper::getBootstrapCss(),
                 'fontLink' => LanguageHelper::getFontLink(),
             ]);
+        });
+
+        $this->app->extend('translation.loader', function ($loader, $app) {
+            return new \App\Services\DatabaseTranslationLoader($app['files'], $app['path.lang']);
         });
     }
 }

@@ -69,4 +69,19 @@ class LanguageHelper
             default => "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
         };
     }
+
+    // الmethod الجديدة لمسح كاش الترجمات
+    public static function clearTranslationCache($locale = null, $group = null)
+    {
+        if ($locale && $group) {
+            Cache::forget("translations.{$locale}.{$group}");
+        } else {
+            $languages = Language::all();
+            foreach ($languages as $language) {
+                Cache::forget("translations.{$language->code}.admin");
+                Cache::forget("translations.{$language->code}.auth");
+                Cache::forget("translations.{$language->code}.validation");
+            }
+        }
+    }
 }

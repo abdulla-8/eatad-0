@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Translation;
 use App\Models\Language;
+use App\Helpers\LanguageHelper;
 
 class TranslationController extends Controller
 {
@@ -46,7 +47,6 @@ class TranslationController extends Controller
             'value' => 'required|string'
         ]);
 
-        // Check if translation already exists
         $exists = Translation::where('language_id', $request->language_id)
             ->where('group', $request->group)
             ->where('key', $request->key)
@@ -57,6 +57,9 @@ class TranslationController extends Controller
         }
 
         Translation::create($request->all());
+
+        $language = Language::find($request->language_id);
+        LanguageHelper::clearTranslationCache($language->code, $request->group);
 
         return back()->with('success', __('admin.translation_added_successfully'));
     }
@@ -69,12 +72,19 @@ class TranslationController extends Controller
 
         $translation->update(['value' => $request->value]);
 
+        LanguageHelper::clearTranslationCache($translation->language->code, $translation->group);
+
         return back()->with('success', __('admin.translation_updated_successfully'));
     }
 
     public function destroy(Translation $translation)
     {
+        $language_code = $translation->language->code;
+        $group = $translation->group;
+        
         $translation->delete();
+        
+        LanguageHelper::clearTranslationCache($language_code, $group);
         
         return back()->with('success', __('admin.translation_deleted_successfully'));
     }
