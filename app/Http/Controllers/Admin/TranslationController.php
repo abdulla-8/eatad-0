@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Admin/TranslationController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -6,35 +7,30 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Translation;
 use App\Models\Language;
-use App\Helpers\LanguageHelper;
 
 class TranslationController extends Controller
 {
     public function index(Request $request)
     {
-        $languages = Language::active()->get();
-        $currentLanguage = $request->get('language_id') 
-            ? Language::find($request->get('language_id')) 
-            : Language::default()->first();
-
-        $translations = Translation::byLanguage($currentLanguage->id)
-            ->when($request->get('group'), function($query, $group) {
-                return $query->byGroup($group);
-            })
-            ->when($request->get('search'), function($query, $search) {
-                return $query->search($search);
-            })
-            ->orderBy('group')
-            ->orderBy('key')
-            ->paginate(20);
-
-        $groups = Translation::distinct('group')->pluck('group');
-
+        $languages = Language::where('is_active', true)->get();
+        
+        $currentLanguageId = $request->get('language_id') ?: session('current_language_id', 1);
+        $currentLanguage = Language::find($currentLanguageId);
+        
+        $query = Translation::where('language_id', $currentLanguageId);
+        
+        if ($request->get('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('translation_key', 'LIKE', "%{$search}%")
+                  ->orWhere('translation_value', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        $translations = $query->orderBy('translation_key')->paginate(20);
+        
         return view('admin.translations.index', compact(
-            'translations', 
-            'languages', 
-            'currentLanguage', 
-            'groups'
+            'translations', 'languages', 'currentLanguage'
         ));
     }
 
@@ -42,46 +38,44 @@ class TranslationController extends Controller
     {
         $request->validate([
             'language_id' => 'required|exists:languages,id',
-            'group' => 'required|string|max:100',
-            'key' => 'required|string|max:255',
-            'value' => 'required|string'
+            'translation_key' => 'required|string|max:255',
+            'translation_value' => 'required|string'
         ]);
 
-        $exists = Translation::where('language_id', $request->language_id)
-            ->where('group', $request->group)
-            ->where('key', $request->key)
-            ->exists();
+        try {
+            Translation::create([
+                'language_id' => $request->language_id,
+                'translation_key' => $request->translation_key,
+                'translation_value' => $request->translation_value,
+            ]);
 
-        if ($exists) {
-            return back()->withErrors(['key' => 'Translation key already exists for this language and group.']);
+            return redirect()->back()->with('success', 'تم إضافة الترجمة بنجاح');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'هذا المفتاح موجود مسبقاً لهذه اللغة');
         }
-
-        Translation::create($request->all());
-
-        LanguageHelper::clearTranslationCache();
-
-        return back()->with('success', 'Translation added successfully');
     }
 
     public function update(Request $request, Translation $translation)
     {
         $request->validate([
-            'value' => 'required|string'
+            'translation_value' => 'required|string'
         ]);
 
-        $translation->update(['value' => $request->value]);
-
-        LanguageHelper::clearTranslationCache();
-
-        return back()->with('success', 'Translation updated successfully');
+        try {
+            $translation->update(['translation_value' => $request->translation_value]);
+            return redirect()->back()->with('success', 'تم تحديث الترجمة بنجاح');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'حدث خطأ أثناء التحديث');
+        }
     }
 
     public function destroy(Translation $translation)
     {
-        $translation->delete();
-        
-        LanguageHelper::clearTranslationCache();
-        
-        return back()->with('success', 'Translation deleted successfully');
+        try {
+            $translation->delete();
+            return redirect()->back()->with('success', 'تم حذف الترجمة بنجاح');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'حدث خطأ أثناء الحذف');
+        }
     }
 }

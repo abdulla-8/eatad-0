@@ -1,19 +1,14 @@
 <?php
+// app/Models/Translation.php
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Translation extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'language_id',
-        'group',
-        'key',
-        'value'
+        'language_id', 'translation_key', 'translation_value'
     ];
 
     public function language()
@@ -21,21 +16,13 @@ class Translation extends Model
         return $this->belongsTo(Language::class);
     }
 
-    public function scopeByGroup($query, $group)
-    {
-        return $query->where('group', $group);
-    }
-
-    public function scopeByLanguage($query, $languageId)
+    public function scopeForLanguage($query, $languageId)
     {
         return $query->where('language_id', $languageId);
     }
 
-    public function scopeSearch($query, $search)
+    public function scopeByKey($query, $key)
     {
-        return $query->where(function($q) use ($search) {
-            $q->where('key', 'like', '%' . $search . '%')
-              ->orWhere('value', 'like', '%' . $search . '%');
-        });
+        return $query->where('translation_key', $key);
     }
 }
