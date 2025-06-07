@@ -5,7 +5,6 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Helpers\LanguageHelper;
-use App\Models\Language;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,10 +24,6 @@ class AppServiceProvider extends ServiceProvider
                 'bootstrapCss' => LanguageHelper::getBootstrapCss(),
                 'fontLink' => LanguageHelper::getFontLink(),
             ]);
-        });
-
-        $this->app->extend('translation.loader', function ($loader, $app) {
-            return new \App\Services\DatabaseTranslationLoader($app['files'], $app['path.lang']);
         });
     }
 }

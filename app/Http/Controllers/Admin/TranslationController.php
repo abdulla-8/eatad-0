@@ -58,10 +58,9 @@ class TranslationController extends Controller
 
         Translation::create($request->all());
 
-        $language = Language::find($request->language_id);
-        LanguageHelper::clearTranslationCache($language->code, $request->group);
+        LanguageHelper::clearTranslationCache();
 
-        return back()->with('success', __('admin.translation_added_successfully'));
+        return back()->with('success', 'Translation added successfully');
     }
 
     public function update(Request $request, Translation $translation)
@@ -72,20 +71,17 @@ class TranslationController extends Controller
 
         $translation->update(['value' => $request->value]);
 
-        LanguageHelper::clearTranslationCache($translation->language->code, $translation->group);
+        LanguageHelper::clearTranslationCache();
 
-        return back()->with('success', __('admin.translation_updated_successfully'));
+        return back()->with('success', 'Translation updated successfully');
     }
 
     public function destroy(Translation $translation)
     {
-        $language_code = $translation->language->code;
-        $group = $translation->group;
-        
         $translation->delete();
         
-        LanguageHelper::clearTranslationCache($language_code, $group);
+        LanguageHelper::clearTranslationCache();
         
-        return back()->with('success', __('admin.translation_deleted_successfully'));
+        return back()->with('success', 'Translation deleted successfully');
     }
 }

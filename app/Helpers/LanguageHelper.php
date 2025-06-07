@@ -9,16 +9,12 @@ class LanguageHelper
 {
     public static function getCurrentLanguage()
     {
-        return Cache::remember('current_language_' . app()->getLocale(), 3600, function () {
-            return Language::where('code', app()->getLocale())->first();
-        });
+        return Language::where('code', app()->getLocale())->first();
     }
 
     public static function getActiveLanguages()
     {
-        return Cache::remember('active_languages', 3600, function () {
-            return Language::active()->get();
-        });
+        return Language::active()->get();
     }
 
     public static function getCurrentLanguageName()
@@ -70,18 +66,8 @@ class LanguageHelper
         };
     }
 
-    // الmethod الجديدة لمسح كاش الترجمات
     public static function clearTranslationCache($locale = null, $group = null)
     {
-        if ($locale && $group) {
-            Cache::forget("translations.{$locale}.{$group}");
-        } else {
-            $languages = Language::all();
-            foreach ($languages as $language) {
-                Cache::forget("translations.{$language->code}.admin");
-                Cache::forget("translations.{$language->code}.auth");
-                Cache::forget("translations.{$language->code}.validation");
-            }
-        }
+        Cache::flush();
     }
 }
