@@ -11,10 +11,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
+            $currentLanguage = TranslationHelper::getCurrentLanguage();
+            $isRtl = $currentLanguage && $currentLanguage->direction === 'rtl';
+            
+            // تحديد الخط المناسب حسب الاتجاه
+            $fontLink = $isRtl 
+                ? 'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap'
+                : 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
+            
             $view->with([
-                'currentLanguage' => TranslationHelper::getCurrentLanguage(),
+                'currentLanguage' => $currentLanguage,
                 'activeLanguages' => TranslationHelper::getActiveLanguages(),
-                'isRtl' => false,
+                'isRtl' => $isRtl, // هنا كان المشكلة - كان مجبر على false
+                'fontLink' => $fontLink,
             ]);
         });
     }

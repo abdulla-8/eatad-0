@@ -7,11 +7,6 @@ use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\TranslationController;
 
 
-Route::get('/test-translations', function () {
-    return view('test-translations');
-});
-
-
 // Language Routes 
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
