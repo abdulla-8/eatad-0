@@ -142,14 +142,14 @@
                                class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_number') }}">
                         <input type="text" name="phone_labels[]" value="{{ $additionalPhone->label }}"
                                class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_label_placeholder') }}">
-                        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">حذف</button>
+                        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"> {{ t ('admin.delete') }}  </button>
                     </div>
                 @endforeach
             @else
                 <div class="phone-group grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
                     <input type="text" name="additional_phones[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_number') }}">
                     <input type="text" name="phone_labels[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_label_placeholder') }}">
-                    <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">حذف</button>
+                    <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t ('admin.delete') }}</button>
                 </div>
             @endif
         </div>
@@ -188,13 +188,13 @@
             <!-- Map Controls -->
             <div class="flex gap-2 flex-wrap mb-2">
                 <button type="button" onclick="openMap()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
-                    📍 فتح الخريطة
+                    📍 {{ t ('admin.open_map') }}
                 </button>
                 <button type="button" onclick="getCurrentLocation()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
-                    📌 موقعي الحالي
+                    📌 {{ t('admin.get_current_location') }}
                 </button>
                 <button type="button" onclick="clearLocation()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs">
-                    🗑️ مسح
+                    🗑️ {{ t('admin.clear_location') }}
                 </button>
             </div>
             
@@ -221,14 +221,14 @@
                 <input type="hidden" name="is_active" value="0">
                 <input type="checkbox" name="is_active" value="1" {{ old('is_active', $insuranceCompany->is_active ?? 1) ? 'checked' : '' }}
                        class="w-4 h-4 text-gold-500 bg-gray-100 border-gray-300 rounded focus:ring-gold-500">
-                <span class="mr-2 text-sm">{{ t('admin.active_account') }}</span>
+                <span class="{{ $isRtl ? 'mr-3' : 'ml-3' }} text-sm">{{ t('admin.active_account') }}</span>
             </label>
             
             <label class="flex items-center">
                 <input type="hidden" name="is_approved" value="0">
                 <input type="checkbox" name="is_approved" value="1" {{ old('is_approved', $insuranceCompany->is_approved ?? 0) ? 'checked' : '' }}
-                       class="w-4 h-4 text-gold-500 bg-gray-100 border-gray-300 rounded focus:ring-gold-500">
-                <span class="mr-2 text-sm">{{ t('admin.approved_account') }}</span>
+                       class=" w-4 h-4 text-gold-500 bg-gray-100 border-gray-300 rounded focus:ring-gold-500">
+                <span class="{{ $isRtl ? 'mr-3' : 'ml-3' }} text-sm">{{ t('admin.approved_account') }}</span>
             </label>
         </div>
         
@@ -256,9 +256,9 @@ function addPhone() {
     const div = document.createElement('div');
     div.className = 'phone-group grid grid-cols-1 md:grid-cols-3 gap-2 mb-2';
     div.innerHTML = `
-        <input type="text" name="additional_phones[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="رقم الهاتف">
-        <input type="text" name="phone_labels[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="وصف الهاتف">
-        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">حذف</button>
+        <input type="text" name="additional_phones[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder=" {{ t('admin.phone_number') }}">
+        <input type="text" name="phone_labels[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder=" {{ t('admin.phone_label_placeholder') }}">
+        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t ('admin.delete') }} </button>
     `;
     container.appendChild(div);
 }
