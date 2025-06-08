@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\SpecializationController;
+use App\Http\Controllers\Admin\UsersManagementController;
 
 // Language Routes 
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
@@ -51,6 +52,37 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{specialization}/toggle', [SpecializationController::class, 'toggle'])->name('toggle');
             Route::post('/update-order', [SpecializationController::class, 'updateOrder'])->name('updateOrder');
         });
+    });
+
+    // Users Management
+    Route::prefix('users')->name('users.')->group(function () {
+
+        // Parts Dealers Management
+        Route::prefix('parts-dealers')->name('parts-dealers.')->group(function () {
+            Route::get('/', [UsersManagementController::class, 'partsDealersIndex'])->name('index');
+            Route::get('/create', [UsersManagementController::class, 'partsDealersCreate'])->name('create');
+            Route::post('/', [UsersManagementController::class, 'partsDealersStore'])->name('store');
+            Route::get('/{partsDealer}/edit', [UsersManagementController::class, 'partsDealersEdit'])->name('edit');
+            Route::put('/{partsDealer}', [UsersManagementController::class, 'partsDealersUpdate'])->name('update');
+            Route::delete('/{partsDealer}', [UsersManagementController::class, 'partsDealersDestroy'])->name('destroy');
+            Route::post('/{partsDealer}/toggle', [UsersManagementController::class, 'partsDealersToggle'])->name('toggle');
+            Route::post('/{partsDealer}/approve', [UsersManagementController::class, 'partsDealersApprove'])->name('approve');
+        });
+
+        // Insurance Companies Management
+        Route::prefix('insurance-companies')->name('insurance-companies.')->group(function () {
+            Route::get('/', [UsersManagementController::class, 'insuranceCompaniesIndex'])->name('index');
+            Route::get('/create', [UsersManagementController::class, 'insuranceCompaniesCreate'])->name('create');
+            Route::post('/', [UsersManagementController::class, 'insuranceCompaniesStore'])->name('store');
+            Route::get('/{insuranceCompany}/edit', [UsersManagementController::class, 'insuranceCompaniesEdit'])->name('edit');
+            Route::put('/{insuranceCompany}', [UsersManagementController::class, 'insuranceCompaniesUpdate'])->name('update');
+            Route::delete('/{insuranceCompany}', [UsersManagementController::class, 'insuranceCompaniesDestroy'])->name('destroy');
+            Route::post('/{insuranceCompany}/toggle', [UsersManagementController::class, 'insuranceCompaniesToggle'])->name('toggle');
+            Route::post('/{insuranceCompany}/approve', [UsersManagementController::class, 'insuranceCompaniesApprove'])->name('approve');
+        });
+
+        // Users Statistics API
+        Route::get('/stats', [UsersManagementController::class, 'usersStats'])->name('stats');
     });
 });
 
