@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\TranslationController;
-
+use App\Http\Controllers\Admin\SpecializationController;
 
 // Language Routes 
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
@@ -38,6 +38,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/', [TranslationController::class, 'store'])->name('store');
             Route::put('/{translation}', [TranslationController::class, 'update'])->name('update');
             Route::delete('/{translation}', [TranslationController::class, 'destroy'])->name('destroy');
+        });
+
+        // Specialization Management
+        Route::prefix('specializations')->name('specializations.')->group(function () {
+            Route::get('/', [SpecializationController::class, 'index'])->name('index');
+            Route::get('/create', [SpecializationController::class, 'create'])->name('create');
+            Route::post('/', [SpecializationController::class, 'store'])->name('store');
+            Route::get('/{specialization}/edit', [SpecializationController::class, 'edit'])->name('edit');
+            Route::put('/{specialization}', [SpecializationController::class, 'update'])->name('update');
+            Route::delete('/{specialization}', [SpecializationController::class, 'destroy'])->name('destroy');
+            Route::post('/{specialization}/toggle', [SpecializationController::class, 'toggle'])->name('toggle');
+            Route::post('/update-order', [SpecializationController::class, 'updateOrder'])->name('updateOrder');
         });
     });
 });
