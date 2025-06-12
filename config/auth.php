@@ -1,7 +1,7 @@
 <?php
+// config/auth.php - Add these guards and providers
 
 return [
-
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
@@ -17,6 +17,16 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        'parts_dealer' => [
+            'driver' => 'session',
+            'provider' => 'parts_dealers',
+        ],
+
+        'insurance_company' => [
+            'driver' => 'session',
+            'provider' => 'insurance_companies',
+        ],
     ],
 
     'providers' => [
@@ -28,6 +38,16 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+
+        'parts_dealers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\PartsDealer::class,
+        ],
+
+        'insurance_companies' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\InsuranceCompany::class,
         ],
     ],
 
@@ -45,8 +65,21 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'parts_dealers' => [
+            'provider' => 'parts_dealers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'insurance_companies' => [
+            'provider' => 'insurance_companies',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
     ],
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
-
 ];
