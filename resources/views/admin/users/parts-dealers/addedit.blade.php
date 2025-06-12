@@ -341,12 +341,15 @@ function getCurrentLocation() {
 
 // Phone number formatting
 document.getElementById('phone').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) {
-        value = value.substring(0, 11);
-    }
-    e.target.value = value;
+   let value = e.target.value.replace(/\D/g, '');
+   // UAE: 9 digits, Saudi: 9-10 digits, Egypt: 11 digits
+   if (value.length > 15) {
+       value = value.substring(0, 15);
+   }
+   e.target.value = value;
 });
+
+
 </script>
 
 @endsection
