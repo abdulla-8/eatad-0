@@ -131,3 +131,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+// Redirect base paths to login pages
+Route::redirect('/admin', '/admin/login');
+Route::redirect('/dealer', '/dealer/login'); 
+Route::redirect('/insurance', '/insurance/login');
