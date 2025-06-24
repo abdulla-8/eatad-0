@@ -1,14 +1,10 @@
 <?php
-// app/helpers.php
 
 use App\Models\Language;
 use App\Models\Translation;
 
 if (!function_exists('t')) {
-    /**
-     * ترجمة النص حسب اللغة الحالية
-     */
-    function t($key, $default = null)
+    function t($key, $default = null, $useCompanyGroup = false)
     {
         try {
             $currentLang = session('current_language_id');
@@ -22,8 +18,25 @@ if (!function_exists('t')) {
                 session(['current_language_id' => $currentLang]);
             }
 
+            $translationKey = $key;
+            
+            if ($useCompanyGroup) {
+                $company = session('current_company');
+                if ($company && $company->translation_group) {
+                    $companyKey = $company->translation_group . '.' . $key;
+                    
+                    $companyTranslation = Translation::where('language_id', $currentLang)
+                        ->where('translation_key', $companyKey)
+                        ->value('translation_value');
+                    
+                    if ($companyTranslation) {
+                        return $companyTranslation;
+                    }
+                }
+            }
+
             $translation = Translation::where('language_id', $currentLang)
-                ->where('translation_key', $key)
+                ->where('translation_key', $translationKey)
                 ->value('translation_value');
 
             return $translation ?: ($default ?: $key);
@@ -35,9 +48,6 @@ if (!function_exists('t')) {
 }
 
 if (!function_exists('get_current_language')) {
-    /**
-     * الحصول على اللغة الحالية
-     */
     function get_current_language()
     {
         try {
@@ -50,9 +60,6 @@ if (!function_exists('get_current_language')) {
 }
 
 if (!function_exists('get_active_languages')) {
-    /**
-     * الحصول على اللغات النشطة
-     */
     function get_active_languages()
     {
         try {
@@ -60,5 +67,18 @@ if (!function_exists('get_active_languages')) {
         } catch (\Exception $e) {
             return collect([]);
         }
+    }
+}
+
+if (!function_exists('get_company_translation')) {
+    function get_company_translation($key, $default = null)
+    {
+        $company = session('current_company');
+        if (!$company || !$company->translation_group) {
+            return t($key, $default);
+        }
+
+        $companyKey = $company->translation_group . '.' . $key;
+        return t($companyKey, $default);
     }
 }

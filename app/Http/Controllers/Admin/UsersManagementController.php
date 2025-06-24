@@ -10,6 +10,9 @@ use App\Models\InsuranceCompanyPhone;
 use App\Models\Specialization;
 use Illuminate\Support\Facades\Hash;
 
+// transliation 
+use App\Models\Translation ;
+
 class UsersManagementController extends Controller
 {
     // Parts Dealers Management
@@ -164,50 +167,30 @@ class UsersManagementController extends Controller
             'phone' => 'required|string|max:20|unique:insurance_companies,phone',
             'password' => 'required|string|min:6',
             'commercial_register' => 'required|string|max:100|unique:insurance_companies,commercial_register',
-            'tax_number' => 'nullable|string|max:100',
             'legal_name' => 'required|string|max:255',
-            'employee_count' => 'nullable|integer|min:1',
-            'insured_cars_count' => 'nullable|integer|min:0',
-            'office_location_lat' => 'nullable|numeric|between:-90,90',
-            'office_location_lng' => 'nullable|numeric|between:-180,180',
-            'office_address' => 'nullable|string',
-            'is_active' => 'boolean',
-            'is_approved' => 'boolean',
-            'additional_phones' => 'nullable|array',
-            'additional_phones.*' => 'nullable|string|max:20',
-            'phone_labels' => 'nullable|array',
-            'phone_labels.*' => 'nullable|string|max:100'
+            'company_slug' => 'required|string|max:100|unique:insurance_companies,company_slug',
+            'primary_color' => 'nullable|string|max:7',
+            'secondary_color' => 'nullable|string|max:7',
+            'company_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
-            $data = $request->except(['additional_phones', 'phone_labels']);
+            $data = $request->except(['company_logo']);
             $data['password'] = Hash::make($request->password);
             $data['is_active'] = $request->has('is_active');
             $data['is_approved'] = $request->has('is_approved');
+            $data['translation_group'] = 'company_' . $data['company_slug'];
+
+            if ($request->hasFile('company_logo')) {
+                $logo = $request->file('company_logo');
+                $filename = $data['company_slug'] . '_logo.' . $logo->getClientOriginalExtension();
+                $path = $logo->storeAs('company_logos', $filename, 'public');
+                $data['company_logo'] = $path;
+            }
 
             $company = InsuranceCompany::create($data);
 
-            // Add primary phone
-            InsuranceCompanyPhone::create([
-                'insurance_company_id' => $company->id,
-                'phone' => $company->phone,
-                'label' => t('admin.primary_phone'),
-                'is_primary' => true
-            ]);
-
-            // Add additional phones
-            if ($request->additional_phones) {
-                foreach ($request->additional_phones as $index => $phone) {
-                    if (!empty($phone)) {
-                        InsuranceCompanyPhone::create([
-                            'insurance_company_id' => $company->id,
-                            'phone' => $phone,
-                            'label' => $request->phone_labels[$index] ?? null,
-                            'is_primary' => false
-                        ]);
-                    }
-                }
-            }
+            $this->createDefaultTranslations($company);
 
             return redirect()->route('admin.users.insurance-companies.index')
                 ->with('success', t('admin.insurance_company_created'));
@@ -215,6 +198,26 @@ class UsersManagementController extends Controller
             return redirect()->back()
                 ->with('error', t('admin.error_occurred'))
                 ->withInput();
+        }
+    }
+
+
+    private function createDefaultTranslations($company)
+    {
+        $defaultTranslations = [
+            'dashboard' => 'لوحة التحكم',
+            'welcome_back' => 'مرحباً بعودتك',
+            'my_profile' => 'ملفي الشخصي',
+            'claims' => 'المطالبات',
+            'policies' => 'الوثائق'
+        ];
+
+        foreach ($defaultTranslations as $key => $value) {
+            Translation::create([
+                'language_id' => 1,
+                'translation_key' => $company->translation_group . '.' . $key,
+                'translation_value' => $value
+            ]);
         }
     }
 

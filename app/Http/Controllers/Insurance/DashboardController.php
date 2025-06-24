@@ -10,6 +10,7 @@ class DashboardController extends Controller
     public function index()
     {
         $company = auth('insurance_company')->user();
+        $currentCompany = session('current_company');
         
         $stats = [
             'profile_completion' => $this->calculateProfileCompletion($company),

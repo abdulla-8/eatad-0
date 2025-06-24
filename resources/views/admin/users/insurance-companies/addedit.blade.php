@@ -15,7 +15,6 @@
 
 @section('content')
 
-<!-- Header مضغوط -->
 <div class="flex justify-between items-center mb-4">
     <div>
         <h1 class="text-xl font-bold text-gray-900">
@@ -32,7 +31,6 @@
     </a>
 </div>
 
-<!-- Form مضغوط -->
 <div class="bg-white rounded-lg shadow-sm border compact-form">
     <div class="bg-gold-500 text-dark-900 px-4 py-3 rounded-t-lg">
         <h2 class="font-semibold">{{ t('admin.company_details') }}</h2>
@@ -40,7 +38,7 @@
     
     <form method="POST" 
           action="{{ isset($insuranceCompany) ? route('admin.users.insurance-companies.update', $insuranceCompany) : route('admin.users.insurance-companies.store') }}" 
-          class="p-4" id="insuranceCompanyForm">
+          class="p-4" id="insuranceCompanyForm" enctype="multipart/form-data">
         @csrf
         @if(isset($insuranceCompany)) @method('PUT') @endif
         
@@ -48,7 +46,7 @@
         <h3 class="section-title font-semibold text-gray-900">{{ t('admin.basic_information') }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             <!-- Legal Name -->
-            <div class="md:col-span-3">
+            <div class="md:col-span-2">
                 <label for="legal_name" class="block font-medium text-gray-700 mb-1">
                     {{ t('admin.legal_name') }} <span class="text-red-500">*</span>
                 </label>
@@ -57,6 +55,19 @@
                        class="w-full border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('legal_name') border-red-500 @enderror"
                        placeholder="{{ t('admin.company_legal_name_placeholder') }}" required>
                 @error('legal_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Company Slug -->
+            <div>
+                <label for="company_slug" class="block font-medium text-gray-700 mb-1">
+                    Company Route <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="company_slug" name="company_slug" 
+                       value="{{ old('company_slug', $insuranceCompany->company_slug ?? '') }}"
+                       class="w-full border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('company_slug') border-red-500 @enderror"
+                       placeholder="misr" required>
+                <p class="text-xs text-gray-500 mt-1">www.example.com/<strong id="slugPreview">{{ old('company_slug', $insuranceCompany->company_slug ?? 'company') }}</strong>/login</p>
+                @error('company_slug')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
             
             <!-- Phone -->
@@ -131,6 +142,49 @@
                 @error('insured_cars_count')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
         </div>
+
+        <!-- Company Branding -->
+        <h3 class="section-title font-semibold text-gray-900">Company Branding</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            <!-- Company Logo -->
+            <div>
+                <label for="company_logo" class="block font-medium text-gray-700 mb-1">
+                    Company Logo <span class="text-gray-400">({{ t('admin.optional') }})</span>
+                </label>
+                @if(isset($insuranceCompany) && $insuranceCompany->company_logo)
+                    <div class="mb-2">
+                        <img src="{{ $insuranceCompany->logo_url }}" alt="Current Logo" class="w-16 h-16 object-contain border rounded">
+                        <p class="text-xs text-gray-500">Current Logo</p>
+                    </div>
+                @endif
+                <input type="file" id="company_logo" name="company_logo" accept="image/*"
+                       class="w-full border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('company_logo') border-red-500 @enderror">
+                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+                @error('company_logo')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Primary Color -->
+            <div>
+                <label for="primary_color" class="block font-medium text-gray-700 mb-1">
+                    Primary Color <span class="text-gray-400">({{ t('admin.optional') }})</span>
+                </label>
+                <input type="color" id="primary_color" name="primary_color" 
+                       value="{{ old('primary_color', $insuranceCompany->primary_color ?? '#10B981') }}"
+                       class="w-full h-10 border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('primary_color') border-red-500 @enderror">
+                @error('primary_color')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Secondary Color -->
+            <div>
+                <label for="secondary_color" class="block font-medium text-gray-700 mb-1">
+                    Secondary Color <span class="text-gray-400">({{ t('admin.optional') }})</span>
+                </label>
+                <input type="color" id="secondary_color" name="secondary_color" 
+                       value="{{ old('secondary_color', $insuranceCompany->secondary_color ?? '#059669') }}"
+                       class="w-full h-10 border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('secondary_color') border-red-500 @enderror">
+                @error('secondary_color')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+            </div>
+        </div>
         
         <!-- Additional Phones -->
         <h3 class="section-title font-semibold text-gray-900">{{ t('admin.additional_phone_numbers') }}</h3>
@@ -142,14 +196,14 @@
                                class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_number') }}">
                         <input type="text" name="phone_labels[]" value="{{ $additionalPhone->label }}"
                                class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_label_placeholder') }}">
-                        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"> {{ t ('admin.delete') }}  </button>
+                        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t('admin.delete') }}</button>
                     </div>
                 @endforeach
             @else
                 <div class="phone-group grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
                     <input type="text" name="additional_phones[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_number') }}">
                     <input type="text" name="phone_labels[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_label_placeholder') }}">
-                    <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t ('admin.delete') }}</button>
+                    <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t('admin.delete') }}</button>
                 </div>
             @endif
         </div>
@@ -188,7 +242,7 @@
             <!-- Map Controls -->
             <div class="flex gap-2 flex-wrap mb-2">
                 <button type="button" onclick="openMap()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
-                    📍 {{ t ('admin.open_map') }}
+                    📍 Open Map
                 </button>
                 <button type="button" onclick="getCurrentLocation()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
                     📌 {{ t('admin.get_current_location') }}
@@ -202,14 +256,14 @@
             <div id="mapContainer" class="hidden">
                 <div id="leafletMap" class="leaflet-container border border-gray-300 mb-2"></div>
                 <div class="flex justify-between items-center text-xs">
-                    <span class="text-gray-600">انقر على الخريطة لتحديد الموقع</span>
-                    <button type="button" onclick="closeMap()" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded">إغلاق</button>
+                    <span class="text-gray-600">Click on map to set location</span>
+                    <button type="button" onclick="closeMap()" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded">Close</button>
                 </div>
             </div>
             
             <!-- Location Display -->
             <div id="locationInfo" class="hidden mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs">
-                <span class="text-green-800">تم تحديد الموقع: </span>
+                <span class="text-green-800">Location set: </span>
                 <span id="locationDetails" class="text-green-600"></span>
             </div>
         </div>
@@ -227,7 +281,7 @@
             <label class="flex items-center">
                 <input type="hidden" name="is_approved" value="0">
                 <input type="checkbox" name="is_approved" value="1" {{ old('is_approved', $insuranceCompany->is_approved ?? 0) ? 'checked' : '' }}
-                       class=" w-4 h-4 text-gold-500 bg-gray-100 border-gray-300 rounded focus:ring-gold-500">
+                       class="w-4 h-4 text-gold-500 bg-gray-100 border-gray-300 rounded focus:ring-gold-500">
                 <span class="{{ $isRtl ? 'mr-3' : 'ml-3' }} text-sm">{{ t('admin.approved_account') }}</span>
             </label>
         </div>
@@ -250,15 +304,20 @@
 <script>
 let leafletMap, leafletMarker, isMapInitialized = false;
 
+// Slug Preview
+document.getElementById('company_slug').addEventListener('input', function(e) {
+    document.getElementById('slugPreview').textContent = e.target.value || 'company';
+});
+
 // Phone Functions
 function addPhone() {
     const container = document.getElementById('phoneNumbers');
     const div = document.createElement('div');
     div.className = 'phone-group grid grid-cols-1 md:grid-cols-3 gap-2 mb-2';
     div.innerHTML = `
-        <input type="text" name="additional_phones[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder=" {{ t('admin.phone_number') }}">
-        <input type="text" name="phone_labels[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder=" {{ t('admin.phone_label_placeholder') }}">
-        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t ('admin.delete') }} </button>
+        <input type="text" name="additional_phones[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_number') }}">
+        <input type="text" name="phone_labels[]" class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500" placeholder="{{ t('admin.phone_label_placeholder') }}">
+        <button type="button" onclick="removePhone(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">{{ t('admin.delete') }}</button>
     `;
     container.appendChild(div);
 }
@@ -269,7 +328,7 @@ function removePhone(btn) {
 
 // Map Functions
 function initMap() {
-    const defaultLocation = [30.0444, 31.2357]; // Cairo
+    const defaultLocation = [30.0444, 31.2357];
     const existingLat = parseFloat(document.getElementById('office_location_lat').value);
     const existingLng = parseFloat(document.getElementById('office_location_lng').value);
     const initialLocation = (existingLat && existingLng) ? [existingLat, existingLng] : defaultLocation;
@@ -302,7 +361,7 @@ function updateMarker(latlng) {
     document.getElementById('office_location_lat').value = lat.toFixed(8);
     document.getElementById('office_location_lng').value = lng.toFixed(8);
     updateLocationInfo({ lat, lng });
-    showNotification('تم تحديث الموقع', 'success');
+    showNotification('Location updated', 'success');
 }
 
 function openMap() {
@@ -320,11 +379,11 @@ function closeMap() {
 
 function getCurrentLocation() {
     if (!navigator.geolocation) {
-        showNotification('المتصفح لا يدعم تحديد الموقع', 'error');
+        showNotification('Geolocation not supported', 'error');
         return;
     }
 
-    showNotification('جاري تحديد الموقع...', 'info');
+    showNotification('Getting location...', 'info');
     navigator.geolocation.getCurrentPosition(function(position) {
         const location = { lat: position.coords.latitude, lng: position.coords.longitude };
         document.getElementById('office_location_lat').value = location.lat.toFixed(8);
@@ -336,14 +395,14 @@ function getCurrentLocation() {
             leafletMarker.setLatLng([location.lat, location.lng]);
         }
         
-        showNotification('تم تحديد الموقع بنجاح', 'success');
+        showNotification('Location set successfully', 'success');
     }, function(error) {
         const messages = {
-            1: 'تم رفض إذن الوصول للموقع',
-            2: 'الموقع غير متاح',
-            3: 'انتهت مهلة تحديد الموقع'
+            1: 'Location access denied',
+            2: 'Location unavailable',
+            3: 'Location timeout'
         };
-        showNotification(messages[error.code] || 'خطأ في تحديد الموقع', 'error');
+        showNotification(messages[error.code] || 'Location error', 'error');
     });
 }
 
@@ -358,7 +417,7 @@ function clearLocation() {
         leafletMarker.setLatLng(defaultLocation);
     }
     
-    showNotification('تم مسح الموقع', 'info');
+    showNotification('Location cleared', 'info');
 }
 
 function updateLocationInfo(location) {
@@ -404,11 +463,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Form validation
 document.getElementById('insuranceCompanyForm').addEventListener('submit', function(e) {
-    const required = ['legal_name', 'phone', 'commercial_register'];
+    const required = ['legal_name', 'phone', 'commercial_register', 'company_slug'];
     for (let field of required) {
         if (!document.getElementById(field).value.trim()) {
             e.preventDefault();
-            showNotification('الرجاء ملء جميع الحقول المطلوبة', 'error');
+            showNotification('Please fill all required fields', 'error');
             return false;
         }
     }
@@ -416,7 +475,14 @@ document.getElementById('insuranceCompanyForm').addEventListener('submit', funct
     const phone = document.getElementById('phone').value.trim();
     if (!/^01[0-9]{9}$/.test(phone)) {
         e.preventDefault();
-        showNotification('صيغة رقم الهاتف غير صحيحة', 'error');
+        showNotification('Invalid phone format', 'error');
+        return false;
+    }
+
+    const slug = document.getElementById('company_slug').value.trim();
+    if (!/^[a-z0-9\-]+$/.test(slug)) {
+        e.preventDefault();
+        showNotification('Company route can only contain lowercase letters, numbers and hyphens', 'error');
         return false;
     }
 });

@@ -22,7 +22,12 @@ class InsuranceCompany extends Authenticatable
         'office_location_lng',
         'office_address',
         'is_active',
-        'is_approved'
+        'is_approved',
+        'company_slug',
+        'translation_group',
+        'company_logo',
+        'primary_color',
+        'secondary_color'
     ];
 
     protected $hidden = [
@@ -41,7 +46,6 @@ class InsuranceCompany extends Authenticatable
         'office_location_lng' => 'decimal:8'
     ];
 
-    // Relations
     public function additionalPhones()
     {
         return $this->hasMany(InsuranceCompanyPhone::class);
@@ -52,7 +56,11 @@ class InsuranceCompany extends Authenticatable
         return $this->hasOne(InsuranceCompanyPhone::class)->where('is_primary', true);
     }
 
-    // Scopes
+    public function translationGroup()
+    {
+        return $this->hasMany(Translation::class, 'translation_group', 'translation_group');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -63,10 +71,14 @@ class InsuranceCompany extends Authenticatable
         return $query->where('is_approved', true);
     }
 
-    // Accessors
     public function getDisplayNameAttribute()
     {
         return $this->legal_name;
+    }
+
+    public function getCompanyRouteAttribute()
+    {
+        return $this->company_slug ?: 'insurance';
     }
 
     public function getStatusBadgeAttribute()
@@ -92,7 +104,6 @@ class InsuranceCompany extends Authenticatable
 
     public function getFormattedPhoneAttribute()
     {
-        // Format Egyptian phone numbers
         $phone = $this->phone;
         if (strlen($phone) == 11 && substr($phone, 0, 2) == '01') {
             return substr($phone, 0, 4) . ' ' . substr($phone, 4, 3) . ' ' . substr($phone, 7);
@@ -107,7 +118,6 @@ class InsuranceCompany extends Authenticatable
         return $phones->merge($additional)->unique()->values();
     }
 
-    // Check if company has complete profile
     public function hasCompleteProfile()
     {
         return !empty($this->legal_name) && 
@@ -115,7 +125,6 @@ class InsuranceCompany extends Authenticatable
                !empty($this->office_address);
     }
 
-    // Get company size category
     public function getSizeCategoryAttribute()
     {
         if (!$this->employee_count) return t('admin.not_specified');
@@ -123,5 +132,24 @@ class InsuranceCompany extends Authenticatable
         if ($this->employee_count < 50) return t('admin.small_company');
         if ($this->employee_count < 200) return t('admin.medium_company');
         return t('admin.large_company');
+    }
+
+    public function getLogoUrlAttribute()
+    {
+        if (!$this->company_logo) {
+            return asset('images/default-company-logo.png');
+        }
+        
+        return asset('storage/' . $this->company_logo);
+    }
+
+    public function getPrimaryColorAttribute($value)
+    {
+        return $value ?: '#10B981';
+    }
+
+    public function getSecondaryColorAttribute($value)
+    {
+        return $value ?: '#059669';
     }
 }

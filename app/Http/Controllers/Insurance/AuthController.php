@@ -11,26 +11,32 @@ use App\Models\InsuranceCompanyPhone;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(Request $request)
     {
+        $company = session('current_company');
+        
         if (Auth::guard('insurance_company')->check()) {
-            return redirect()->route('insurance.dashboard');
+            return redirect()->route('insurance.dashboard', ['companyRoute' => $company->company_slug]);
         }
         
-        return view('insurance.auth.login');
+        return view('insurance.auth.login', compact('company'));
     }
 
-    public function showRegister()
+    public function showRegister(Request $request)
     {
+        $company = session('current_company');
+        
         if (Auth::guard('insurance_company')->check()) {
-            return redirect()->route('insurance.dashboard');
+            return redirect()->route('insurance.dashboard', ['companyRoute' => $company->company_slug]);
         }
         
-        return view('insurance.auth.register');
+        return view('insurance.auth.register', compact('company'));
     }
 
     public function login(Request $request)
     {
+        $company = session('current_company');
+        
         $request->validate([
             'phone' => 'required|string',
             'password' => 'required|min:6',
@@ -39,12 +45,13 @@ class AuthController extends Controller
         $credentials = [
             'phone' => $request->phone,
             'password' => $request->password,
-            'is_active' => true
+            'is_active' => true,
+            'id' => $company->id
         ];
 
         if (Auth::guard('insurance_company')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('insurance.dashboard'));
+            return redirect()->route('insurance.dashboard', ['companyRoute' => $company->company_slug]);
         }
 
         return back()->withErrors([
@@ -54,6 +61,8 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        $company = session('current_company');
+        
         $request->validate([
             'phone' => 'required|string|max:20|unique:insurance_companies,phone',
             'password' => 'required|string|min:6|confirmed',
@@ -73,20 +82,22 @@ class AuthController extends Controller
             $data['password'] = Hash::make($request->password);
             $data['is_active'] = true;
             $data['is_approved'] = false;
+            $data['company_slug'] = $company->company_slug;
+            $data['translation_group'] = $company->translation_group;
 
-            $company = InsuranceCompany::create($data);
+            $newCompany = InsuranceCompany::create($data);
 
             InsuranceCompanyPhone::create([
-                'insurance_company_id' => $company->id,
-                'phone' => $company->phone,
+                'insurance_company_id' => $newCompany->id,
+                'phone' => $newCompany->phone,
                 'label' => t('admin.primary_phone', 'Primary Phone'),
                 'is_primary' => true
             ]);
 
-            Auth::guard('insurance_company')->login($company);
+            Auth::guard('insurance_company')->login($newCompany);
 
-            return redirect()->route('insurance.dashboard')->with('success', 
-                t('auth.registration_success', 'Account created successfully. Awaiting admin approval.'));
+            return redirect()->route('insurance.dashboard', ['companyRoute' => $company->company_slug])
+                ->with('success', t('auth.registration_success', 'Account created successfully. Awaiting admin approval.'));
                 
         } catch (\Exception $e) {
             return redirect()->back()
@@ -97,10 +108,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $company = session('current_company');
+        
         Auth::guard('insurance_company')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('insurance.login');
+        return redirect()->route('insurance.login', ['companyRoute' => $company->company_slug]);
     }
 }
