@@ -127,11 +127,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-// Default route redirect
 Route::get('/', function () {
-    return view('welcome');
-});
-
+    return redirect()->route('admin.login');
+})->name('home');
 
 // Redirect base paths to login pages
 Route::redirect('/admin', '/admin/login');
