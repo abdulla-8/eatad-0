@@ -1,5 +1,4 @@
 <?php
-// config/auth.php - Add these guards and providers
 
 return [
     'defaults' => [
@@ -27,6 +26,11 @@ return [
             'driver' => 'session',
             'provider' => 'insurance_companies',
         ],
+
+        'service_center' => [
+            'driver' => 'session',
+            'provider' => 'service_centers',
+        ],
     ],
 
     'providers' => [
@@ -48,6 +52,11 @@ return [
         'insurance_companies' => [
             'driver' => 'eloquent',
             'model' => App\Models\InsuranceCompany::class,
+        ],
+
+        'service_centers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ServiceCenter::class,
         ],
     ],
 
@@ -75,6 +84,13 @@ return [
 
         'insurance_companies' => [
             'provider' => 'insurance_companies',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'service_centers' => [
+            'provider' => 'service_centers',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

@@ -128,74 +128,124 @@
                                 </svg>
                                 {{ t('admin.specializations') }}
                             </a>
+                        <!-- New Industrial Areas -->
+                        <li>
+                            <a href="{{ route('admin.industrial-areas.index') }}"
+                                class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.industrial-areas.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                                <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                                الصناعيات
+                            </a>
                         </li>
 
+                        <!-- New Service Specializations -->
+                        <li>
+                            <a href="{{ route('admin.service-specializations.index') }}"
+                                class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.service-specializations.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                                <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                تخصصات الصيانة
+                            </a>
+                        </li>
                         <!-- Users Management Section with Dropdown -->
-        <li>
-            <div class="px-4 py-2">
-                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ t('admin.users_management') }}</h3>
-            </div>
-        </li>
-        
-        <li>
-            <button onclick="toggleUsersDropdown()" 
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
-                <div class="flex items-center">
-<svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-</svg>
-                    {{ t('admin.users') }}
-                </div>
-                <svg id="usersDropdownArrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-            
-            <!-- Dropdown Menu -->
-            <div id="usersDropdownMenu" class="hidden mt-2 space-y-1">
-                <a href="{{ route('admin.users.parts-dealers.index') }}" 
-                   class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.parts-dealers.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    {{ t('admin.parts_dealers') }}
-                </a>
+                        <li>
+                            <div class="px-4 py-2">
+                                <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                                    {{ t('admin.users_management') }}</h3>
+                            </div>
+                        </li>
 
-                <a href="{{ route('admin.users.insurance-companies.index') }}" 
-                   class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.insurance-companies.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                    {{ t('admin.insurance_companies') }}
-                </a>
-            </div>
-        </li>
+                        <li>
+                            <button onclick="toggleUsersDropdown()"
+                                class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                        </path>
+                                    </svg>
+                                    {{ t('admin.users') }}
+                                </div>
+                                <svg id="usersDropdownArrow" class="w-4 h-4 transition-transform duration-200"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
 
-<script>
-function toggleUsersDropdown() {
-    const menu = document.getElementById('usersDropdownMenu');
-    const arrow = document.getElementById('usersDropdownArrow');
-    
-    if (menu.classList.contains('hidden')) {
-        menu.classList.remove('hidden');
-        arrow.style.transform = 'rotate(180deg)';
-    } else {
-        menu.classList.add('hidden');
-        arrow.style.transform = 'rotate(0deg)';
-    }
-}
+                            <!-- Dropdown Menu -->
+                            <div id="usersDropdownMenu" class="hidden mt-2 space-y-1">
+                                <a href="{{ route('admin.users.parts-dealers.index') }}"
+                                    class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.parts-dealers.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                        </path>
+                                    </svg>
+                                    {{ t('admin.parts_dealers') }}
+                                </a>
 
-// Auto-open dropdown if on users pages
-document.addEventListener('DOMContentLoaded', function() {
-    const currentPath = window.location.pathname;
-    if (currentPath.includes('/admin/users/')) {
-        const menu = document.getElementById('usersDropdownMenu');
-        const arrow = document.getElementById('usersDropdownArrow');
-        menu.classList.remove('hidden');
-        arrow.style.transform = 'rotate(180deg)';
-    }
-});
-</script>
+                                <a href="{{ route('admin.users.insurance-companies.index') }}"
+                                    class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.insurance-companies.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                        </path>
+                                    </svg>
+                                    {{ t('admin.insurance_companies') }}
+                                </a>
+
+
+                                <!-- New Service Centers -->
+                                <a href="{{ route('admin.users.service-centers.index') }}" 
+                                   class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.service-centers.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    مراكز الصيانة
+                                </a>
+                            </div>
+                        </li>
+
+                        <script>
+                            function toggleUsersDropdown() {
+                                const menu = document.getElementById('usersDropdownMenu');
+                                const arrow = document.getElementById('usersDropdownArrow');
+
+                                if (menu.classList.contains('hidden')) {
+                                    menu.classList.remove('hidden');
+                                    arrow.style.transform = 'rotate(180deg)';
+                                } else {
+                                    menu.classList.add('hidden');
+                                    arrow.style.transform = 'rotate(0deg)';
+                                }
+                            }
+
+                            // Auto-open dropdown if on users pages
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const currentPath = window.location.pathname;
+                                if (currentPath.includes('/admin/users/')) {
+                                    const menu = document.getElementById('usersDropdownMenu');
+                                    const arrow = document.getElementById('usersDropdownArrow');
+                                    menu.classList.remove('hidden');
+                                    arrow.style.transform = 'rotate(180deg)';
+                                }
+                            });
+                        </script>
                     </ul>
                 </nav>
 

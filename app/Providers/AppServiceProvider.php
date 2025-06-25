@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with([
                 'currentLanguage' => $currentLanguage,
                 'activeLanguages' => TranslationHelper::getActiveLanguages(),
-                'isRtl' => $isRtl, // هنا كان المشكلة - كان مجبر على false
+                'isRtl' => $isRtl, 
                 'fontLink' => $fontLink,
             ]);
         });
