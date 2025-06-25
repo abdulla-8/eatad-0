@@ -1,31 +1,40 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+// Admin Controllers
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Admin\TranslationController;
 use App\Http\Controllers\Admin\SpecializationController;
 use App\Http\Controllers\Admin\UsersManagementController;
-
-use App\Http\Controllers\PartsDealer\AuthController as DealerAuthController;
-use App\Http\Controllers\PartsDealer\DashboardController as DealerDashboardController;
-
-use App\Http\Controllers\Insurance\AuthController as InsuranceAuthController;
-use App\Http\Controllers\Insurance\DashboardController as InsuranceDashboardController;
-
-
-//  Service Center Controllers
 use App\Http\Controllers\Admin\ServiceCenterManagementController;
 use App\Http\Controllers\Admin\IndustrialAreaController;
 use App\Http\Controllers\Admin\ServiceSpecializationController;
+
+// Parts Dealer Controllers
+use App\Http\Controllers\PartsDealer\AuthController as DealerAuthController;
+use App\Http\Controllers\PartsDealer\DashboardController as DealerDashboardController;
+
+// Insurance Company Controllers
+use App\Http\Controllers\Insurance\AuthController as InsuranceAuthController;
+use App\Http\Controllers\Insurance\DashboardController as InsuranceDashboardController;
+
+// Service Center Controllers
 use App\Http\Controllers\ServiceCenter\AuthController as ServiceCenterAuthController;
 use App\Http\Controllers\ServiceCenter\DashboardController as ServiceCenterDashboardController;
 
-
+// Language switching route (should be first)
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
 
+// Home route
+Route::get('/', function () {
+    return redirect()->route('admin.login');
+})->name('home');
+
+// Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['guest:admin'])->group(function () {
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -107,9 +116,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{insuranceCompany}/approve', [UsersManagementController::class, 'insuranceCompaniesApprove'])->name('approve');
             });
 
-            Route::get('/stats', [UsersManagementController::class, 'usersStats'])->name('stats');
-
-
             Route::prefix('service-centers')->name('service-centers.')->group(function () {
                 Route::get('/', [ServiceCenterManagementController::class, 'serviceCentersIndex'])->name('index');
                 Route::get('/create', [ServiceCenterManagementController::class, 'serviceCentersCreate'])->name('create');
@@ -121,11 +127,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{serviceCenter}/approve', [ServiceCenterManagementController::class, 'serviceCentersApprove'])->name('approve');
             });
 
+            Route::get('/stats', [UsersManagementController::class, 'usersStats'])->name('stats');
             Route::get('/service-centers-stats', [ServiceCenterManagementController::class, 'serviceCentersStats'])->name('service-centers-stats');
         });
     });
 });
 
+// Parts Dealer Routes
 Route::prefix('dealer')->name('dealer.')->group(function () {
     Route::middleware(['guest:parts_dealer'])->group(function () {
         Route::get('/login', [DealerAuthController::class, 'showLogin'])->name('login');
@@ -140,11 +148,24 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
     });
 });
 
-Route::get('/', function () {
-    return redirect()->route('admin.login');
-})->name('home');
+// Service Center Routes (Fixed)
+Route::prefix('service-center')->name('service-center.')->group(function () {
+    // Guest routes (login/register)
+    Route::middleware(['guest:service_center'])->group(function () {
+        Route::get('/login', [ServiceCenterAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [ServiceCenterAuthController::class, 'login']);
+        Route::get('/register', [ServiceCenterAuthController::class, 'showRegister'])->name('register');
+        Route::post('/register', [ServiceCenterAuthController::class, 'register']);
+    });
 
+    // Authenticated routes
+    Route::middleware(['auth:service_center'])->group(function () {
+        Route::get('/dashboard', [ServiceCenterDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/logout', [ServiceCenterAuthController::class, 'logout'])->name('logout');
+    });
+});
 
+// Insurance Company Routes (with dynamic company route)
 Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'])->group(function () {
     Route::middleware(['guest:insurance_company'])->group(function () {
         Route::get('/login', [InsuranceAuthController::class, 'showLogin'])->name('login');
@@ -156,22 +177,5 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
     Route::middleware(['auth:insurance_company'])->group(function () {
         Route::get('/dashboard', [InsuranceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceAuthController::class, 'logout'])->name('logout');
-    });
-});
-
-
-
-
-Route::prefix('service-center')->name('service-center.')->group(function () {
-    Route::middleware(['guest:service_center'])->group(function () {
-        Route::get('/login', [ServiceCenterAuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [ServiceCenterAuthController::class, 'login']);
-        Route::get('/register', [ServiceCenterAuthController::class, 'showRegister'])->name('register');
-        Route::post('/register', [ServiceCenterAuthController::class, 'register']);
-    });
-
-    Route::middleware(['auth:service_center'])->group(function () {
-        Route::get('/dashboard', [ServiceCenterDashboardController::class, 'index'])->name('dashboard');
-        Route::post('/logout', [ServiceCenterAuthController::class, 'logout'])->name('logout');
     });
 });

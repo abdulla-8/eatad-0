@@ -11,10 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Apply language middleware to all web routes
         $middleware->web(append: [
             \App\Http\Middleware\SetLanguage::class,
         ]);
         
+        // Register middleware aliases
         $middleware->alias([
             'set.language' => \App\Http\Middleware\SetLanguage::class,
             'company.route' => \App\Http\Middleware\CompanyRouteMiddleware::class,
