@@ -242,7 +242,7 @@
             <!-- Map Controls -->
             <div class="flex gap-2 flex-wrap mb-2">
                 <button type="button" onclick="openMap()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
-                    📍 Open Map
+                    📍 {{ t('admin.open_map') }}
                 </button>
                 <button type="button" onclick="getCurrentLocation()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
                     📌 {{ t('admin.get_current_location') }}
