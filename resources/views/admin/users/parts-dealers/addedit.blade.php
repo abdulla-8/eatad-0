@@ -1,7 +1,16 @@
 @extends('admin.layouts.app')
 
 @section('title', isset($partsDealer) ? t('admin.edit_parts_dealer') : t('admin.add_parts_dealer'))
-
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+.compact-form { font-size: 0.875rem; }
+.compact-form input, .compact-form textarea, .compact-form select { padding: 0.375rem 0.75rem; }
+.compact-form .form-group { margin-bottom: 0.75rem; }
+.compact-form .section-title { font-size: 1rem; padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 0.75rem; }
+.leaflet-container { height: 250px; border-radius: 0.375rem; }
+</style>
+@endpush
 @section('content')
 
 <!-- Page Header -->
@@ -218,45 +227,50 @@
                 </div>
                 
                 <!-- Map Location -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        {{ t('admin.map_location') }}
-                    </label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <input type="number" 
-                                   id="shop_location_lat" 
-                                   name="shop_location_lat" 
-                                   step="any"
-                                   value="{{ old('shop_location_lat', $partsDealer->shop_location_lat ?? '') }}"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 @error('shop_location_lat') border-red-500 @enderror"
-                                   placeholder="{{ t('admin.latitude') }}">
-                            @error('shop_location_lat')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <div>
-                            <input type="number" 
-                                   id="shop_location_lng" 
-                                   name="shop_location_lng" 
-                                   step="any"
-                                   value="{{ old('shop_location_lng', $partsDealer->shop_location_lng ?? '') }}"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 @error('shop_location_lng') border-red-500 @enderror"
-                                   placeholder="{{ t('admin.longitude') }}">
-                            @error('shop_location_lng')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">{{ t('admin.map_location_help') }}</p>
-                    
-                    <!-- Get Current Location Button -->
-                    <button type="button" 
-                            onclick="getCurrentLocation()" 
-                            class="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                        {{ t('admin.get_current_location') }}
-                    </button>
+         <!-- Map Section -->
+        <div class="mb-4">
+            <label class="block font-medium text-gray-700 mb-1">{{ t('admin.map_location') }}</label>
+            
+            <!-- Coordinates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+                <input type="number" id="office_location_lat" name="office_location_lat" step="any"
+                       value="{{ old('office_location_lat', $insuranceCompany->office_location_lat ?? '') }}"
+                       class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('office_location_lat') border-red-500 @enderror"
+                       placeholder="{{ t('admin.latitude') }}" readonly>
+                <input type="number" id="office_location_lng" name="office_location_lng" step="any"
+                       value="{{ old('office_location_lng', $insuranceCompany->office_location_lng ?? '') }}"
+                       class="border border-gray-300 rounded focus:ring-2 focus:ring-gold-500 @error('office_location_lng') border-red-500 @enderror"
+                       placeholder="{{ t('admin.longitude') }}" readonly>
+            </div>
+            
+            <!-- Map Controls -->
+            <div class="flex gap-2 flex-wrap mb-2">
+                <button type="button" onclick="openMap()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                    📍 {{ t('admin.open_map') }}
+                </button>
+                <button type="button" onclick="getCurrentLocation()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
+                    📌 {{ t('admin.get_current_location') }}
+                </button>
+                <button type="button" onclick="clearLocation()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-xs">
+                    🗑️ {{ t('admin.clear_location') }}
+                </button>
+            </div>
+            
+            <!-- Map Container -->
+            <div id="mapContainer" class="hidden">
+                <div id="leafletMap" class="leaflet-container border border-gray-300 mb-2"></div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-gray-600">Click on map to set location</span>
+                    <button type="button" onclick="closeMap()" class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded">Close</button>
                 </div>
+            </div>
+            
+            <!-- Location Display -->
+            <div id="locationInfo" class="hidden mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs">
+                <span class="text-green-800">Location set: </span>
+                <span id="locationDetails" class="text-green-600"></span>
+            </div>
+        </div>
             </div>
         </div>
         
@@ -312,32 +326,147 @@
     </form>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// Get current location using browser geolocation
-function getCurrentLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            document.getElementById('shop_location_lat').value = position.coords.latitude.toFixed(8);
-            document.getElementById('shop_location_lng').value = position.coords.longitude.toFixed(8);
-            
-            // Show success message
-            const message = document.createElement('div');
-            message.className = 'fixed top-4 {{ $isRtl ? "left-4" : "right-4" }} bg-green-500 text-white px-3 py-1 rounded text-sm z-50';
-            message.textContent = '{{ t("admin.location_updated") }}';
-            document.body.appendChild(message);
-            
-            setTimeout(() => {
-                if (message.parentNode) {
-                    message.parentNode.removeChild(message);
-                }
-            }, 3000);
-        }, function(error) {
-            alert('{{ t("admin.location_error") }}: ' + error.message);
-        });
+let leafletMap, leafletMarker, isMapInitialized = false;
+
+
+// Map Functions
+function initMap() {
+    const defaultLocation = [30.0444, 31.2357];
+    const existingLat = parseFloat(document.getElementById('office_location_lat').value);
+    const existingLng = parseFloat(document.getElementById('office_location_lng').value);
+    const initialLocation = (existingLat && existingLng) ? [existingLat, existingLng] : defaultLocation;
+
+    leafletMap = L.map('leafletMap').setView(initialLocation, 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(leafletMap);
+
+    leafletMarker = L.marker(initialLocation, { draggable: true }).addTo(leafletMap);
+
+    leafletMap.on('click', function(e) {
+        updateMarker(e.latlng);
+    });
+
+    leafletMarker.on('dragend', function(e) {
+        updateMarker(e.target.getLatLng());
+    });
+
+    if (existingLat && existingLng) {
+        updateLocationInfo({ lat: existingLat, lng: existingLng });
+    }
+
+    isMapInitialized = true;
+}
+
+function updateMarker(latlng) {
+    const lat = latlng.lat, lng = latlng.lng;
+    leafletMarker.setLatLng([lat, lng]);
+    document.getElementById('office_location_lat').value = lat.toFixed(8);
+    document.getElementById('office_location_lng').value = lng.toFixed(8);
+    updateLocationInfo({ lat, lng });
+    showNotification('Location updated', 'success');
+}
+
+function openMap() {
+    document.getElementById('mapContainer').classList.remove('hidden');
+    if (!isMapInitialized) {
+        initMap();
     } else {
-        alert('{{ t("admin.geolocation_not_supported") }}');
+        setTimeout(() => leafletMap.invalidateSize(), 100);
     }
 }
+
+function closeMap() {
+    document.getElementById('mapContainer').classList.add('hidden');
+}
+
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        showNotification('Geolocation not supported', 'error');
+        return;
+    }
+
+    showNotification('Getting location...', 'info');
+    navigator.geolocation.getCurrentPosition(function(position) {
+        const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+        document.getElementById('office_location_lat').value = location.lat.toFixed(8);
+        document.getElementById('office_location_lng').value = location.lng.toFixed(8);
+        updateLocationInfo(location);
+        
+        if (!document.getElementById('mapContainer').classList.contains('hidden') && isMapInitialized) {
+            leafletMap.setView([location.lat, location.lng], 15);
+            leafletMarker.setLatLng([location.lat, location.lng]);
+        }
+        
+        showNotification('Location set successfully', 'success');
+    }, function(error) {
+        const messages = {
+            1: 'Location access denied',
+            2: 'Location unavailable',
+            3: 'Location timeout'
+        };
+        showNotification(messages[error.code] || 'Location error', 'error');
+    });
+}
+
+function clearLocation() {
+    document.getElementById('office_location_lat').value = '';
+    document.getElementById('office_location_lng').value = '';
+    document.getElementById('locationInfo').classList.add('hidden');
+    
+    if (!document.getElementById('mapContainer').classList.contains('hidden') && isMapInitialized) {
+        const defaultLocation = [30.0444, 31.2357];
+        leafletMap.setView(defaultLocation, 10);
+        leafletMarker.setLatLng(defaultLocation);
+    }
+    
+    showNotification('Location cleared', 'info');
+}
+
+function updateLocationInfo(location) {
+    document.getElementById('locationDetails').textContent = `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`;
+    document.getElementById('locationInfo').classList.remove('hidden');
+}
+
+function showNotification(message, type) {
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500'
+    };
+    
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-3 py-2 rounded text-sm z-50`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Form Events
+document.addEventListener('DOMContentLoaded', function() {
+    // Phone formatting
+    document.getElementById('phone').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 11);
+    });
+
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'additional_phones[]') {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 11);
+        }
+    });
+
+    // Show existing location
+    const existingLat = document.getElementById('office_location_lat').value;
+    const existingLng = document.getElementById('office_location_lng').value;
+    if (existingLat && existingLng) {
+        updateLocationInfo({ lat: parseFloat(existingLat), lng: parseFloat(existingLng) });
+    }
+});
+
+
 
 // Phone number formatting
 document.getElementById('phone').addEventListener('input', function(e) {

@@ -53,7 +53,7 @@
         
         <!-- Actions -->
         <div class="flex items-end space-x-2">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors me-2">
                 {{ t('admin.filter', 'Filter') }}
             </button>
             <a href="{{ route('admin.translations.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
@@ -93,7 +93,7 @@
             </div>
         </div>
         <div class="flex justify-end space-x-2 mt-4">
-            <button type="button" onclick="toggleAddForm()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+            <button type="button" onclick="toggleAddForm()" class="bg-gray-500 hover:bg-gray-600 me-2 text-white px-4 py-2 rounded-lg transition-colors">
                 {{ t('admin.cancel', 'Cancel') }}
             </button>
             <button type="submit" class="bg-gold-500 hover:bg-gold-600 text-dark-900 px-4 py-2 rounded-lg font-medium transition-colors">
@@ -123,16 +123,16 @@
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{{ t('admin.group', 'Group') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{{ t('admin.key', 'Key') }}</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">{{ t('admin.value', 'Value') }}</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase">{{ t('admin.actions', 'Actions') }}</th>
+                        <th class=" py-3  text-xs font-semibold text-gray-600 uppercase">{{ t('admin.group', 'Group') }}</th>
+                        <th class=" py-3  text-xs font-semibold text-gray-600 uppercase">{{ t('admin.key', 'Key') }}</th>
+                        <th class=" py-3  text-xs font-semibold text-gray-600 uppercase">{{ t('admin.value', 'Value') }}</th>
+                        <th class=" py-3  text-xs font-semibold text-gray-600 uppercase">{{ t('admin.actions', 'Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach($translations as $translation)
                         <tr class="hover:bg-gray-50" id="row-{{ $translation->id }}">
-                            <td class="px-6 py-4">
+                            <td class=" py-4">
                                 <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">{{ $translation->group }}</span>
                             </td>
                             <td class="px-6 py-4">
@@ -162,7 +162,7 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center space-x-2">
-                                    <button onclick="editTranslation({{ $translation->id }})" class="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors">
+                                    <button onclick="editTranslation({{ $translation->id }})" class="p-2 me-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
@@ -198,7 +198,7 @@
                         <p class="text-gray-900 text-sm">{{ $translation->translation_value }}</p>
                     </div>
                     <div class="flex items-center justify-center space-x-3 pt-3 border-t border-gray-200">
-                        <button onclick="editTranslation({{ $translation->id }})" class="flex items-center px-3 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium transition-colors">
+                        <button onclick="editTranslation({{ $translation->id }})" class="flex  items-center px-3 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium transition-colors">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
