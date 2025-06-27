@@ -26,6 +26,11 @@ use App\Http\Controllers\Insurance\DashboardController as InsuranceDashboardCont
 use App\Http\Controllers\ServiceCenter\AuthController as ServiceCenterAuthController;
 use App\Http\Controllers\ServiceCenter\DashboardController as ServiceCenterDashboardController;
 
+
+//  Insurance User Controllers
+use App\Http\Controllers\InsuranceUser\AuthController as InsuranceUserAuthController;
+use App\Http\Controllers\InsuranceUser\DashboardController as InsuranceUserDashboardController;
+
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
 
@@ -166,10 +171,10 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
     });
 });
 
-Route::prefix('login')->name('insurance.')->group(function () {
+Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'])->group(function () {
     Route::middleware(['guest:insurance_company'])->group(function () {
-        Route::get('/', [InsuranceAuthController::class, 'showLogin'])->name('login');
-        Route::post('/', [InsuranceAuthController::class, 'login']);
+        Route::get('/login', [InsuranceAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [InsuranceAuthController::class, 'login']);
         Route::get('/register', [InsuranceAuthController::class, 'showRegister'])->name('register');
         Route::post('/register', [InsuranceAuthController::class, 'register']);
     });
@@ -177,5 +182,20 @@ Route::prefix('login')->name('insurance.')->group(function () {
     Route::middleware(['auth:insurance_company'])->group(function () {
         Route::get('/dashboard', [InsuranceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceAuthController::class, 'logout'])->name('logout');
+    });
+});
+
+
+Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['company.route'])->group(function () {
+    Route::middleware(['guest:insurance_user'])->group(function () {
+        Route::get('/login', [InsuranceUserAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [InsuranceUserAuthController::class, 'login']);
+        Route::get('/register', [InsuranceUserAuthController::class, 'showRegister'])->name('register');
+        Route::post('/register', [InsuranceUserAuthController::class, 'register']);
+    });
+
+    Route::middleware(['auth:insurance_user'])->group(function () {
+        Route::get('/dashboard', [InsuranceUserDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/logout', [InsuranceUserAuthController::class, 'logout'])->name('logout');
     });
 });

@@ -27,6 +27,11 @@ return [
             'provider' => 'insurance_companies',
         ],
 
+        'insurance_user' => [
+            'driver' => 'session',
+            'provider' => 'insurance_users',
+        ],
+
         'service_center' => [
             'driver' => 'session',
             'provider' => 'service_centers',
@@ -52,6 +57,11 @@ return [
         'insurance_companies' => [
             'driver' => 'eloquent',
             'model' => App\Models\InsuranceCompany::class,
+        ],
+
+        'insurance_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\InsuranceUser::class,
         ],
 
         'service_centers' => [
@@ -84,6 +94,13 @@ return [
 
         'insurance_companies' => [
             'provider' => 'insurance_companies',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'insurance_users' => [
+            'provider' => 'insurance_users',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
