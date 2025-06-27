@@ -9,29 +9,22 @@ use App\Models\InsuranceCompany;
 
 class DashboardController extends Controller
 {
-    protected $company;
-
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $companySlug = $request->route('companySlug');
-            $this->company = InsuranceCompany::where('company_slug', $companySlug)
-                ->where('is_active', true)
-                ->where('is_approved', true)
-                ->firstOrFail();
-            
-            view()->share('company', $this->company);
-            return $next($request);
-        });
-    }
-
     public function index(Request $request)
     {
+        // Get company from route parameter
+        $companySlug = $request->route('companySlug');
+        $company = InsuranceCompany::where('company_slug', $companySlug)
+            ->where('is_active', true)
+            ->where('is_approved', true)
+            ->firstOrFail();
+
+        // Get current user
         $user = Auth::guard('insurance_user')->user();
         
-        if ($user->insurance_company_id !== $this->company->id) {
+        // Check if user belongs to this company
+        if ($user->insurance_company_id !== $company->id) {
             Auth::guard('insurance_user')->logout();
-            return redirect()->route('insurance.user.login', $this->company->company_slug);
+            return redirect()->route('insurance.user.login', $companySlug);
         }
 
         $stats = [
@@ -44,12 +37,12 @@ class DashboardController extends Controller
                 'last_login' => $user->updated_at->format('Y/m/d H:i')
             ],
             'company_info' => [
-                'name' => $this->company->legal_name,
-                'phone' => $this->company->formatted_phone,
-                'address' => $this->company->office_address
+                'name' => $company->legal_name,
+                'phone' => $company->formatted_phone,
+                'address' => $company->office_address
             ]
         ];
 
-        return view('insurance-user.dashboard.index', compact('stats', 'user'));
+        return view('insurance-user.dashboard.index', compact('stats', 'user', 'company'));
     }
 }

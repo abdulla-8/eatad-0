@@ -14,33 +14,35 @@ class AuthController extends Controller
 {
     protected $company;
 
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $companySlug = $request->route('companySlug');
-            $this->company = InsuranceCompany::where('company_slug', $companySlug)
-                ->where('is_active', true)
-                ->where('is_approved', true)
-                ->firstOrFail();
-            
-            view()->share('company', $this->company);
-            return $next($request);
-        });
-    }
-
     public function showLogin(Request $request)
     {
+        // Check if user is already logged in
         if (Auth::guard('insurance_user')->check()) {
-            return redirect()->route('insurance.user.dashboard', $this->company->company_slug);
+            $companySlug = $request->route('companySlug');
+            return redirect()->route('insurance.user.dashboard', $companySlug);
         }
 
+        // Get company from route parameter
+        $companySlug = $request->route('companySlug');
+        $company = InsuranceCompany::where('company_slug', $companySlug)
+            ->where('is_active', true)
+            ->where('is_approved', true)
+            ->firstOrFail();
+
         return view('insurance-user.auth.login', [
-            'company' => $this->company
+            'company' => $company
         ]);
     }
 
     public function login(Request $request)
     {
+        // Get company from route parameter
+        $companySlug = $request->route('companySlug');
+        $company = InsuranceCompany::where('company_slug', $companySlug)
+            ->where('is_active', true)
+            ->where('is_approved', true)
+            ->firstOrFail();
+
         $validator = Validator::make($request->all(), [
             'phone' => 'required|string',
             'password' => 'required|string',
@@ -55,13 +57,13 @@ class AuthController extends Controller
         $credentials = [
             'phone' => $request->phone,
             'password' => $request->password,
-            'insurance_company_id' => $this->company->id,
+            'insurance_company_id' => $company->id,
             'is_active' => true
         ];
 
         if (Auth::guard('insurance_user')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('insurance.user.dashboard', $this->company->company_slug));
+            return redirect()->intended(route('insurance.user.dashboard', $companySlug));
         }
 
         return redirect()->back()
@@ -71,17 +73,33 @@ class AuthController extends Controller
 
     public function showRegister(Request $request)
     {
+        // Check if user is already logged in
         if (Auth::guard('insurance_user')->check()) {
-            return redirect()->route('insurance.user.dashboard', $this->company->company_slug);
+            $companySlug = $request->route('companySlug');
+            return redirect()->route('insurance.user.dashboard', $companySlug);
         }
 
+        // Get company from route parameter
+        $companySlug = $request->route('companySlug');
+        $company = InsuranceCompany::where('company_slug', $companySlug)
+            ->where('is_active', true)
+            ->where('is_approved', true)
+            ->firstOrFail();
+
         return view('insurance-user.auth.register', [
-            'company' => $this->company
+            'company' => $company
         ]);
     }
 
     public function register(Request $request)
     {
+        // Get company from route parameter
+        $companySlug = $request->route('companySlug');
+        $company = InsuranceCompany::where('company_slug', $companySlug)
+            ->where('is_active', true)
+            ->where('is_approved', true)
+            ->firstOrFail();
+
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20|unique:insurance_users,phone',
@@ -98,7 +116,7 @@ class AuthController extends Controller
 
         try {
             $user = InsuranceUser::create([
-                'insurance_company_id' => $this->company->id,
+                'insurance_company_id' => $company->id,
                 'full_name' => $request->full_name,
                 'phone' => $request->phone,
                 'national_id' => $request->national_id,
@@ -109,7 +127,7 @@ class AuthController extends Controller
 
             Auth::guard('insurance_user')->login($user);
 
-            return redirect()->route('insurance.user.dashboard', $this->company->company_slug)
+            return redirect()->route('insurance.user.dashboard', $companySlug)
                 ->with('success', t('auth.registration_successful'));
 
         } catch (\Exception $e) {
@@ -121,11 +139,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $companySlug = $request->route('companySlug');
+        
         Auth::guard('insurance_user')->logout();
         
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('insurance.user.login', $this->company->company_slug);
+        return redirect()->route('insurance.user.login', $companySlug);
     }
 }
