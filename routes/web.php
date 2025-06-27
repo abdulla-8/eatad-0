@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UsersManagementController;
 use App\Http\Controllers\Admin\ServiceCenterManagementController;
 use App\Http\Controllers\Admin\IndustrialAreaController;
 use App\Http\Controllers\Admin\ServiceSpecializationController;
+use App\Http\Controllers\Admin\InsuranceUsersManagementController;
 
 // Parts Dealer Controllers
 use App\Http\Controllers\PartsDealer\AuthController as DealerAuthController;
@@ -25,16 +26,13 @@ use App\Http\Controllers\Insurance\DashboardController as InsuranceDashboardCont
 use App\Http\Controllers\ServiceCenter\AuthController as ServiceCenterAuthController;
 use App\Http\Controllers\ServiceCenter\DashboardController as ServiceCenterDashboardController;
 
-// Language switching route (should be first)
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
 
-// Home route
 Route::get('/', function () {
     return redirect()->route('admin.login');
 })->name('home');
 
-// Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['guest:admin'])->group(function () {
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -69,7 +67,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/update-order', [SpecializationController::class, 'updateOrder'])->name('updateOrder');
         });
 
-        // Industrial Areas Management
         Route::prefix('industrial-areas')->name('industrial-areas.')->group(function () {
             Route::get('/', [IndustrialAreaController::class, 'index'])->name('index');
             Route::get('/create', [IndustrialAreaController::class, 'create'])->name('create');
@@ -81,7 +78,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/update-order', [IndustrialAreaController::class, 'updateOrder'])->name('updateOrder');
         });
 
-        // Service Specializations Management
         Route::prefix('service-specializations')->name('service-specializations.')->group(function () {
             Route::get('/', [ServiceSpecializationController::class, 'index'])->name('index');
             Route::get('/create', [ServiceSpecializationController::class, 'create'])->name('create');
@@ -114,7 +110,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{insuranceCompany}', [UsersManagementController::class, 'insuranceCompaniesDestroy'])->name('destroy');
                 Route::post('/{insuranceCompany}/toggle', [UsersManagementController::class, 'insuranceCompaniesToggle'])->name('toggle');
                 Route::post('/{insuranceCompany}/approve', [UsersManagementController::class, 'insuranceCompaniesApprove'])->name('approve');
+
+                Route::prefix('{insuranceCompany}/users')->name('insurance-users.')->group(function () {
+                    Route::get('/', [InsuranceUsersManagementController::class, 'index'])->name('index');
+                    Route::post('/{user}/toggle', [InsuranceUsersManagementController::class, 'toggle'])->name('toggle');
+                    Route::delete('/{user}', [InsuranceUsersManagementController::class, 'destroy'])->name('destroy');
+                    Route::post('/{user}/reset-password', [InsuranceUsersManagementController::class, 'resetPassword'])->name('reset-password');
+                });
             });
+
+            Route::get('/insurance-users-stats', [InsuranceUsersManagementController::class, 'stats'])->name('insurance-users-stats');
 
             Route::prefix('service-centers')->name('service-centers.')->group(function () {
                 Route::get('/', [ServiceCenterManagementController::class, 'serviceCentersIndex'])->name('index');
@@ -133,7 +138,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-// Parts Dealer Routes
 Route::prefix('dealer')->name('dealer.')->group(function () {
     Route::middleware(['guest:parts_dealer'])->group(function () {
         Route::get('/login', [DealerAuthController::class, 'showLogin'])->name('login');
@@ -148,9 +152,7 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
     });
 });
 
-// Service Center Routes (Fixed)
 Route::prefix('service-center')->name('service-center.')->group(function () {
-    // Guest routes (login/register)
     Route::middleware(['guest:service_center'])->group(function () {
         Route::get('/login', [ServiceCenterAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [ServiceCenterAuthController::class, 'login']);
@@ -158,18 +160,16 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
         Route::post('/register', [ServiceCenterAuthController::class, 'register']);
     });
 
-    // Authenticated routes
     Route::middleware(['auth:service_center'])->group(function () {
         Route::get('/dashboard', [ServiceCenterDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [ServiceCenterAuthController::class, 'logout'])->name('logout');
     });
 });
 
-// Insurance Company Routes (with dynamic company route)
-Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'])->group(function () {
+Route::prefix('login')->name('insurance.')->group(function () {
     Route::middleware(['guest:insurance_company'])->group(function () {
-        Route::get('/login', [InsuranceAuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [InsuranceAuthController::class, 'login']);
+        Route::get('/', [InsuranceAuthController::class, 'showLogin'])->name('login');
+        Route::post('/', [InsuranceAuthController::class, 'login']);
         Route::get('/register', [InsuranceAuthController::class, 'showRegister'])->name('register');
         Route::post('/register', [InsuranceAuthController::class, 'register']);
     });

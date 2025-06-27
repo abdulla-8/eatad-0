@@ -61,6 +61,16 @@ class InsuranceCompany extends Authenticatable
         return $this->hasMany(Translation::class, 'translation_group', 'translation_group');
     }
 
+    public function users()
+    {
+        return $this->hasMany(InsuranceUser::class);
+    }
+
+    public function activeUsers()
+    {
+        return $this->hasMany(InsuranceUser::class)->where('is_active', true);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -151,5 +161,20 @@ class InsuranceCompany extends Authenticatable
     public function getSecondaryColorAttribute($value)
     {
         return $value ?: '#059669';
+    }
+
+    public function getUsersCountAttribute()
+    {
+        return $this->users()->count();
+    }
+
+    public function getActiveUsersCountAttribute()
+    {
+        return $this->users()->where('is_active', true)->count();
+    }
+
+    public function getInactiveUsersCountAttribute()
+    {
+        return $this->users()->where('is_active', false)->count();
     }
 }

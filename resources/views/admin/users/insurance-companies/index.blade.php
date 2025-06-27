@@ -4,7 +4,6 @@
 
 @section('content')
 
-<!-- Page Header -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
     <div>
         <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">{{ t('admin.insurance_companies_management') }}</h1>
@@ -28,7 +27,6 @@
     </div>
 </div>
 
-<!-- Stats Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <div class="flex items-center justify-between">
@@ -87,7 +85,6 @@
     </div>
 </div>
 
-<!-- Companies Container -->
 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
     <div class="bg-gold-500 text-dark-900 px-6 py-4">
         <h2 class="text-lg font-bold flex items-center">
@@ -99,7 +96,6 @@
     </div>
     
     @if($companies->count() > 0)
-        <!-- Desktop Table -->
         <div class="hidden md:block overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50">
@@ -181,17 +177,32 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex items-center justify-center space-x-2 {{ $isRtl ? 'space-x-reverse' : '' }}">
-                                    <a href="{{ route('admin.users.insurance-companies.edit', $company) }}" class="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors">
+                                    <a href="{{ route('admin.users.insurance-companies.insurance-users.index', $company) }}" 
+                                       class="p-2 rounded-lg bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors"
+                                       title="{{ t('admin.view_users') }}">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                                         </svg>
                                     </a>
-                                    
+
+                                    <a href="{{ route('admin.users.insurance-companies.edit', $company) }}" 
+                                       class="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                       title="{{ t('admin.edit') }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </a>
+
                                     <form method="POST" action="{{ route('admin.users.insurance-companies.toggle', $company) }}" class="inline">
                                         @csrf
-                                        <button type="submit" class="p-2 rounded-lg {{ $company->is_active ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-green-100 text-green-600 hover:bg-green-200' }} transition-colors">
+                                        <button type="submit" 
+                                                class="p-2 rounded-lg {{ $company->is_active ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-green-100 text-green-600 hover:bg-green-200' }} transition-colors"
+                                                title="{{ $company->is_active ? t('admin.deactivate') : t('admin.activate') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $company->is_active ? 'M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z' : 'M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-10 5a9 9 0 1118 0 9 9 0 01-18 0z' }}"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                      d="{{ $company->is_active ? 'M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z' : 'M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-10 5a9 9 0 1118 0 9 9 0 01-18 0z' }}"></path>
                                             </svg>
                                         </button>
                                     </form>
@@ -199,20 +210,27 @@
                                     @if(!$company->is_approved)
                                         <form method="POST" action="{{ route('admin.users.insurance-companies.approve', $company) }}" class="inline">
                                             @csrf
-                                            <button type="submit" class="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors" title="{{ t('admin.approve') }}">
+                                            <button type="submit" 
+                                                    class="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors" 
+                                                    title="{{ t('admin.approve') }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
                                             </button>
                                         </form>
                                     @endif
-                                    
-                                    <form method="POST" action="{{ route('admin.users.insurance-companies.destroy', $company) }}" class="inline" onsubmit="return confirm('{{ t('admin.confirm_delete') }}')">
+
+                                    <form method="POST" action="{{ route('admin.users.insurance-companies.destroy', $company) }}" 
+                                          class="inline" onsubmit="return confirm('{{ t('admin.confirm_delete') }}')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+                                        <button type="submit" 
+                                                class="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                                                title="{{ t('admin.delete') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
                                         </button>
                                     </form>
@@ -224,7 +242,6 @@
             </table>
         </div>
 
-        <!-- Mobile Cards -->
         <div class="md:hidden space-y-4 p-4">
             @foreach($companies as $company)
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -266,35 +283,23 @@
                     @endif
                     
                     <div class="flex items-center justify-center space-x-3 {{ $isRtl ? 'space-x-reverse' : '' }} pt-3 border-t border-gray-200">
-                        <a href="{{ route('admin.users.insurance-companies.edit', $company) }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+                        <a href="{{ route('admin.users.insurance-companies.insurance-users.index', $company) }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors">
                             <svg class="w-4 h-4 {{ $isRtl ? 'ml-1' : 'mr-1' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                            {{ t('admin.users') }}
+                        </a>
+
+                        <a href="{{ route('admin.users.insurance-companies.edit', $company) }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+                            <svg class="w-4 h-4 {{ $isRtl ? 'ml-1' : 'mr-1' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
                             {{ t('admin.edit') }}
                         </a>
-                        
-                        @if(!$company->is_approved)
-                            <form method="POST" action="{{ route('admin.users.insurance-companies.approve', $company) }}" class="inline">
-                                @csrf
-                                <button type="submit" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-green-100 text-green-700 hover:bg-green-200 transition-colors">
-                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-1' : 'mr-1' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    {{ t('admin.approve') }}
-                                </button>
-                            </form>
-                        @endif
-                        
-                        <form method="POST" action="{{ route('admin.users.insurance-companies.destroy', $company) }}" class="inline" onsubmit="return confirm('{{ t('admin.confirm_delete') }}')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors">
-                                <svg class="w-4 h-4 {{ $isRtl ? 'ml-1' : 'mr-1' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                                {{ t('admin.delete') }}
-                            </button>
-                        </form>
                     </div>
                 </div>
             @endforeach
