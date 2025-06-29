@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class TowDashboardController extends Controller
+class DashboardController extends Controller
 {
     public function index()
     {
