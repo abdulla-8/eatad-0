@@ -152,4 +152,38 @@ return [
     ],
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    // إضافة home routes لكل guard
+    'home' => [
+        'admin' => '/admin/dashboard',
+        'parts_dealer' => '/dealer/dashboard',
+        'insurance_company' => function($guard) {
+            $company = session('current_company');
+            return $company ? "/{$company->company_slug}/dashboard" : '/';
+        },
+        'insurance_user' => function($guard) {
+            $company = session('current_company');
+            return $company ? "/{$company->company_slug}/user/dashboard" : '/';
+        },
+        'service_center' => '/service-center/dashboard',
+        'tow_service_company' => '/tow-service/dashboard',
+        'tow_service_individual' => '/tow-service/dashboard',
+    ],
+
+    // تحديد login routes لكل guard
+    'login_routes' => [
+        'admin' => 'admin.login',
+        'parts_dealer' => 'dealer.login',
+        'insurance_company' => function($guard) {
+            $company = session('current_company');
+            return $company ? route('insurance.login', $company->company_slug) : route('admin.login');
+        },
+        'insurance_user' => function($guard) {
+            $company = session('current_company');
+            return $company ? route('insurance.user.login', $company->company_slug) : route('admin.login');
+        },
+        'service_center' => 'service-center.login',
+        'tow_service_company' => 'tow-service.login',
+        'tow_service_individual' => 'tow-service.login',
+    ],
 ];
