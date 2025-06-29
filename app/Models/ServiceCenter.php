@@ -1,4 +1,4 @@
-<?php 
+<?php
 // app/Models/ServiceCenter.php
 
 namespace App\Models;
@@ -110,11 +110,11 @@ class ServiceCenter extends Authenticatable
         if (!$this->is_active) {
             return ['class' => 'bg-red-100 text-red-800', 'text' => t('admin.inactive')];
         }
-        
+
         if (!$this->is_approved) {
             return ['class' => 'bg-yellow-100 text-yellow-800', 'text' => t('admin.pending_approval')];
         }
-        
+
         return ['class' => 'bg-green-100 text-green-800', 'text' => t('admin.active')];
     }
 
@@ -144,11 +144,11 @@ class ServiceCenter extends Authenticatable
 
     public function getTotalTechniciansAttribute()
     {
-        return $this->body_work_technicians + 
-               $this->mechanical_technicians + 
-               $this->painting_technicians + 
-               $this->electrical_technicians + 
-               $this->other_technicians;
+        return $this->body_work_technicians +
+            $this->mechanical_technicians +
+            $this->painting_technicians +
+            $this->electrical_technicians +
+            $this->other_technicians;
     }
 
     public function getTechniciansBreakdownAttribute()
@@ -166,7 +166,7 @@ class ServiceCenter extends Authenticatable
     public function getCenterSizeCategoryAttribute()
     {
         if (!$this->center_area_sqm) return t('admin.not_specified');
-        
+
         if ($this->center_area_sqm < 200) return t('admin.small_center');
         if ($this->center_area_sqm < 500) return t('admin.medium_center');
         return t('admin.large_center');
@@ -177,7 +177,7 @@ class ServiceCenter extends Authenticatable
         if (!$this->center_logo) {
             return asset('images/default-service-center-logo.png');
         }
-        
+
         return asset('storage/' . $this->center_logo);
     }
 
@@ -193,9 +193,20 @@ class ServiceCenter extends Authenticatable
 
     public function hasCompleteProfile()
     {
-        return !empty($this->legal_name) && 
-               !empty($this->commercial_register) && 
-               !empty($this->center_address) &&
-               !empty($this->industrial_area_id);
+        return !empty($this->legal_name) &&
+            !empty($this->commercial_register) &&
+            !empty($this->center_address) &&
+            !empty($this->industrial_area_id);
+    }
+
+
+    public function claims()
+    {
+        return $this->hasMany(Claim::class);
+    }
+
+    public function activeClaims()
+    {
+        return $this->hasMany(Claim::class)->whereIn('status', ['approved', 'in_progress']);
     }
 }

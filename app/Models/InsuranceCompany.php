@@ -96,11 +96,11 @@ class InsuranceCompany extends Authenticatable
         if (!$this->is_active) {
             return ['class' => 'bg-red-100 text-red-800', 'text' => t('admin.inactive')];
         }
-        
+
         if (!$this->is_approved) {
             return ['class' => 'bg-yellow-100 text-yellow-800', 'text' => t('admin.pending_approval')];
         }
-        
+
         return ['class' => 'bg-green-100 text-green-800', 'text' => t('admin.active')];
     }
 
@@ -130,15 +130,15 @@ class InsuranceCompany extends Authenticatable
 
     public function hasCompleteProfile()
     {
-        return !empty($this->legal_name) && 
-               !empty($this->commercial_register) && 
-               !empty($this->office_address);
+        return !empty($this->legal_name) &&
+            !empty($this->commercial_register) &&
+            !empty($this->office_address);
     }
 
     public function getSizeCategoryAttribute()
     {
         if (!$this->employee_count) return t('admin.not_specified');
-        
+
         if ($this->employee_count < 50) return t('admin.small_company');
         if ($this->employee_count < 200) return t('admin.medium_company');
         return t('admin.large_company');
@@ -149,7 +149,7 @@ class InsuranceCompany extends Authenticatable
         if (!$this->company_logo) {
             return asset('images/default-company-logo.png');
         }
-        
+
         return asset('storage/' . $this->company_logo);
     }
 
@@ -176,5 +176,15 @@ class InsuranceCompany extends Authenticatable
     public function getInactiveUsersCountAttribute()
     {
         return $this->users()->where('is_active', false)->count();
+    }
+
+    public function claims()
+    {
+        return $this->hasMany(Claim::class);
+    }
+
+    public function pendingClaims()
+    {
+        return $this->hasMany(Claim::class)->where('status', 'pending');
     }
 }

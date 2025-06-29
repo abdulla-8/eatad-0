@@ -24,8 +24,8 @@
                         'inter': ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        primary: '{{ auth("insurance_company")->user()->primary_color }}',
-                        secondary: '{{ auth("insurance_company")->user()->secondary_color }}',
+                        primary: '{{ auth('insurance_company')->user()->primary_color }}',
+                        secondary: '{{ auth('insurance_company')->user()->secondary_color }}',
                         dark: {
                             900: '#191919',
                             800: '#2d2d2d',
@@ -36,7 +36,7 @@
             }
         }
     </script>
-    
+
     @stack('styles')
 </head>
 
@@ -44,7 +44,7 @@
     @php
         $company = auth('insurance_company')->user();
     @endphp
-    
+
     <div class="min-h-screen">
 
         <!-- Mobile Header -->
@@ -58,18 +58,22 @@
                         </svg>
                     </button>
                     <div class="flex items-center space-x-2 {{ $isRtl ? 'space-x-reverse' : '' }}">
-                        @if($company->company_logo)
-                            <img src="{{ $company->logo_url }}" alt="{{ $company->legal_name }}" class="w-8 h-8 object-contain">
+                        @if ($company->company_logo)
+                            <img src="{{ $company->logo_url }}" alt="{{ $company->legal_name }}"
+                                class="w-8 h-8 object-contain">
                         @else
-                            <div class="w-8 h-8 rounded flex items-center justify-center" style="background: {{ $company->primary_color }};">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-8 h-8 rounded flex items-center justify-center"
+                                style="background: {{ $company->primary_color }};">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                                     </path>
                                 </svg>
                             </div>
                         @endif
-                        <h1 class="font-bold text-lg">{{ t($company->translation_group . '.dashboard', 'Dashboard') }}</h1>
+                        <h1 class="font-bold text-lg">{{ t($company->translation_group . '.dashboard', 'Dashboard') }}
+                        </h1>
                     </div>
                 </div>
                 <x-language-switcher class="bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100" />
@@ -85,11 +89,14 @@
                 <div class="p-6 border-b border-gray-700">
                     <div class="flex items-center space-x-3 {{ $isRtl ? 'space-x-reverse' : '' }}">
                         <div class="w-12 h-12 bg-white rounded-xl p-2 shadow-lg">
-                            @if($company->company_logo)
-                                <img src="{{ $company->logo_url }}" alt="{{ $company->legal_name }}" class="w-full h-full object-contain">
+                            @if ($company->company_logo)
+                                <img src="{{ $company->logo_url }}" alt="{{ $company->legal_name }}"
+                                    class="w-full h-full object-contain">
                             @else
-                                <div class="w-full h-full rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }};">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-full h-full rounded-lg flex items-center justify-center"
+                                    style="background: {{ $company->primary_color }};">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                                         </path>
@@ -98,8 +105,10 @@
                             @endif
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold">{{ t($company->translation_group . '.dashboard', 'Dashboard') }}</h1>
-                            <p class="text-sm" style="color: {{ $company->primary_color }};">{{ $company->legal_name }}</p>
+                            <h1 class="text-lg font-bold">
+                                {{ t($company->translation_group . '.dashboard', 'Dashboard') }}</h1>
+                            <p class="text-sm" style="color: {{ $company->primary_color }};">
+                                {{ $company->legal_name }}</p>
                         </div>
                     </div>
                 </div>
@@ -122,6 +131,22 @@
                             </a>
                         </li>
 
+
+                        <li>
+                            <a href="{{ route('insurance.claims.index', ['companyRoute' => $company->company_slug]) }}"
+                                class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('insurance.claims.*') ? 'text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
+                                style="{{ request()->routeIs('insurance.claims.*') ? 'background: ' . $company->primary_color : '' }}">
+                                <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                                {{ t($company->translation_group . '.claims', 'Claims') }}
+                            </a>
+                        </li>
+
+                        
                         <li>
                             <a href="#"
                                 class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 text-gray-300 hover:bg-gray-800 hover:text-white opacity-60 cursor-not-allowed">
@@ -172,19 +197,24 @@
                 <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3 {{ $isRtl ? 'space-x-reverse' : '' }}">
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }};">
-                                @if($company->company_logo)
-                                    <img src="{{ $company->logo_url }}" alt="{{ $company->legal_name }}" class="w-6 h-6 object-contain">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                style="background: {{ $company->primary_color }};">
+                                @if ($company->company_logo)
+                                    <img src="{{ $company->logo_url }}" alt="{{ $company->legal_name }}"
+                                        class="w-6 h-6 object-contain">
                                 @else
-                                    <span class="text-white font-bold text-sm">{{ substr($company->legal_name, 0, 2) }}</span>
+                                    <span
+                                        class="text-white font-bold text-sm">{{ substr($company->legal_name, 0, 2) }}</span>
                                 @endif
                             </div>
                             <div class="hidden lg:block">
-                                <p class="text-white text-sm font-medium">{{ Str::limit($company->legal_name, 20) }}</p>
+                                <p class="text-white text-sm font-medium">{{ Str::limit($company->legal_name, 20) }}
+                                </p>
                                 <p class="text-gray-400 text-xs">Insurance Company</p>
                             </div>
                         </div>
-                        <form method="POST" action="{{ route('insurance.logout', ['companyRoute' => $company->company_slug]) }}">
+                        <form method="POST"
+                            action="{{ route('insurance.logout', ['companyRoute' => $company->company_slug]) }}">
                             @csrf
                             <button type="submit"
                                 class="p-2 text-gray-400 hover:text-red-400 rounded-lg transition-colors"
@@ -208,7 +238,9 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-2xl font-bold text-gray-900">@yield('title', t($company->translation_group . '.dashboard', 'Dashboard'))</h2>
-                            <p class="text-gray-600">{{ t($company->translation_group . '.welcome_back', 'Welcome Back') }}, {{ $company->legal_name }}</p>
+                            <p class="text-gray-600">
+                                {{ t($company->translation_group . '.welcome_back', 'Welcome Back') }},
+                                {{ $company->legal_name }}</p>
                         </div>
                         <x-language-switcher
                             class="bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100" />

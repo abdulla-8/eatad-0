@@ -231,6 +231,15 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
     Route::middleware(['auth:insurance_company'])->group(function () {
         Route::get('/dashboard', [InsuranceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceAuthController::class, 'logout'])->name('logout');
+
+        // Claims management for insurance companies
+        Route::prefix('claims')->name('claims.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Insurance\ClaimsController::class, 'index'])->name('index');
+            Route::get('/{claim}', [\App\Http\Controllers\Insurance\ClaimsController::class, 'show'])->name('show');
+            Route::post('/{claim}/approve', [\App\Http\Controllers\Insurance\ClaimsController::class, 'approve'])->name('approve');
+            Route::post('/{claim}/reject', [\App\Http\Controllers\Insurance\ClaimsController::class, 'reject'])->name('reject');
+            Route::get('/api/service-centers', [\App\Http\Controllers\Insurance\ClaimsController::class, 'getServiceCenters'])->name('service-centers');
+        });
     });
 });
 
@@ -245,5 +254,17 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
     Route::middleware(['auth:insurance_user'])->group(function () {
         Route::get('/dashboard', [InsuranceUserDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceUserAuthController::class, 'logout'])->name('logout');
+        // Claims management for insurance users
+        Route::prefix('claims')->name('claims.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'store'])->name('store');
+            Route::get('/{claim}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'show'])->name('show');
+            Route::get('/{claim}/edit', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'edit'])->name('edit');
+            Route::put('/{claim}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'update'])->name('update');
+            Route::post('/{claim}/tow-service', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'updateTowService'])->name('tow-service');
+            Route::delete('/{claim}/attachments/{attachment}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'deleteAttachment'])->name('attachments.delete');
+        });
+        
     });
 });

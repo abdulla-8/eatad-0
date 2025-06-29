@@ -77,4 +77,11 @@ class InsuranceUser extends Authenticatable
     {
         return 'phone';
     }
+
+    public function claims()
+{
+    return $this->hasMany(Claim::class);
+}
+
+
 }
