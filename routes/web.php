@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ServiceCenterManagementController;
 use App\Http\Controllers\Admin\IndustrialAreaController;
 use App\Http\Controllers\Admin\ServiceSpecializationController;
 use App\Http\Controllers\Admin\InsuranceUsersManagementController;
+use App\Http\Controllers\Admin\TowServiceManagementController;
 
 // Parts Dealer Controllers
 use App\Http\Controllers\PartsDealer\AuthController as DealerAuthController;
@@ -26,10 +27,13 @@ use App\Http\Controllers\Insurance\DashboardController as InsuranceDashboardCont
 use App\Http\Controllers\ServiceCenter\AuthController as ServiceCenterAuthController;
 use App\Http\Controllers\ServiceCenter\DashboardController as ServiceCenterDashboardController;
 
-
-//  Insurance User Controllers
+// Insurance User Controllers
 use App\Http\Controllers\InsuranceUser\AuthController as InsuranceUserAuthController;
 use App\Http\Controllers\InsuranceUser\DashboardController as InsuranceUserDashboardController;
+
+// Tow Service Controllers
+use App\Http\Controllers\TowService\AuthController as TowServiceAuthController;
+use App\Http\Controllers\TowService\DashboardController as TowServiceDashboardController;
 
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
@@ -137,8 +141,33 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{serviceCenter}/approve', [ServiceCenterManagementController::class, 'serviceCentersApprove'])->name('approve');
             });
 
+            // Tow Service Companies
+            Route::prefix('tow-service-companies')->name('tow-service-companies.')->group(function () {
+                Route::get('/', [TowServiceManagementController::class, 'companiesIndex'])->name('index');
+                Route::get('/create', [TowServiceManagementController::class, 'companiesCreate'])->name('create');
+                Route::post('/', [TowServiceManagementController::class, 'companiesStore'])->name('store');
+                Route::get('/{towServiceCompany}/edit', [TowServiceManagementController::class, 'companiesEdit'])->name('edit');
+                Route::put('/{towServiceCompany}', [TowServiceManagementController::class, 'companiesUpdate'])->name('update');
+                Route::delete('/{towServiceCompany}', [TowServiceManagementController::class, 'companiesDestroy'])->name('destroy');
+                Route::post('/{towServiceCompany}/toggle', [TowServiceManagementController::class, 'companiesToggle'])->name('toggle');
+                Route::post('/{towServiceCompany}/approve', [TowServiceManagementController::class, 'companiesApprove'])->name('approve');
+            });
+
+            // Tow Service Individuals
+            Route::prefix('tow-service-individuals')->name('tow-service-individuals.')->group(function () {
+                Route::get('/', [TowServiceManagementController::class, 'individualsIndex'])->name('index');
+                Route::get('/create', [TowServiceManagementController::class, 'individualsCreate'])->name('create');
+                Route::post('/', [TowServiceManagementController::class, 'individualsStore'])->name('store');
+                Route::get('/{towServiceIndividual}/edit', [TowServiceManagementController::class, 'individualsEdit'])->name('edit');
+                Route::put('/{towServiceIndividual}', [TowServiceManagementController::class, 'individualsUpdate'])->name('update');
+                Route::delete('/{towServiceIndividual}', [TowServiceManagementController::class, 'individualsDestroy'])->name('destroy');
+                Route::post('/{towServiceIndividual}/toggle', [TowServiceManagementController::class, 'individualsToggle'])->name('toggle');
+                Route::post('/{towServiceIndividual}/approve', [TowServiceManagementController::class, 'individualsApprove'])->name('approve');
+            });
+
             Route::get('/stats', [UsersManagementController::class, 'usersStats'])->name('stats');
             Route::get('/service-centers-stats', [ServiceCenterManagementController::class, 'serviceCentersStats'])->name('service-centers-stats');
+            Route::get('/tow-service-stats', [TowServiceManagementController::class, 'towServiceStats'])->name('tow-service-stats');
         });
     });
 });
@@ -171,6 +200,26 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
     });
 });
 
+// Tow Service Routes (for both companies and individuals)
+Route::prefix('tow-service')->name('tow-service.')->group(function () {
+    Route::middleware(['guest:tow_service_company', 'guest:tow_service_individual'])->group(function () {
+        Route::get('/login', [TowServiceAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [TowServiceAuthController::class, 'login']);
+        Route::get('/register', [TowServiceAuthController::class, 'showRegister'])->name('register');
+        Route::post('/register', [TowServiceAuthController::class, 'register']);
+    });
+
+    Route::group(['middleware' => function ($request, $next) {
+        if (Auth::guard('tow_service_company')->check() || Auth::guard('tow_service_individual')->check()) {
+            return $next($request);
+        }
+        return redirect()->route('tow-service.login');
+    }], function () {
+        Route::get('/dashboard', [TowServiceDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/logout', [TowServiceAuthController::class, 'logout'])->name('logout');
+    });
+});
+
 Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'])->group(function () {
     Route::middleware(['guest:insurance_company'])->group(function () {
         Route::get('/login', [InsuranceAuthController::class, 'showLogin'])->name('login');
@@ -184,7 +233,6 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
         Route::post('/logout', [InsuranceAuthController::class, 'logout'])->name('logout');
     });
 });
-
 
 Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['company.route'])->group(function () {
     Route::middleware(['guest:insurance_user'])->group(function () {

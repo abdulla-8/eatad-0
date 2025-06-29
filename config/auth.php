@@ -36,6 +36,17 @@ return [
             'driver' => 'session',
             'provider' => 'service_centers',
         ],
+
+        // New Tow Service Guards
+        'tow_service_company' => [
+            'driver' => 'session',
+            'provider' => 'tow_service_companies',
+        ],
+
+        'tow_service_individual' => [
+            'driver' => 'session',
+            'provider' => 'tow_service_individuals',
+        ],
     ],
 
     'providers' => [
@@ -67,6 +78,17 @@ return [
         'service_centers' => [
             'driver' => 'eloquent',
             'model' => App\Models\ServiceCenter::class,
+        ],
+
+        // New Tow Service Providers
+        'tow_service_companies' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TowServiceCompany::class,
+        ],
+
+        'tow_service_individuals' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\TowServiceIndividual::class,
         ],
     ],
 
@@ -108,6 +130,21 @@ return [
 
         'service_centers' => [
             'provider' => 'service_centers',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        // New Tow Service Password Resets
+        'tow_service_companies' => [
+            'provider' => 'tow_service_companies',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'tow_service_individuals' => [
+            'provider' => 'tow_service_individuals',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

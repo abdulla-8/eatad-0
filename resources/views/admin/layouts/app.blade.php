@@ -82,7 +82,7 @@
                         </div>
                         <div>
                             <h1 class="text-lg font-bold">{{ t('admin.site_name') }}</h1>
-                            <p class="text-gold-400 text-sm">   {{ t('admin.dashboard') }}</p>
+                            <p class="text-gold-400 text-sm"> {{ t('admin.dashboard') }}</p>
                         </div>
                     </div>
                 </div>
@@ -128,7 +128,7 @@
                                 </svg>
                                 {{ t('admin.specializations') }}
                             </a>
-                        <!-- New Industrial Areas -->
+                            <!-- New Industrial Areas -->
                         <li>
                             <a href="{{ route('admin.industrial-areas.index') }}"
                                 class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.industrial-areas.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
@@ -138,7 +138,7 @@
                                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                                     </path>
                                 </svg>
-                            {{ t('admin.industrial_area') }}
+                                {{ t('admin.industrial_area') }}
                             </a>
                         </li>
 
@@ -154,7 +154,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                                {{t('admin.maintanance_specialities')}}
+                                {{ t('admin.maintanance_specialities') }}
                             </a>
                         </li>
                         <!-- Users Management Section with Dropdown -->
@@ -210,13 +210,38 @@
 
 
                                 <!-- New Service Centers -->
-                                <a href="{{ route('admin.users.service-centers.index') }}" 
-                                   class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.service-centers.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <a href="{{ route('admin.users.service-centers.index') }}"
+                                    class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.service-centers.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                        </path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     </svg>
-                                   {{t('admin.maintanance_centers')}}
+                                    {{ t('admin.maintanance_centers') }}
+                                </a>
+
+                                <a href="{{ route('admin.users.tow-service-companies.index') }}"
+                                    class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.tow-service-companies.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                    </svg>
+                                    شركات السطحة
+                                </a>
+
+                                <a href="{{ route('admin.users.tow-service-individuals.index') }}"
+                                    class="flex items-center px-8 py-2 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.users.tow-service-individuals.*') ? 'bg-gold-400 text-dark-900' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                                    <svg class="w-4 h-4 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                        </path>
+                                    </svg>
+                                    أفراد السطحة
                                 </a>
                             </div>
                         </li>
@@ -258,9 +283,9 @@
                                     class="text-dark-900 font-bold">{{ substr(auth('admin')->user()->name, 0, 1) }}</span>
                             </div>
                             <div class="hidden lg:block">
-                                
+
                                 <p class="text-white text-sm font-medium">{{ auth('admin')->user()->name }}</p>
-                                <p class="text-gray-400 text-xs">{{t('admin.administrator')}}</p>
+                                <p class="text-gray-400 text-xs">{{ t('admin.administrator') }}</p>
                             </div>
                         </div>
                         <form method="POST" action="{{ route('admin.logout') }}">
