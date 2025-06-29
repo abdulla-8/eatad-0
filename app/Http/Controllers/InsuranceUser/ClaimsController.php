@@ -149,9 +149,8 @@ class ClaimsController extends Controller
         }
     }
 
-    public function show(Request $request, $claim)
+    public function show(Request $request, $companySlug, $claim)
     {
-        $companySlug = $request->route('companySlug');
         $company = InsuranceCompany::where('company_slug', $companySlug)
             ->where('is_active', true)
             ->where('is_approved', true)
@@ -165,16 +164,23 @@ class ClaimsController extends Controller
             return redirect()->route('insurance.user.login', $companySlug);
         }
 
+        // Get claim ID from route parameters
+        $claimId = $request->route('claim');
+
         $claim = Claim::with(['attachments', 'serviceCenter', 'insuranceCompany'])
             ->where('insurance_user_id', $user->id)
-            ->findOrFail($claim);
+            ->where('id', $claimId)
+            ->first();
+
+        if (!$claim) {
+            abort(404, 'Claim not found');
+        }
 
         return view('insurance-user.claims.show', compact('claim', 'user', 'company'));
     }
 
-    public function edit(Request $request, $claim)
+    public function edit(Request $request, $companySlug, $claim)
     {
-        $companySlug = $request->route('companySlug');
         $company = InsuranceCompany::where('company_slug', $companySlug)
             ->where('is_active', true)
             ->where('is_approved', true)
@@ -187,18 +193,25 @@ class ClaimsController extends Controller
             Auth::guard('insurance_user')->logout();
             return redirect()->route('insurance.user.login', $companySlug);
         }
+
+        // Get claim ID from route parameters
+        $claimId = $request->route('claim');
 
         $claim = Claim::with('attachments')
             ->where('insurance_user_id', $user->id)
             ->where('status', 'rejected')
-            ->findOrFail($claim);
+            ->where('id', $claimId)
+            ->first();
+
+        if (!$claim) {
+            abort(404, 'Claim not found or not editable');
+        }
 
         return view('insurance-user.claims.edit', compact('claim', 'user', 'company'));
     }
 
-    public function update(Request $request, $claim)
+    public function update(Request $request, $companySlug, $claim)
     {
-        $companySlug = $request->route('companySlug');
         $company = InsuranceCompany::where('company_slug', $companySlug)
             ->where('is_active', true)
             ->where('is_approved', true)
@@ -212,9 +225,17 @@ class ClaimsController extends Controller
             return redirect()->route('insurance.user.login', $companySlug);
         }
 
+        // Get claim ID from route parameters
+        $claimId = $request->route('claim');
+
         $claim = Claim::where('insurance_user_id', $user->id)
             ->where('status', 'rejected')
-            ->findOrFail($claim);
+            ->where('id', $claimId)
+            ->first();
+
+        if (!$claim) {
+            abort(404, 'Claim not found or not editable');
+        }
 
         // Same validation as store
         $request->validate([
@@ -286,9 +307,8 @@ class ClaimsController extends Controller
         }
     }
 
-    public function updateTowService(Request $request, $claim)
+    public function updateTowService(Request $request, $companySlug, $claim)
     {
-        $companySlug = $request->route('companySlug');
         $company = InsuranceCompany::where('company_slug', $companySlug)
             ->where('is_active', true)
             ->where('is_approved', true)
@@ -302,11 +322,19 @@ class ClaimsController extends Controller
             return redirect()->route('insurance.user.login', $companySlug);
         }
 
+        // Get claim ID from route parameters
+        $claimId = $request->route('claim');
+
         $claim = Claim::where('insurance_user_id', $user->id)
             ->where('status', 'approved')
             ->where('tow_service_offered', true)
             ->whereNull('tow_service_accepted')
-            ->findOrFail($claim);
+            ->where('id', $claimId)
+            ->first();
+
+        if (!$claim) {
+            abort(404, 'Claim not found or tow service not available');
+        }
 
         $request->validate([
             'tow_service_accepted' => 'required|boolean'
@@ -326,17 +354,30 @@ class ClaimsController extends Controller
         ])->with('success', $message);
     }
 
-    public function deleteAttachment(Request $request, $claim, $attachment)
+    public function deleteAttachment(Request $request, $companySlug, $claim, $attachment)
     {
-        $companySlug = $request->route('companySlug');
         $user = Auth::guard('insurance_user')->user();
+        
+        // Get claim ID from route parameters
+        $claimId = $request->route('claim');
+        $attachmentId = $request->route('attachment');
         
         $claim = Claim::where('insurance_user_id', $user->id)
             ->where('status', 'rejected')
-            ->findOrFail($claim);
+            ->where('id', $claimId)
+            ->first();
+
+        if (!$claim) {
+            abort(404, 'Claim not found or not editable');
+        }
 
         $attachment = ClaimAttachment::where('claim_id', $claim->id)
-            ->findOrFail($attachment);
+            ->where('id', $attachmentId)
+            ->first();
+
+        if (!$attachment) {
+            abort(404, 'Attachment not found');
+        }
 
         $attachment->delete();
 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use App\Models\InsuranceCompany;
 use App\Models\InsuranceUser;
 
@@ -102,8 +103,22 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20|unique:insurance_users,phone',
-            'national_id' => 'required|string|size:14|unique:insurance_users,national_id',
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('insurance_users', 'phone')->where(function ($query) use ($company) {
+                    return $query->where('insurance_company_id', $company->id);
+                })
+            ],
+            'national_id' => [
+                'required',
+                'string',
+                'size:14',
+                Rule::unique('insurance_users', 'national_id')->where(function ($query) use ($company) {
+                    return $query->where('insurance_company_id', $company->id);
+                })
+            ],
             'policy_number' => 'required|string|max:50',
             'password' => 'required|string|min:6|confirmed',
         ]);

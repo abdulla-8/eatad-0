@@ -171,33 +171,6 @@
         </div>
     </div>
 
-    <script>
-        // Phone input formatting
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) {
-                value = value.substring(0, 11);
-            }
-            e.target.value = value;
-        });
 
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
-
-            if (!phone || !password) {
-                e.preventDefault();
-                alert('Please fill in all fields');
-                return;
-            }
-
-            if (!/^01[0-9]{9}$/.test(phone)) {
-                e.preventDefault();
-                alert('Please enter a valid Egyptian phone number');
-                return;
-            }
-        });
-    </script>
 </body>
 </html>

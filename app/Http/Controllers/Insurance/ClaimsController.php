@@ -50,24 +50,40 @@ class ClaimsController extends Controller
         return view('insurance.claims.index', compact('claims', 'stats', 'company'));
     }
 
-    public function show(Request $request, $claim)
+    public function show(Request $request, $companyRoute, $claim)
     {
         $company = Auth::guard('insurance_company')->user();
         
-        $claim = Claim::with(['insuranceUser', 'attachments', 'serviceCenter'])
-            ->forCompany($company->id)
-            ->findOrFail($claim);
+        // الحصول على الـ Claim ID من الـ route parameters
+        $claimId = $request->route('claim');
+        
+        $claim = Claim::where('id', $claimId)
+            ->where('insurance_company_id', $company->id)
+            ->with(['insuranceUser', 'attachments', 'serviceCenter'])
+            ->first();
+            
+        if (!$claim) {
+            abort(404, 'Claim not found');
+        }
 
         return view('insurance.claims.show', compact('claim', 'company'));
     }
 
-    public function approve(Request $request, $claim)
+    public function approve(Request $request, $companyRoute, $claim)
     {
         $company = Auth::guard('insurance_company')->user();
         
-        $claim = Claim::forCompany($company->id)
+        // الحصول على الـ Claim ID من الـ route parameters
+        $claimId = $request->route('claim');
+        
+        $claim = Claim::where('id', $claimId)
+            ->where('insurance_company_id', $company->id)
             ->where('status', 'pending')
-            ->findOrFail($claim);
+            ->first();
+            
+        if (!$claim) {
+            abort(404, 'Claim not found or not eligible for approval');
+        }
 
         $request->validate([
             'service_center_id' => 'required|exists:service_centers,id',
@@ -97,13 +113,21 @@ class ClaimsController extends Controller
         }
     }
 
-    public function reject(Request $request, $claim)
+    public function reject(Request $request, $companyRoute, $claim)
     {
         $company = Auth::guard('insurance_company')->user();
         
-        $claim = Claim::forCompany($company->id)
+        // الحصول على الـ Claim ID من الـ route parameters
+        $claimId = $request->route('claim');
+        
+        $claim = Claim::where('id', $claimId)
+            ->where('insurance_company_id', $company->id)
             ->where('status', 'pending')
-            ->findOrFail($claim);
+            ->first();
+            
+        if (!$claim) {
+            abort(404, 'Claim not found or not eligible for rejection');
+        }
 
         $request->validate([
             'rejection_reason' => 'required|string|max:1000'

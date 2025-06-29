@@ -461,30 +461,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Form validation
-document.getElementById('insuranceCompanyForm').addEventListener('submit', function(e) {
-    const required = ['legal_name', 'phone', 'commercial_register', 'company_slug'];
-    for (let field of required) {
-        if (!document.getElementById(field).value.trim()) {
-            e.preventDefault();
-            showNotification('Please fill all required fields', 'error');
-            return false;
-        }
-    }
-    
-    const phone = document.getElementById('phone').value.trim();
-    if (!/^01[0-9]{9}$/.test(phone)) {
-        e.preventDefault();
-        showNotification('Invalid phone format', 'error');
-        return false;
-    }
-
-    const slug = document.getElementById('company_slug').value.trim();
-    if (!/^[a-z0-9\-]+$/.test(slug)) {
-        e.preventDefault();
-        showNotification('Company route can only contain lowercase letters, numbers and hyphens', 'error');
-        return false;
-    }
-});
 </script>
 @endpush
