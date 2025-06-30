@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="text-{{ $isRtl ? 'left' : 'right' }}">
-                <p class="text-blue-300 text-sm">{{ t('service_center.my_profile') }}</p>
+                <p class="text-blue-300 text-sm">{{ t('service_center.profile') }}</p>
                 <p class="text-xl font-bold">{{ $stats['profile_completion'] }}% Complete</p>
             </div>
         </div>
@@ -121,8 +121,6 @@
 
     <!-- Technicians Breakdown -->
     @if($stats['total_technicians'] > 0)
-    <!-- Technicians Breakdown -->
-    @if($stats['total_technicians'] > 0)
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
             <div class="bg-purple-500 text-white px-6 py-4 rounded-t-xl">
                 <h3 class="text-lg font-bold flex items-center">
@@ -174,6 +172,47 @@
         </div>
     @endif
 
+    <!-- Claims Overview -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+        <div class="bg-green-500 text-white px-6 py-4 rounded-t-xl">
+            <h3 class="text-lg font-bold flex items-center">
+                <svg class="w-5 h-5 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                {{ t('service_center.claims_overview') }}
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="text-center p-4 bg-green-50 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600" id="newClaims">-</div>
+                    <div class="text-sm text-green-700">{{ t('service_center.new_claims') }}</div>
+                </div>
+                <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="text-2xl font-bold text-yellow-600" id="inProgressClaims">-</div>
+                    <div class="text-sm text-yellow-700">{{ t('service_center.in_progress') }}</div>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-2xl font-bold text-gray-600" id="completedClaims">-</div>
+                    <div class="text-sm text-gray-700">{{ t('service_center.completed') }}</div>
+                </div>
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600" id="totalClaims">-</div>
+                    <div class="text-sm text-blue-700">{{ t('service_center.total_claims') }}</div>
+                </div>
+            </div>
+            <div class="text-center">
+                <a href="{{ route('service-center.claims.index') }}" 
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    {{ t('service_center.view_all_claims') }}
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Actions & Info Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Quick Actions -->
@@ -185,10 +224,22 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
-                    Quick Actions
+                    {{ t('service_center.quick_actions') }}
                 </h3>
             </div>
             <div class="p-6 space-y-4">
+                <a href="{{ route('service-center.claims.index') }}"
+                    class="flex items-center p-4 bg-gray-50 hover:bg-green-50 rounded-lg transition-colors duration-200 group border border-gray-200 hover:border-green-300">
+                    <div
+                        class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center {{ $isRtl ? 'ml-4' : 'mr-4' }} group-hover:scale-110 transition-transform duration-200">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <span
+                        class="font-semibold text-gray-900 group-hover:text-green-800 transition-colors duration-200">{{ t('service_center.claims') }}</span>
+                </a>
+
                 <a href="#"
                     class="flex items-center p-4 bg-gray-50 hover:bg-blue-50 rounded-lg transition-colors duration-200 group border border-gray-200 hover:border-blue-300">
                     <div
@@ -199,7 +250,7 @@
                         </svg>
                     </div>
                     <span
-                        class="font-semibold text-gray-900 group-hover:text-blue-800 transition-colors duration-200">{{ t('service_center.my_profile') }}</span>
+                        class="font-semibold text-gray-900 group-hover:text-blue-800 transition-colors duration-200">{{ t('service_center.profile') }}</span>
                 </a>
 
                 <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
@@ -210,7 +261,7 @@
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <span class="font-semibold text-gray-600">{{ t('service_center.appointments') }} (Coming Soon)</span>
+                    <span class="font-semibold text-gray-600">{{ t('service_center.appointments') }} ({{ t('service_center.coming_soon') }})</span>
                 </div>
 
                 <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
@@ -222,7 +273,7 @@
                             </path>
                         </svg>
                     </div>
-                    <span class="font-semibold text-gray-600">{{ t('service_center.services') }} (Coming Soon)</span>
+                    <span class="font-semibold text-gray-600">{{ t('service_center.reports') }} ({{ t('service_center.coming_soon') }})</span>
                 </div>
             </div>
         </div>
@@ -273,5 +324,25 @@
             </div>
         </div>
     </div>
+
+<script>
+// Load claims statistics
+fetch('{{ route("service-center.claims.stats") }}')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('newClaims').textContent = data.new_claims || 0;
+        document.getElementById('inProgressClaims').textContent = data.in_progress_claims || 0;
+        document.getElementById('completedClaims').textContent = data.completed_claims || 0;
+        document.getElementById('totalClaims').textContent = data.total_claims || 0;
+    })
+    .catch(error => {
+        console.log('Error loading claims stats:', error);
+        // Set default values if error
+        document.getElementById('newClaims').textContent = '0';
+        document.getElementById('inProgressClaims').textContent = '0';
+        document.getElementById('completedClaims').textContent = '0';
+        document.getElementById('totalClaims').textContent = '0';
+    });
+</script>
 
 @endsection
