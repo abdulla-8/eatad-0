@@ -235,6 +235,16 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
         Route::get('/dashboard', [ServiceCenterDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [ServiceCenterAuthController::class, 'logout'])->name('logout');
     });
+
+    // Claims management routes
+    Route::prefix('claims')->name('claims.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'show'])->name('show');
+        Route::post('/{id}/mark-progress', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markInProgress'])->name('mark-progress');
+        Route::post('/{id}/mark-completed', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markCompleted'])->name('mark-completed');
+        Route::post('/{id}/add-notes', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'addNotes'])->name('add-notes');
+        Route::get('/api/stats', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'getStats'])->name('stats');
+    });
 });
 
 // ==== TOW SERVICE ROUTES ====
