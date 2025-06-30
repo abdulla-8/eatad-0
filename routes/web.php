@@ -35,6 +35,9 @@ use App\Http\Controllers\InsuranceUser\DashboardController as InsuranceUserDashb
 use App\Http\Controllers\TowService\AuthController as TowServiceAuthController;
 use App\Http\Controllers\TowService\DashboardController as TowServiceDashboardController;
 
+// Insurance Settings Controllers
+use App\Http\Controllers\Insurance\SettingsController as InsuranceSettingsController;
+
 // Language route
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
@@ -282,6 +285,18 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
     Route::middleware(['auth:insurance_company'])->group(function () {
         Route::get('/dashboard', [InsuranceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceAuthController::class, 'logout'])->name('logout');
+
+        // Insurance company settings
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [InsuranceSettingsController::class, 'index'])->name('index');
+            Route::post('/translations', [InsuranceSettingsController::class, 'storeTranslation'])->name('translations.store');
+            Route::put('/translations/{translation}', [InsuranceSettingsController::class, 'updateTranslation'])->name('translations.update');
+            Route::delete('/translations/{translation}', [InsuranceSettingsController::class, 'deleteTranslation'])->name('translations.delete');
+            Route::put('/colors', [InsuranceSettingsController::class, 'updateColors'])->name('colors.update');
+            Route::post('/logo', [InsuranceSettingsController::class, 'updateLogo'])->name('logo.update');
+            Route::delete('/logo', [InsuranceSettingsController::class, 'deleteLogo'])->name('logo.delete');
+        });
+
 
         // Claims management for insurance companies
         Route::prefix('claims')->name('claims.')->group(function () {
