@@ -1,4 +1,5 @@
 <?php
+// Path: routes/web.php
 
 use Illuminate\Support\Facades\Route;
 
@@ -38,14 +39,16 @@ use App\Http\Controllers\TowService\DashboardController as TowServiceDashboardCo
 // Insurance Settings Controllers
 use App\Http\Controllers\Insurance\SettingsController as InsuranceSettingsController;
 
-
 // Tow Service Controllers
 use App\Http\Controllers\TowServiceController;
 use App\Http\Controllers\ServiceCenter\TowController as ServiceCenterTowController;
 use App\Http\Controllers\TowService\TowCompanyController;
 use App\Http\Controllers\TowService\TowIndividualController;
 
-
+// Tracking Controllers
+use App\Http\Controllers\DriverTrackingController;
+use App\Http\Controllers\CustomerTrackingController;
+use App\Http\Controllers\ServiceCenter\VerificationController;
 
 // Language route
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
@@ -61,9 +64,33 @@ Route::get('/login', function () {
     return redirect()->route('admin.login');
 })->name('login');
 
+// ==== TRACKING ROUTES (Public - No Auth Required) ====
+
+// Driver tracking routes (no auth required)
+Route::prefix('driver')->name('driver.')->group(function () {
+    Route::get('/track/{token}', [DriverTrackingController::class, 'show'])->name('tracking');
+    Route::post('/track/{token}/location', [DriverTrackingController::class, 'updateLocation'])->name('update-location');
+    Route::post('/track/{token}/status', [DriverTrackingController::class, 'updateStatus'])->name('update-status');
+    Route::post('/track/{token}/verify-customer', [DriverTrackingController::class, 'verifyCustomerCode'])->name('verify-customer');
+    Route::get('/track/{token}/data', [DriverTrackingController::class, 'getCurrentData'])->name('get-data');
+    Route::get('/track/{token}/history', [DriverTrackingController::class, 'getTrackingHistory'])->name('get-history');
+});
+
+// Customer tracking routes (no auth required)
+Route::prefix('track')->name('tow.track.')->group(function () {
+    Route::get('/customer/{requestCode}', [CustomerTrackingController::class, 'show'])->name('customer');
+    Route::post('/customer/{requestCode}/verify', [CustomerTrackingController::class, 'verifyPickupCode'])->name('customer.verify');
+    Route::get('/customer/{requestCode}/data', [CustomerTrackingController::class, 'getCurrentData'])->name('customer.data');
+    Route::get('/customer/{requestCode}/history', [CustomerTrackingController::class, 'getTrackingHistory'])->name('customer.history');
+});
+
+// Legacy tracking route
+Route::get('/track/{code}', function($code) {
+    return view('tracking.show', compact('code'));
+})->name('tow.track');
+
 // ==== ADMIN ROUTES ====
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Redirect /admin to /admin/login if not authenticated
     Route::get('/', function () {
         if (auth('admin')->check()) {
             return redirect()->route('admin.dashboard');
@@ -169,7 +196,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{serviceCenter}/approve', [ServiceCenterManagementController::class, 'serviceCentersApprove'])->name('approve');
             });
 
-            // Tow Service Companies
             Route::prefix('tow-service-companies')->name('tow-service-companies.')->group(function () {
                 Route::get('/', [TowServiceManagementController::class, 'companiesIndex'])->name('index');
                 Route::get('/create', [TowServiceManagementController::class, 'companiesCreate'])->name('create');
@@ -181,7 +207,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{towServiceCompany}/approve', [TowServiceManagementController::class, 'companiesApprove'])->name('approve');
             });
 
-            // Tow Service Individuals
             Route::prefix('tow-service-individuals')->name('tow-service-individuals.')->group(function () {
                 Route::get('/', [TowServiceManagementController::class, 'individualsIndex'])->name('index');
                 Route::get('/create', [TowServiceManagementController::class, 'individualsCreate'])->name('create');
@@ -202,7 +227,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 // ==== PARTS DEALER ROUTES ====
 Route::prefix('dealer')->name('dealer.')->group(function () {
-    // Redirect /dealer to /dealer/login if not authenticated
     Route::get('/', function () {
         if (auth('parts_dealer')->check()) {
             return redirect()->route('dealer.dashboard');
@@ -225,7 +249,6 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
 
 // ==== SERVICE CENTER ROUTES ====
 Route::prefix('service-center')->name('service-center.')->group(function () {
-    // Redirect /service-center to /service-center/login if not authenticated
     Route::get('/', function () {
         if (auth('service_center')->check()) {
             return redirect()->route('service-center.dashboard');
@@ -254,28 +277,31 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::get('/api/stats', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'getStats'])->name('stats');
         });
 
+        // Tow Service Offers Routes
+        Route::prefix('tow-offers')->name('tow-offers.')->group(function () {
+            Route::get('/', [ServiceCenterTowController::class, 'index'])->name('index');
+            Route::get('/{offer}', [ServiceCenterTowController::class, 'show'])->name('show');
+            Route::post('/{offer}/accept', [ServiceCenterTowController::class, 'accept'])->name('accept');
+            Route::post('/{offer}/reject', [ServiceCenterTowController::class, 'reject'])->name('reject');
+        });
 
-        // Tow Service Offers Routes - ADD THESE
-    Route::prefix('tow-offers')->name('tow-offers.')->group(function () {
-        Route::get('/', [ServiceCenterTowController::class, 'index'])->name('index');
-        Route::get('/{offer}', [ServiceCenterTowController::class, 'show'])->name('show');
-        Route::post('/{offer}/accept', [ServiceCenterTowController::class, 'accept'])->name('accept');
-        Route::post('/{offer}/reject', [ServiceCenterTowController::class, 'reject'])->name('reject');
-    });
+        // Vehicle Verification Routes
+        Route::prefix('verification')->name('verification.')->group(function () {
+            Route::get('/', [VerificationController::class, 'index'])->name('index');
+            Route::post('/verify', [VerificationController::class, 'verify'])->name('verify');
+            Route::get('/history', [VerificationController::class, 'history'])->name('history');
+        });
     });
 });
 
 // ==== TOW SERVICE ROUTES ====
 Route::prefix('tow-service')->name('tow-service.')->group(function () {
-    // Redirect /tow-service to /tow-service/login if not authenticated
     Route::get('/', function () {
         if (auth('tow_service_company')->check() || auth('tow_service_individual')->check()) {
             return redirect()->route('tow-service.dashboard');
         }
         return redirect()->route('tow-service.login');
     });
-
-
 
     Route::middleware(['guest:tow_service_company', 'guest:tow_service_individual'])->group(function () {
         Route::get('/login', [TowServiceAuthController::class, 'showLogin'])->name('login');
@@ -292,6 +318,7 @@ Route::prefix('tow-service')->name('tow-service.')->group(function () {
     }], function () {
         Route::get('/dashboard', [TowServiceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [TowServiceAuthController::class, 'logout'])->name('logout');
+
         // Company specific routes
         Route::middleware(['auth:tow_service_company'])->group(function () {
             Route::get('/company/offers', [TowCompanyController::class, 'offers'])->name('company.offers.index');
@@ -310,7 +337,6 @@ Route::prefix('tow-service')->name('tow-service.')->group(function () {
 
 // ==== INSURANCE COMPANY ROUTES ====
 Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'])->group(function () {
-    // Redirect /{companyRoute} to /{companyRoute}/login if not authenticated
     Route::get('/', function () {
         if (auth('insurance_company')->check()) {
             return redirect()->route('insurance.dashboard', request()->route('companyRoute'));
@@ -340,7 +366,6 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
             Route::delete('/logo', [InsuranceSettingsController::class, 'deleteLogo'])->name('logo.delete');
         });
 
-
         // Claims management for insurance companies
         Route::prefix('claims')->name('claims.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Insurance\ClaimsController::class, 'index'])->name('index');
@@ -352,7 +377,7 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
     });
 });
 
-//  Api Cycle Routes
+// ==== API ROUTES ====
 Route::prefix('api/tow-service')->group(function () {
     // Create tow request when user accepts
     Route::post('/claims/{claim}/create-request', [TowServiceController::class, 'createTowRequest'])
@@ -374,11 +399,8 @@ Route::prefix('api/tow-service')->group(function () {
         ->name('api.tow.process-expired');
 });
 
-
-
 // ==== INSURANCE USER ROUTES ====
 Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['company.route'])->group(function () {
-    // Redirect /{companySlug}/user to /{companySlug}/user/login if not authenticated
     Route::get('/', function () {
         if (auth('insurance_user')->check()) {
             return redirect()->route('insurance.user.dashboard', request()->route('companySlug'));
@@ -396,6 +418,7 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
     Route::middleware(['auth:insurance_user'])->group(function () {
         Route::get('/dashboard', [InsuranceUserDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceUserAuthController::class, 'logout'])->name('logout');
+
         // Claims management for insurance users
         Route::prefix('claims')->name('claims.')->group(function () {
             Route::get('/', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'index'])->name('index');
@@ -406,14 +429,7 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
             Route::put('/{claim}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'update'])->name('update');
             Route::post('/{claim}/tow-service', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'updateTowService'])->name('tow-service');
             Route::delete('/{claim}/attachments/{attachment}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'deleteAttachment'])->name('attachments.delete');
-
             Route::post('/{claim}/request-tow', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'requestTowService'])->name('request-tow');
         });
     });
 });
-
-Route::get('/track/{code}', function($code) {
-    return view('tracking.show', compact('code'));
-})->name('tow.track');
-
-

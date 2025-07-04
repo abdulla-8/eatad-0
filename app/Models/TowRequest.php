@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class TowRequest extends Model
 {
@@ -33,7 +34,10 @@ class TowRequest extends Model
         'estimated_delivery_time',
         'actual_delivery_time',
         'rejection_reason',
-        'notes'
+        'notes',
+        'customer_verification_code',
+        'service_center_verification_code',
+        'driver_tracking_token'
     ];
 
     protected $casts = [
@@ -66,13 +70,15 @@ class TowRequest extends Model
         return $this->hasMany(TowOffer::class)->where('status', 'pending');
     }
 
-    public function acceptedOffer(): BelongsTo
+    public function acceptedOffer(): HasMany
     {
-        return $this->belongsTo(TowOffer::class, 'id', 'tow_request_id')
-            ->where('status', 'accepted');
+        return $this->hasMany(TowOffer::class)->where('status', 'accepted');
     }
 
-
+    public function tracking(): HasMany
+    {
+        return $this->hasMany(TowTracking::class);
+    }
 
     // Scopes
     public function scopePending($query)
@@ -104,9 +110,11 @@ class TowRequest extends Model
             'assigned' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'Assigned'],
             'in_transit_to_pickup' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Going to Pickup'],
             'arrived_at_pickup' => ['class' => 'bg-orange-100 text-orange-800', 'text' => 'At Pickup'],
+            'customer_verified' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Customer Verified'],
             'vehicle_loaded' => ['class' => 'bg-indigo-100 text-indigo-800', 'text' => 'Vehicle Loaded'],
             'in_transit_to_dropoff' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Transit'],
             'delivered' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Delivered'],
+            'service_center_received' => ['class' => 'bg-teal-100 text-teal-800', 'text' => 'Under Inspection'],
             'cancelled' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Cancelled'],
             'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
             'expired' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Expired']
@@ -128,15 +136,14 @@ class TowRequest extends Model
         return $badges[$this->current_stage] ?? $badges['service_center'];
     }
 
-    public function getTrackingUrlAttribute()
+    public function getDriverTrackingUrlAttribute()
     {
-        if (!empty($this->attributes['tracking_url'])) {
-            return route('tow.track', $this->attributes['tracking_url']);
+        if (!$this->driver_tracking_token) {
+            return null;
         }
-
-        return route('tow.track', 'TOW' . $this->id . '_' . Str::random(8));
+        
+        return route('driver.tracking', $this->driver_tracking_token);
     }
-
 
     public function getTimeRemainingAttribute()
     {
@@ -197,17 +204,68 @@ class TowRequest extends Model
 
     public function assign($providerType, $providerId, $estimatedPickupTime = null)
     {
+        // Generate verification codes
+        $customerCode = $this->generateVerificationCode(5);
+        $serviceCenterCode = $this->generateVerificationCode(6);
+        $driverToken = Str::random(32);
+
         $this->update([
             'status' => 'assigned',
             'assigned_provider_type' => $providerType,
             'assigned_provider_id' => $providerId,
             'estimated_pickup_time' => $estimatedPickupTime ?: now()->addHour(),
-            'pickup_code' => rand(10000, 99999),
-            'delivery_code' => rand(10000, 99999)
+            'customer_verification_code' => $customerCode,
+            'service_center_verification_code' => $serviceCenterCode,
+            'driver_tracking_token' => $driverToken
         ]);
 
         // Reject all other pending offers
         $this->offers()->where('status', 'pending')->update(['status' => 'rejected']);
+    }
+
+    public function updateStatus($status)
+    {
+        $this->update(['status' => $status]);
+        
+        // Log tracking info
+        if ($this->assigned_provider_type && $this->assigned_provider_id) {
+            TowTracking::create([
+                'tow_request_id' => $this->id,
+                'driver_lat' => 0, // Will be updated with real location later
+                'driver_lng' => 0,
+                'timestamp' => now(),
+                'status' => $status
+            ]);
+        }
+    }
+
+    public function verifyCustomerCode($code)
+    {
+        if ($this->customer_verification_code === $code && $this->status === 'arrived_at_pickup') {
+            $this->update([
+                'status' => 'customer_verified',
+                'actual_pickup_time' => now()
+            ]);
+            return true;
+        }
+        return false;
+    }
+
+    public function verifyServiceCenterCode($code)
+    {
+        if ($this->service_center_verification_code === $code && $this->status === 'delivered') {
+            $this->update([
+                'status' => 'service_center_received',
+                'actual_delivery_time' => now()
+            ]);
+            return true;
+        }
+        return false;
+    }
+
+    private function generateVerificationCode($length)
+    {
+        return str_pad(random_int(0, pow(10, $length) - 1), $length, '0', STR_PAD_LEFT);
     }
 
     public function getAssignedProvider()
@@ -222,5 +280,45 @@ class TowRequest extends Model
             'individual' => TowServiceIndividual::find($this->assigned_provider_id),
             default => null
         };
+    }
+
+    public function getProviderContactInfo()
+    {
+        $provider = $this->getAssignedProvider();
+        
+        if (!$provider) {
+            return null;
+        }
+
+        return [
+            'name' => match($this->assigned_provider_type) {
+                'service_center' => $provider->legal_name,
+                'tow_company' => $provider->legal_name,
+                'individual' => $provider->full_name,
+                default => 'Unknown'
+            },
+            'phone' => $provider->formatted_phone ?? $provider->phone,
+            'type' => $this->assigned_provider_type,
+            'location' => [
+                'lat' => match($this->assigned_provider_type) {
+                    'service_center' => $provider->center_location_lat,
+                    'tow_company' => $provider->office_location_lat,
+                    'individual' => $provider->location_lat,
+                    default => null
+                },
+                'lng' => match($this->assigned_provider_type) {
+                    'service_center' => $provider->center_location_lng,
+                    'tow_company' => $provider->office_location_lng,
+                    'individual' => $provider->location_lng,
+                    default => null
+                },
+                'address' => match($this->assigned_provider_type) {
+                    'service_center' => $provider->center_address,
+                    'tow_company' => $provider->office_address,
+                    'individual' => $provider->address,
+                    default => null
+                }
+            ]
+        ];
     }
 }

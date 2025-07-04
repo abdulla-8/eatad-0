@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Claim extends Model
 {
@@ -22,6 +23,7 @@ class Claim extends Model
         'status',
         'rejection_reason',
         'service_center_id',
+        'tow_request_id',
         'tow_service_offered',
         'tow_service_accepted',
         'notes'
@@ -55,6 +57,12 @@ class Claim extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(ClaimAttachment::class);
+    }
+
+    // Add towRequest relationship
+    public function towRequest(): HasOne
+    {
+        return $this->hasOne(TowRequest::class);
     }
 
     // Scopes
