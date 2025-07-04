@@ -46,6 +46,7 @@ use App\Http\Controllers\TowService\TowCompanyController;
 use App\Http\Controllers\TowService\TowIndividualController;
 
 
+
 // Language route
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
     ->name('language.change');
@@ -414,3 +415,5 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
 Route::get('/track/{code}', function($code) {
     return view('tracking.show', compact('code'));
 })->name('tow.track');
+
+

@@ -19,115 +19,154 @@ class TowServiceController extends Controller
     /**
      * Create tow request when user accepts tow service
      */
- /**
- * Create tow request when user accepts tow service
- */
-public function createTowRequest(Claim $claim)
-{
-    if ($claim->tow_service_accepted !== true) {
-        return response()->json(['success' => false, 'error' => 'Tow service not accepted'], 400);
+    /**
+     * Create tow request when user accepts tow service
+     */
+    public function createTowRequest(Claim $claim)
+    {
+        if ($claim->tow_service_accepted !== true) {
+            return response()->json(['success' => false, 'error' => 'Tow service not accepted'], 400);
+        }
+
+        if ($claim->tow_request_id) {
+            return response()->json(['success' => false, 'error' => 'Tow request already exists'], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Create tow request
+            $towRequest = TowRequest::create([
+                'claim_id' => $claim->id,
+                'request_code' => 'TOW' . rand(100000, 999999),
+                'pickup_location_lat' => $claim->vehicle_location_lat,
+                'pickup_location_lng' => $claim->vehicle_location_lng,
+                'pickup_location_address' => $claim->vehicle_location,
+                'dropoff_location_lat' => $claim->serviceCenter->center_location_lat,
+                'dropoff_location_lng' => $claim->serviceCenter->center_location_lng,
+                'dropoff_location_address' => $claim->serviceCenter->center_address,
+                'status' => 'pending',
+                'current_stage' => 'service_center',
+                'stage_started_at' => now(),
+                'stage_expires_at' => now()->addMinutes(1), // 30 minutes for service centers
+                'tracking_url' => Str::random(32), // إضافة tracking_url
+            ]);
+
+            // Update claim with tow request
+            $claim->update(['tow_request_id' => $towRequest->id]);
+
+            // Send offers to service centers first
+            $this->sendOffersToServiceCenters($towRequest);
+
+            DB::commit();
+
+            \Log::info("Tow request created", [
+                'tow_request_id' => $towRequest->id,
+                'claim_id' => $claim->id,
+                'request_code' => $towRequest->request_code
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'tow_request' => $towRequest->load('offers'),
+                'message' => 'Tow request created and sent to service centers'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Failed to create tow request', [
+                'claim_id' => $claim->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to create tow request: ' . $e->getMessage()
+            ], 500);
+        }
     }
-
-    if ($claim->tow_request_id) {
-        return response()->json(['success' => false, 'error' => 'Tow request already exists'], 400);
-    }
-
-    try {
-        DB::beginTransaction();
-
-        // Create tow request
-        $towRequest = TowRequest::create([
-            'claim_id' => $claim->id,
-            'request_code' => 'TOW' . rand(100000, 999999),
-            'pickup_location_lat' => $claim->vehicle_location_lat,
-            'pickup_location_lng' => $claim->vehicle_location_lng,
-            'pickup_location_address' => $claim->vehicle_location,
-            'dropoff_location_lat' => $claim->serviceCenter->center_location_lat,
-            'dropoff_location_lng' => $claim->serviceCenter->center_location_lng,
-            'dropoff_location_address' => $claim->serviceCenter->center_address,
-            'status' => 'pending',
-            'current_stage' => 'service_center',
-            'stage_started_at' => now(),
-            'stage_expires_at' => now()->addMinutes(30), // 30 minutes for service centers
-            'tracking_url' => Str::random(32), // إضافة tracking_url
-        ]);
-
-        // Update claim with tow request
-        $claim->update(['tow_request_id' => $towRequest->id]);
-
-        // Send offers to service centers first
-        $this->sendOffersToServiceCenters($towRequest);
-
-        DB::commit();
-
-        \Log::info("Tow request created", [
-            'tow_request_id' => $towRequest->id,
-            'claim_id' => $claim->id,
-            'request_code' => $towRequest->request_code
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'tow_request' => $towRequest->load('offers'),
-            'message' => 'Tow request created and sent to service centers'
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Failed to create tow request', [
-            'claim_id' => $claim->id,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        return response()->json([
-            'success' => false, 
-            'error' => 'Failed to create tow request: ' . $e->getMessage()
-        ], 500);
-    }
-}
 
     /**
-     * Send offers to service centers only
+     * Send offers to the assigned service center only (not all service centers)
      */
     private function sendOffersToServiceCenters(TowRequest $towRequest)
     {
-        // Get available service centers with tow service
-        $serviceCenters = ServiceCenter::where('is_active', true)
-            ->where('is_approved', true)
-            ->where('has_tow_service', true)
-            ->get();
+        // الحصول على المركز المحدد للـ claim
+        $assignedServiceCenter = $towRequest->claim->serviceCenter;
 
-        \Log::info("Sending offers to service centers", [
+        if (!$assignedServiceCenter) {
+            \Log::error("No service center assigned to claim", [
+                'tow_request_id' => $towRequest->id,
+                'claim_id' => $towRequest->claim->id
+            ]);
+            return;
+        }
+
+        \Log::info("Sending offer to assigned service center only", [
             'tow_request_id' => $towRequest->id,
-            'service_centers_count' => $serviceCenters->count()
+            'service_center_id' => $assignedServiceCenter->id,
+            'service_center_name' => $assignedServiceCenter->legal_name
         ]);
 
-        foreach ($serviceCenters as $center) {
-            // Check if they have capacity
-            if (TowServiceCapacity::checkCapacity('service_center', $center->id)) {
-                
-                // Create offer
+        // تحقق من أن المركز نشط ومعتمد وله خدمة سحب
+        if (
+            $assignedServiceCenter->is_active &&
+            $assignedServiceCenter->is_approved &&
+            $assignedServiceCenter->has_tow_service
+        ) {
+
+            // تحقق من السعة
+            if (TowServiceCapacity::checkCapacity('service_center', $assignedServiceCenter->id)) {
+
+                // إنشاء العرض للمركز المحدد فقط
                 TowOffer::create([
                     'tow_request_id' => $towRequest->id,
                     'provider_type' => 'service_center',
-                    'provider_id' => $center->id,
+                    'provider_id' => $assignedServiceCenter->id,
                     'stage' => 'service_center',
                     'offer_time' => now(),
                     'expires_at' => $towRequest->stage_expires_at,
                     'status' => 'pending'
                 ]);
 
-                // Reserve capacity
-                TowServiceCapacity::reserveCapacity('service_center', $center->id);
+                // حجز السعة
+                TowServiceCapacity::reserveCapacity('service_center', $assignedServiceCenter->id);
+
+                \Log::info("Offer created for assigned service center", [
+                    'tow_request_id' => $towRequest->id,
+                    'service_center_id' => $assignedServiceCenter->id
+                ]);
+            } else {
+                \Log::warning("Service center has no capacity", [
+                    'tow_request_id' => $towRequest->id,
+                    'service_center_id' => $assignedServiceCenter->id
+                ]);
+
+                // إذا المركز المحدد مش متاح، انتقل مباشرة لشركات السحب
+                $this->moveToNextStage($towRequest);
             }
+        } else {
+            \Log::warning("Service center not eligible for tow service", [
+                'tow_request_id' => $towRequest->id,
+                'service_center_id' => $assignedServiceCenter->id,
+                'is_active' => $assignedServiceCenter->is_active,
+                'is_approved' => $assignedServiceCenter->is_approved,
+                'has_tow_service' => $assignedServiceCenter->has_tow_service
+            ]);
+
+            // إذا المركز المحدد مش مؤهل، انتقل مباشرة لشركات السحب
+            $this->moveToNextStage($towRequest);
         }
     }
+
+
+
 
     /**
      * Send offers to tow companies only
      */
     private function sendOffersToTowCompanies(TowRequest $towRequest)
     {
+        // الحصول على جميع شركات السحب النشطة
         $towCompanies = TowServiceCompany::where('is_active', true)
             ->where('is_approved', true)
             ->get();
@@ -137,9 +176,10 @@ public function createTowRequest(Claim $claim)
             'companies_count' => $towCompanies->count()
         ]);
 
+        $offersCreated = 0;
         foreach ($towCompanies as $company) {
             if (TowServiceCapacity::checkCapacity('tow_company', $company->id)) {
-                
+
                 TowOffer::create([
                     'tow_request_id' => $towRequest->id,
                     'provider_type' => 'tow_company',
@@ -151,15 +191,21 @@ public function createTowRequest(Claim $claim)
                 ]);
 
                 TowServiceCapacity::reserveCapacity('tow_company', $company->id);
+                $offersCreated++;
             }
         }
-    }
 
+        \Log::info("Offers created for tow companies", [
+            'tow_request_id' => $towRequest->id,
+            'offers_created' => $offersCreated
+        ]);
+    }
     /**
      * Send offers to individuals only
      */
     private function sendOffersToIndividuals(TowRequest $towRequest)
     {
+        // الحصول على جميع الأفراد النشطين
         $individuals = TowServiceIndividual::where('is_active', true)
             ->where('is_approved', true)
             ->get();
@@ -169,9 +215,10 @@ public function createTowRequest(Claim $claim)
             'individuals_count' => $individuals->count()
         ]);
 
+        $offersCreated = 0;
         foreach ($individuals as $individual) {
             if (TowServiceCapacity::checkCapacity('individual', $individual->id)) {
-                
+
                 TowOffer::create([
                     'tow_request_id' => $towRequest->id,
                     'provider_type' => 'individual',
@@ -183,8 +230,14 @@ public function createTowRequest(Claim $claim)
                 ]);
 
                 TowServiceCapacity::reserveCapacity('individual', $individual->id);
+                $offersCreated++;
             }
         }
+
+        \Log::info("Offers created for individuals", [
+            'tow_request_id' => $towRequest->id,
+            'offers_created' => $offersCreated
+        ]);
     }
 
     /**
@@ -224,7 +277,7 @@ public function createTowRequest(Claim $claim)
 
             foreach ($otherOffers as $otherOffer) {
                 $otherOffer->update(['status' => 'rejected']);
-                
+
                 // Release capacity for rejected offers
                 TowServiceCapacity::releaseCapacity(
                     $otherOffer->provider_type,
@@ -254,7 +307,6 @@ public function createTowRequest(Claim $claim)
                 'message' => 'Offer accepted successfully! Tow request is now assigned.',
                 'tow_request' => $towRequest->fresh()
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Failed to accept tow offer', [
@@ -319,7 +371,6 @@ public function createTowRequest(Claim $claim)
                 'success' => true,
                 'message' => 'Offer rejected successfully'
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Failed to reject tow offer', [
@@ -330,135 +381,158 @@ public function createTowRequest(Claim $claim)
         }
     }
 
-    /**
-     * Move to next stage when all offers rejected
-     */
-    private function moveToNextStage(TowRequest $towRequest)
-    {
-        try {
-            // Determine next stage
-            $nextStage = match($towRequest->current_stage) {
-                'service_center' => 'tow_companies',
-                'tow_companies' => 'individuals', 
-                'individuals' => 'expired', // End cycle after individuals
-                default => 'expired'
-            };
+/**
+ * Move to next stage - يرجع للبداية بدل ما يخلص
+ */
+private function moveToNextStage(TowRequest $towRequest)
+{
+    try {
+        // Determine next stage - هنا التغيير المهم
+        $nextStage = match($towRequest->current_stage) {
+            'service_center' => 'tow_companies',
+            'tow_companies' => 'individuals', 
+            'individuals' => 'service_center', // ★ يرجع للبداية بدل expired
+            default => 'service_center' // ★ أي حاجة تانية ترجع للبداية
+        };
 
-            if ($nextStage === 'expired') {
+        \Log::info("Moving tow request to next stage", [
+            'tow_request_id' => $towRequest->id,
+            'current_stage' => $towRequest->current_stage,
+            'next_stage' => $nextStage
+        ]);
+
+        // إذا مر بجميع المراحل 3 مرات، يتوقف (اختياري)
+        $completedCycles = $towRequest->completed_cycles ?? 0;
+        
+        // إذا رجع لمراكز الصيانة، زود العداد
+        if ($nextStage === 'service_center' && $towRequest->current_stage === 'individuals') {
+            $completedCycles++;
+            
+            // بعد 3 دورات كاملة، يتوقف (اختياري)
+            if ($completedCycles >= 3) {
                 $towRequest->update([
                     'status' => 'expired',
-                    'current_stage' => 'expired'
+                    'current_stage' => 'expired',
+                    'completed_cycles' => $completedCycles
                 ]);
                 
-                \Log::info("Tow request expired after going through all stages", [
+                \Log::info("Tow request expired after 3 complete cycles", [
                     'tow_request_id' => $towRequest->id,
-                    'request_code' => $towRequest->request_code
+                    'request_code' => $towRequest->request_code,
+                    'completed_cycles' => $completedCycles
                 ]);
                 return;
             }
-
-            // Update stage
-            $stageTimeout = $this->getStageTimeout($nextStage);
-            $towRequest->update([
-                'current_stage' => $nextStage,
-                'stage_started_at' => now(),
-                'stage_expires_at' => now()->addMinutes($stageTimeout)
-            ]);
-
-            \Log::info("Tow request moved to next stage", [
-                'tow_request_id' => $towRequest->id,
-                'request_code' => $towRequest->request_code,
-                'new_stage' => $nextStage,
-                'timeout_minutes' => $stageTimeout
-            ]);
-
-            // Send offers to next stage
-            match($nextStage) {
-                'service_center' => $this->sendOffersToServiceCenters($towRequest),
-                'tow_companies' => $this->sendOffersToTowCompanies($towRequest),
-                'individuals' => $this->sendOffersToIndividuals($towRequest)
-            };
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to move tow request to next stage', [
-                'tow_request_id' => $towRequest->id,
-                'error' => $e->getMessage()
-            ]);
         }
+
+        // Update stage
+        $stageTimeout = $this->getStageTimeout($nextStage);
+        $towRequest->update([
+            'current_stage' => $nextStage,
+            'stage_started_at' => now(),
+            'stage_expires_at' => now()->addMinutes($stageTimeout),
+            'completed_cycles' => $completedCycles
+        ]);
+
+        \Log::info("Tow request moved to next stage", [
+            'tow_request_id' => $towRequest->id,
+            'request_code' => $towRequest->request_code,
+            'new_stage' => $nextStage,
+            'timeout_minutes' => $stageTimeout,
+            'expires_at' => $towRequest->stage_expires_at,
+            'completed_cycles' => $completedCycles
+        ]);
+
+        // Send offers to next stage
+        match($nextStage) {
+            'service_center' => $this->sendOffersToServiceCenters($towRequest),
+            'tow_companies' => $this->sendOffersToTowCompanies($towRequest),
+            'individuals' => $this->sendOffersToIndividuals($towRequest)
+        };
+
+    } catch (\Exception $e) {
+        \Log::error('Failed to move tow request to next stage', [
+            'tow_request_id' => $towRequest->id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
     }
+}
 
-    /**
-     * Process expired stages - هنا نشيك على الوقت لو خلص
-     */
-    public function processExpiredStages()
-    {
-        try {
-            $expiredRequests = TowRequest::where('stage_expires_at', '<=', now())
-                ->where('status', 'pending')
-                ->whereIn('current_stage', ['service_center', 'tow_companies', 'individuals'])
-                ->get();
 
-            $processedCount = 0;
+/**
+ * Process expired stages - مش يتوقف أبداً
+ */
+public function processExpiredStages()
+{
+    try {
+        // البحث عن الطلبات المنتهية الصلاحية
+        $expiredRequests = TowRequest::where('stage_expires_at', '<=', now())
+            ->where('status', 'pending') // بس اللي لسه pending
+            ->whereIn('current_stage', ['service_center', 'tow_companies', 'individuals'])
+            ->get();
 
-            foreach ($expiredRequests as $request) {
-                DB::beginTransaction();
-                
-                try {
-                    // Expire all pending offers in current stage
-                    $expiredOffers = TowOffer::where('tow_request_id', $request->id)
-                        ->where('status', 'pending')
-                        ->get();
+        $processedCount = 0;
 
-                    foreach ($expiredOffers as $expiredOffer) {
-                        $expiredOffer->update(['status' => 'expired']);
-                        
-                        // Release capacity for expired offers
-                        TowServiceCapacity::releaseCapacity(
-                            $expiredOffer->provider_type,
-                            $expiredOffer->provider_id
-                        );
-                    }
+        foreach ($expiredRequests as $request) {
+            DB::beginTransaction();
+            
+            try {
+                // إنهاء جميع العروض المعلقة في المرحلة الحالية
+                $expiredOffers = TowOffer::where('tow_request_id', $request->id)
+                    ->where('status', 'pending')
+                    ->get();
 
-                    // Move to next stage
-                    $this->moveToNextStage($request);
+                foreach ($expiredOffers as $expiredOffer) {
+                    $expiredOffer->update(['status' => 'expired']);
                     
-                    $processedCount++;
-                    DB::commit();
-                    
-                    \Log::info("Processed expired tow request", [
-                        'request_id' => $request->id,
-                        'request_code' => $request->request_code,
-                        'previous_stage' => $request->current_stage,
-                        'expired_offers_count' => $expiredOffers->count()
-                    ]);
-                    
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    \Log::error("Failed to process expired tow request {$request->id}: " . $e->getMessage());
+                    // تحرير السعة
+                    TowServiceCapacity::releaseCapacity(
+                        $expiredOffer->provider_type,
+                        $expiredOffer->provider_id
+                    );
                 }
+
+                // الانتقال للمرحلة التالية (أو العودة للبداية)
+                $this->moveToNextStage($request);
+                
+                $processedCount++;
+                DB::commit();
+                
+                \Log::info("Processed expired tow request", [
+                    'request_id' => $request->id,
+                    'request_code' => $request->request_code,
+                    'previous_stage' => $request->current_stage,
+                    'expired_offers_count' => $expiredOffers->count()
+                ]);
+                
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error("Failed to process expired tow request {$request->id}: " . $e->getMessage());
             }
-
-            return response()->json([
-                'success' => true,
-                'processed_requests' => $processedCount,
-                'message' => "Processed {$processedCount} expired tow requests"
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to process expired tow stages: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
         }
+
+        return response()->json([
+            'success' => true,
+            'processed_requests' => $processedCount,
+            'message' => "Processed {$processedCount} expired tow requests"
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Failed to process expired tow stages: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * Get timeout for each stage
      */
     private function getStageTimeout($stage)
     {
-        return match($stage) {
+        return match ($stage) {
             'service_center' => 0.1, // 30 minutes
             'tow_companies' => 0.1,  // 20 minutes  
             'individuals' => 0.1,    // 15 minutes
@@ -473,7 +547,7 @@ public function createTowRequest(Claim $claim)
     {
         return response()->json([
             'tow_request' => $towRequest->load([
-                'offers' => function($query) {
+                'offers' => function ($query) {
                     $query->with(['serviceCenter', 'towCompany', 'individual']);
                 },
                 'claim.insuranceUser'

@@ -188,9 +188,9 @@ class TowRequest extends Model
     public function getStageTimeout($stage)
     {
         return match ($stage) {
-            'service_center' => 30, // 30 minutes
-            'tow_companies' => 20,  // 20 minutes
-            'individuals' => 15,    // 15 minutes
+            'service_center' => 0.5, // 30 minutes
+            'tow_companies' => 0.5,  // 20 minutes
+            'individuals' => 0.5,    // 15 minutes
             default => 30
         };
     }
