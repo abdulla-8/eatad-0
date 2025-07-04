@@ -91,7 +91,7 @@
         </div>
     @endif
 
-    @if($claim->tow_service_accepted === true && $claim->tow_request_id)
+@if($claim->tow_service_accepted === true && $claim->tow_request_id)
         <div class="bg-green-50 border border-green-200 rounded-xl p-6">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -101,7 +101,74 @@
                 </div>
                 <div class="flex-1">
                     <h3 class="font-bold text-green-800 mb-2">{{ t($company->translation_group . '.tow_service_requested') }}</h3>
-                    <p class="text-green-700">{{ t($company->translation_group . '.tow_request_sent_to_providers') }}</p>
+                    <p class="text-green-700 mb-3">{{ t($company->translation_group . '.tow_request_sent_to_providers') }}</p>
+                    
+                    @if($towRequestDetails)
+                        <div class="bg-white border border-green-200 rounded-lg p-4 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium text-green-800">{{ t($company->translation_group . '.request_status') }}:</span>
+                                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $towRequestDetails['status_badge']['class'] ?? 'bg-blue-100 text-blue-800' }}">
+                                    {{ $towRequestDetails['status_badge']['text'] ?? $towRequestDetails['status'] }}
+                                </span>
+                            </div>
+                            
+                            @if($towRequestDetails['provider_info'])
+                                <div class="border-t border-green-100 pt-3">
+                                    <h4 class="font-medium text-green-800 mb-2">{{ t($company->translation_group . '.service_provider') }}</h4>
+                                    <div class="space-y-1 text-sm">
+                                        <div><strong>{{ t($company->translation_group . '.name') }}:</strong> {{ $towRequestDetails['provider_info']['name'] }}</div>
+                                        <div><strong>{{ t($company->translation_group . '.phone') }}:</strong> {{ $towRequestDetails['provider_info']['phone'] }}</div>
+                                        <div><strong>{{ t($company->translation_group . '.type') }}:</strong> {{ t($company->translation_group . '.' . $towRequestDetails['provider_info']['type']) }}</div>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            @if($towRequestDetails['customer_verification_code'] && in_array($towRequestDetails['status'], ['arrived_at_pickup']))
+                                <div class="border-t border-green-100 pt-3">
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                        <h4 class="font-medium text-yellow-800 mb-2">🚛 {{ t($company->translation_group . '.driver_arrived') }}</h4>
+                                        <p class="text-yellow-700 text-sm mb-2">{{ t($company->translation_group . '.provide_verification_code') }}</p>
+                                        <div class="bg-white border-2 border-yellow-300 rounded-lg p-3 text-center">
+                                            <span class="text-2xl font-bold text-yellow-800 tracking-wider">{{ $towRequestDetails['customer_verification_code'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            <div class="border-t border-green-100 pt-3">
+                                <a href="{{ $towRequestDetails['tracking_url'] }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white transition-colors w-full justify-center"
+                                   style="background: {{ $company->primary_color }};">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    </svg>
+                                    {{ t($company->translation_group . '.track_tow_service') }}
+                                </a>
+                            </div>
+                            
+                            @if($towRequestDetails['estimated_pickup_time'])
+                                <div class="text-sm text-green-700">
+                                    <strong>{{ t($company->translation_group . '.estimated_pickup') }}:</strong> 
+                                    {{ \Carbon\Carbon::parse($towRequestDetails['estimated_pickup_time'])->format('M d, Y H:i') }}
+                                </div>
+                            @endif
+                            
+                            @if($towRequestDetails['actual_pickup_time'])
+                                <div class="text-sm text-green-700">
+                                    <strong>{{ t($company->translation_group . '.actual_pickup') }}:</strong> 
+                                    {{ \Carbon\Carbon::parse($towRequestDetails['actual_pickup_time'])->format('M d, Y H:i') }}
+                                </div>
+                            @endif
+                            
+                            @if($towRequestDetails['actual_delivery_time'])
+                                <div class="text-sm text-green-700">
+                                    <strong>{{ t($company->translation_group . '.delivered_at') }}:</strong> 
+                                    {{ \Carbon\Carbon::parse($towRequestDetails['actual_delivery_time'])->format('M d, Y H:i') }}
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

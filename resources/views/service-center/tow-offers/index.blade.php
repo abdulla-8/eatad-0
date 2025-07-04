@@ -99,6 +99,11 @@
                                         {{ t('service_center.reject') }}
                                     </button>
                                 </div>
+                            @elseif($offer->status === 'accepted' && $offer->towRequest->driver_tracking_token)
+                                <button onclick="showDriverLink('{{ $offer->towRequest->driver_tracking_token }}')" 
+                                        class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                                    📱 {{ t('service_center.driver_link') }}
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -241,8 +246,99 @@
     </div>
 </div>
 
+<!-- Success Modal with Driver Link -->
+<div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-lg w-full">
+        <div class="p-6 border-b">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-green-800">{{ t('service_center.offer_accepted_successfully') }}</h3>
+            </div>
+        </div>
+        
+        <div class="p-6 space-y-6">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <p class="text-green-800 text-sm">{{ t('service_center.tow_request_assigned_to_you') }}</p>
+            </div>
+            
+            <div>
+                <h4 class="font-bold text-gray-900 mb-3">📱 {{ t('service_center.driver_tracking_link') }}</h4>
+                <p class="text-gray-600 text-sm mb-3">{{ t('service_center.share_link_with_driver') }}</p>
+                
+                <div class="bg-gray-50 border rounded-lg p-4">
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="driverLinkInput" readonly 
+                               class="flex-1 bg-white border border-gray-300 rounded px-3 py-2 text-sm font-mono">
+                        <button onclick="copyDriverLink()" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition-colors">
+                            📋 {{ t('service_center.copy') }}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                    <p class="text-blue-800 text-xs">
+                        <strong>{{ t('service_center.instructions') }}:</strong> {{ t('service_center.driver_link_instructions') }}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="openDriverLink()" 
+                        class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                    🔗 {{ t('service_center.open_driver_page') }}
+                </button>
+                <button onclick="closeModal('successModal')" 
+                        class="flex-1 px-4 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.close') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Driver Link Modal (for already accepted offers) -->
+<div id="driverLinkModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-bold">📱 {{ t('service_center.driver_tracking_link') }}</h3>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <p class="text-gray-600 text-sm">{{ t('service_center.share_link_with_driver') }}</p>
+            
+            <div class="bg-gray-50 border rounded-lg p-4">
+                <div class="flex items-center gap-3">
+                    <input type="text" id="existingDriverLinkInput" readonly 
+                           class="flex-1 bg-white border border-gray-300 rounded px-3 py-2 text-sm font-mono">
+                    <button onclick="copyExistingDriverLink()" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 transition-colors">
+                        📋 {{ t('service_center.copy') }}
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="openExistingDriverLink()" 
+                        class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                    🔗 {{ t('service_center.open_driver_page') }}
+                </button>
+                <button onclick="closeModal('driverLinkModal')" 
+                        class="flex-1 px-4 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.close') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 let currentOfferId = null;
+let currentDriverLink = '';
 
 function acceptOffer(offerId) {
     currentOfferId = offerId;
@@ -259,9 +355,52 @@ function rejectOffer(offerId) {
     document.getElementById('rejectModal').classList.remove('hidden');
 }
 
+function showDriverLink(token) {
+    const driverLink = `${window.location.origin}/driver/track/${token}`;
+    document.getElementById('existingDriverLinkInput').value = driverLink;
+    currentDriverLink = driverLink;
+    document.getElementById('driverLinkModal').classList.remove('hidden');
+}
+
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
     currentOfferId = null;
+}
+
+function copyDriverLink() {
+    const input = document.getElementById('driverLinkInput');
+    input.select();
+    document.execCommand('copy');
+    showMessage('{{ t("service_center.link_copied") }}', 'success');
+}
+
+function copyExistingDriverLink() {
+    const input = document.getElementById('existingDriverLinkInput');
+    input.select();
+    document.execCommand('copy');
+    showMessage('{{ t("service_center.link_copied") }}', 'success');
+}
+
+function openDriverLink() {
+    const link = document.getElementById('driverLinkInput').value;
+    window.open(link, '_blank');
+}
+
+function openExistingDriverLink() {
+    window.open(currentDriverLink, '_blank');
+}
+
+function showMessage(message, type) {
+    const div = document.createElement('div');
+    div.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg text-white font-medium z-50 ${
+        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+    }`;
+    div.textContent = message;
+    document.body.appendChild(div);
+    
+    setTimeout(() => {
+        div.remove();
+    }, 3000);
 }
 
 // Handle accept form submission
@@ -289,13 +428,20 @@ document.getElementById('acceptForm').addEventListener('submit', async function(
         const result = await response.json();
         
         if (result.success) {
-            location.reload();
+            closeModal('acceptModal');
+            
+            // Show success modal with driver link
+            const driverLink = result.driver_tracking_url || `${window.location.origin}/driver/track/${result.tow_request.driver_tracking_token}`;
+            document.getElementById('driverLinkInput').value = driverLink;
+            currentDriverLink = driverLink;
+            document.getElementById('successModal').classList.remove('hidden');
+            
         } else {
-            alert(result.error || 'Failed to accept offer');
+            showMessage(result.error || 'Failed to accept offer', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while accepting the offer');
+        showMessage('An error occurred while accepting the offer', 'error');
     }
 });
 
@@ -323,13 +469,15 @@ document.getElementById('rejectForm').addEventListener('submit', async function(
         const result = await response.json();
         
         if (result.success) {
-            location.reload();
+            closeModal('rejectModal');
+            showMessage(result.message || 'Offer rejected successfully', 'success');
+            setTimeout(() => location.reload(), 1500);
         } else {
-            alert(result.error || 'Failed to reject offer');
+            showMessage(result.error || 'Failed to reject offer', 'error');
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while rejecting the offer');
+        showMessage('An error occurred while rejecting the offer', 'error');
     }
 });
 
@@ -340,6 +488,14 @@ document.getElementById('acceptModal').addEventListener('click', function(e) {
 
 document.getElementById('rejectModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('rejectModal');
+});
+
+document.getElementById('successModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('successModal');
+});
+
+document.getElementById('driverLinkModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('driverLinkModal');
 });
 </script>
 @endsection
