@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Auth\AuthenticationException;
 
@@ -25,6 +26,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.auth' => \App\Http\Middleware\AdminAuth::class,
         ]);
     })
+    ->withSchedule(function (Schedule $schedule) {
+        // Process expired tow service stages every 5 minutes
+        $schedule->command('tow:process-expired-stages')
+                 ->everyFiveMinutes()
+                 ->withoutOverlapping()
+                 ->runInBackground()
+                 ->appendOutputTo(storage_path('logs/tow-processing.log'));
+    })
+    ->withCommands([
+        \App\Console\Commands\ProcessExpiredTowStages::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
         // Handle authentication exceptions
         $exceptions->render(function (AuthenticationException $e, Request $request) {
