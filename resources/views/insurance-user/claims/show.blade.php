@@ -63,7 +63,7 @@
         </div>
     @endif
 
-    @if($claim->tow_service_offered && is_null($claim->tow_service_accepted))
+     @if($claim->tow_service_offered && is_null($claim->tow_service_accepted))
         <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -86,6 +86,22 @@
                             {{ t($company->translation_group . '.decline_go_myself') }}
                         </button>
                     </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($claim->tow_service_accepted === true && $claim->tow_request_id)
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-green-800 mb-2">{{ t($company->translation_group . '.tow_service_requested') }}</h3>
+                    <p class="text-green-700">{{ t($company->translation_group . '.tow_request_sent_to_providers') }}</p>
                 </div>
             </div>
         </div>

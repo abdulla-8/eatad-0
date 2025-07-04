@@ -130,8 +130,13 @@ class TowRequest extends Model
 
     public function getTrackingUrlAttribute()
     {
-        return route('tow.track', $this->tracking_url);
+        if (!empty($this->attributes['tracking_url'])) {
+            return route('tow.track', $this->attributes['tracking_url']);
+        }
+
+        return route('tow.track', 'TOW' . $this->id . '_' . Str::random(8));
     }
+
 
     public function getTimeRemainingAttribute()
     {
@@ -155,7 +160,7 @@ class TowRequest extends Model
         $this->offers()->where('status', 'pending')->update(['status' => 'expired']);
 
         // Determine next stage
-        $nextStage = match($this->current_stage) {
+        $nextStage = match ($this->current_stage) {
             'service_center' => 'tow_companies',
             'tow_companies' => 'individuals',
             'individuals' => 'service_center', // Back to service centers
@@ -182,7 +187,7 @@ class TowRequest extends Model
 
     public function getStageTimeout($stage)
     {
-        return match($stage) {
+        return match ($stage) {
             'service_center' => 30, // 30 minutes
             'tow_companies' => 20,  // 20 minutes
             'individuals' => 15,    // 15 minutes
@@ -211,7 +216,7 @@ class TowRequest extends Model
             return null;
         }
 
-        return match($this->assigned_provider_type) {
+        return match ($this->assigned_provider_type) {
             'service_center' => ServiceCenter::find($this->assigned_provider_id),
             'tow_company' => TowServiceCompany::find($this->assigned_provider_id),
             'individual' => TowServiceIndividual::find($this->assigned_provider_id),

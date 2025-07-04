@@ -255,12 +255,12 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
 
 
         // Tow Service Offers Routes - ADD THESE
-        Route::prefix('tow-offers')->name('tow-offers.')->group(function () {
-            Route::get('/', [ServiceCenterTowController::class, 'index'])->name('index');
-            Route::get('/{offer}', [ServiceCenterTowController::class, 'show'])->name('show');
-            Route::post('/{offer}/accept', [ServiceCenterTowController::class, 'accept'])->name('accept');
-            Route::post('/{offer}/reject', [ServiceCenterTowController::class, 'reject'])->name('reject');
-        });
+    Route::prefix('tow-offers')->name('tow-offers.')->group(function () {
+        Route::get('/', [ServiceCenterTowController::class, 'index'])->name('index');
+        Route::get('/{offer}', [ServiceCenterTowController::class, 'show'])->name('show');
+        Route::post('/{offer}/accept', [ServiceCenterTowController::class, 'accept'])->name('accept');
+        Route::post('/{offer}/reject', [ServiceCenterTowController::class, 'reject'])->name('reject');
+    });
     });
 });
 
@@ -291,7 +291,7 @@ Route::prefix('tow-service')->name('tow-service.')->group(function () {
     }], function () {
         Route::get('/dashboard', [TowServiceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [TowServiceAuthController::class, 'logout'])->name('logout');
-                // Company specific routes
+        // Company specific routes
         Route::middleware(['auth:tow_service_company'])->group(function () {
             Route::get('/company/offers', [TowCompanyController::class, 'offers'])->name('company.offers.index');
             Route::post('/company/offers/{offer}/accept', [TowCompanyController::class, 'acceptOffer'])->name('company.offers.accept');
@@ -356,18 +356,18 @@ Route::prefix('api/tow-service')->group(function () {
     // Create tow request when user accepts
     Route::post('/claims/{claim}/create-request', [TowServiceController::class, 'createTowRequest'])
         ->name('api.tow.create-request');
-    
+
     // Accept/Reject offers (for service centers, companies, individuals)
     Route::post('/offers/{offer}/accept', [TowServiceController::class, 'acceptOffer'])
         ->name('api.tow.accept-offer');
-    
+
     Route::post('/offers/{offer}/reject', [TowServiceController::class, 'rejectOffer'])
         ->name('api.tow.reject-offer');
-    
+
     // Get tow request status
     Route::get('/requests/{towRequest}/status', [TowServiceController::class, 'getTowRequestStatus'])
         ->name('api.tow.request-status');
-    
+
     // Process expired stages (should be called by cron job)
     Route::post('/process-expired', [TowServiceController::class, 'processExpiredStages'])
         ->name('api.tow.process-expired');
@@ -405,11 +405,12 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
             Route::put('/{claim}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'update'])->name('update');
             Route::post('/{claim}/tow-service', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'updateTowService'])->name('tow-service');
             Route::delete('/{claim}/attachments/{attachment}', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'deleteAttachment'])->name('attachments.delete');
-                    Route::post('/{claim}/request-tow', function($companySlug, $claim) {
-                $claim = \App\Models\Claim::findOrFail($claim);
-                return app(TowServiceController::class)->createTowRequest($claim);
-            })->name('request-tow');
-        });
-            
+
+            Route::post('/{claim}/request-tow', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'requestTowService'])->name('request-tow');
         });
     });
+});
+
+Route::get('/track/{code}', function($code) {
+    return view('tracking.show', compact('code'));
+})->name('tow.track');

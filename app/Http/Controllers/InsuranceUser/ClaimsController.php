@@ -306,53 +306,112 @@ class ClaimsController extends Controller
                 ->withInput();
         }
     }
+public function updateTowService(Request $request, $companySlug, $claim)
+{
+    $company = InsuranceCompany::where('company_slug', $companySlug)
+        ->where('is_active', true)
+        ->where('is_approved', true)
+        ->firstOrFail();
 
-    public function updateTowService(Request $request, $companySlug, $claim)
-    {
-        $company = InsuranceCompany::where('company_slug', $companySlug)
-            ->where('is_active', true)
-            ->where('is_approved', true)
-            ->firstOrFail();
+    $user = Auth::guard('insurance_user')->user();
 
-        $user = Auth::guard('insurance_user')->user();
+    // Check if user belongs to this company
+    if ($user->insurance_company_id !== $company->id) {
+        Auth::guard('insurance_user')->logout();
+        return redirect()->route('insurance.user.login', $companySlug);
+    }
 
-        // Check if user belongs to this company
-        if ($user->insurance_company_id !== $company->id) {
-            Auth::guard('insurance_user')->logout();
-            return redirect()->route('insurance.user.login', $companySlug);
-        }
+    // Get claim ID from route parameters
+    $claimId = $request->route('claim');
 
-        // Get claim ID from route parameters
-        $claimId = $request->route('claim');
+    $claim = Claim::where('insurance_user_id', $user->id)
+        ->where('status', 'approved')
+        ->where('tow_service_offered', true)
+        ->whereNull('tow_service_accepted')
+        ->where('id', $claimId)
+        ->first();
 
-        $claim = Claim::where('insurance_user_id', $user->id)
-            ->where('status', 'approved')
-            ->where('tow_service_offered', true)
-            ->whereNull('tow_service_accepted')
-            ->where('id', $claimId)
-            ->first();
+    if (!$claim) {
+        abort(404, 'Claim not found or tow service not available');
+    }
 
-        if (!$claim) {
-            abort(404, 'Claim not found or tow service not available');
-        }
+    $request->validate([
+        'tow_service_accepted' => 'required|boolean'
+    ]);
 
-        $request->validate([
-            'tow_service_accepted' => 'required|boolean'
-        ]);
-
+    try {
+        // Update the claim first
         $claim->update([
             'tow_service_accepted' => $request->tow_service_accepted
         ]);
 
-        $message = $request->tow_service_accepted 
-            ? 'Tow service accepted. Please wait for further instructions.'
-            : 'Tow service declined. Please proceed to the service center.';
+        $message = '';
+
+        // If user accepted tow service, create tow request immediately
+        if ($request->tow_service_accepted) {
+            try {
+                $towResponse = app(\App\Http\Controllers\TowServiceController::class)->createTowRequest($claim);
+                
+                // Check if response is valid
+                if ($towResponse && method_exists($towResponse, 'getData')) {
+                    $towData = $towResponse->getData(true);
+                    
+                    if (isset($towData['success']) && $towData['success']) {
+                        $message = 'Tow service accepted. Your request has been sent to service centers.';
+                        
+                        \Log::info('Tow request created after user acceptance', [
+                            'claim_id' => $claim->id,
+                            'user_id' => $user->id,
+                            'tow_request_id' => $towData['tow_request']['id'] ?? null
+                        ]);
+                    } else {
+                        $message = 'Tow service accepted, but there was an issue creating the request. Please contact support.';
+                        
+                        \Log::error('Failed to create tow request after user acceptance', [
+                            'claim_id' => $claim->id,
+                            'user_id' => $user->id,
+                            'error' => $towData['error'] ?? 'Unknown error in response'
+                        ]);
+                    }
+                } else {
+                    $message = 'Tow service accepted, but there was an issue with the response. Please contact support.';
+                    
+                    \Log::error('Invalid response from createTowRequest', [
+                        'claim_id' => $claim->id,
+                        'user_id' => $user->id,
+                        'response_type' => gettype($towResponse)
+                    ]);
+                }
+            } catch (\Exception $towException) {
+                $message = 'Tow service accepted, but there was an issue creating the request. Please contact support.';
+                
+                \Log::error('Exception in createTowRequest', [
+                    'claim_id' => $claim->id,
+                    'user_id' => $user->id,
+                    'error' => $towException->getMessage(),
+                    'trace' => $towException->getTraceAsString()
+                ]);
+            }
+        } else {
+            $message = 'Tow service declined. Please proceed to the service center yourself.';
+        }
 
         return redirect()->route('insurance.user.claims.show', [
             'companySlug' => $companySlug,
             'claim' => $claim->id
         ])->with('success', $message);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error in updateTowService', [
+            'claim_id' => $claim->id,
+            'user_id' => $user->id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return redirect()->back()->with('error', 'An error occurred while processing your request.');
     }
+}
 
     public function deleteAttachment(Request $request, $companySlug, $claim, $attachment)
     {
@@ -403,4 +462,58 @@ class ClaimsController extends Controller
             'mime_type' => $mimeType
         ]);
     }
+
+
+
+    /**
+ * Request tow service after user accepts
+ */
+public function requestTowService(Request $request, $companySlug, $claim)
+{
+    $company = InsuranceCompany::where('company_slug', $companySlug)
+        ->where('is_active', true)
+        ->where('is_approved', true)
+        ->firstOrFail();
+
+    $user = Auth::guard('insurance_user')->user();
+
+    // Check if user belongs to this company
+    if ($user->insurance_company_id !== $company->id) {
+        Auth::guard('insurance_user')->logout();
+        return redirect()->route('insurance.user.login', $companySlug);
+    }
+
+    // Get claim ID from route parameters
+    $claimId = $request->route('claim');
+
+    $claim = Claim::where('insurance_user_id', $user->id)
+        ->where('status', 'approved')
+        ->where('tow_service_offered', true)
+        ->where('tow_service_accepted', true)
+        ->where('id', $claimId)
+        ->first();
+
+    if (!$claim) {
+        return response()->json(['error' => 'Claim not found or not eligible for tow service'], 404);
+    }
+
+    try {
+        // Call the TowServiceController to create tow request
+        $response = app(\App\Http\Controllers\TowServiceController::class)->createTowRequest($claim);
+        
+        return $response;
+        
+    } catch (\Exception $e) {
+        \Log::error('Failed to create tow request from user interface', [
+            'claim_id' => $claim->id,
+            'user_id' => $user->id,
+            'error' => $e->getMessage()
+        ]);
+        
+        return response()->json(['error' => 'Failed to create tow request: ' . $e->getMessage()], 500);
+    }
+}
+
+
+
 }

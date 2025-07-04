@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         // Process expired tow service stages every 5 minutes
         $schedule->command('tow:process-expired-stages')
-                 ->everyFiveMinutes()
+                 ->everyThirtySeconds()
                  ->withoutOverlapping()
                  ->runInBackground()
                  ->appendOutputTo(storage_path('logs/tow-processing.log'));

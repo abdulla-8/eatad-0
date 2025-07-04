@@ -34,7 +34,8 @@ class ServiceCenter extends Authenticatable
         'center_location_lng',
         'center_address',
         'is_active',
-        'is_approved'
+        'is_approved',
+        'has_tow_service',
     ];
 
     protected $hidden = [
@@ -54,7 +55,8 @@ class ServiceCenter extends Authenticatable
         'other_technicians' => 'integer',
         'center_area_sqm' => 'decimal:2',
         'center_location_lat' => 'decimal:8',
-        'center_location_lng' => 'decimal:8'
+        'center_location_lng' => 'decimal:8',
+        'has_tow_service' => 'boolean',
     ];
 
     // Relations

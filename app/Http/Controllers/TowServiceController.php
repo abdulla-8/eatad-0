@@ -19,65 +19,72 @@ class TowServiceController extends Controller
     /**
      * Create tow request when user accepts tow service
      */
-    public function createTowRequest(Claim $claim)
-    {
-        if ($claim->tow_service_accepted !== true) {
-            return response()->json(['error' => 'Tow service not accepted'], 400);
-        }
-
-        if ($claim->tow_request_id) {
-            return response()->json(['error' => 'Tow request already exists'], 400);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            // Create tow request
-            $towRequest = TowRequest::create([
-                'claim_id' => $claim->id,
-                'request_code' => 'TOW' . rand(100000, 999999),
-                'pickup_location_lat' => $claim->vehicle_location_lat,
-                'pickup_location_lng' => $claim->vehicle_location_lng,
-                'pickup_location_address' => $claim->vehicle_location,
-                'dropoff_location_lat' => $claim->serviceCenter->center_location_lat,
-                'dropoff_location_lng' => $claim->serviceCenter->center_location_lng,
-                'dropoff_location_address' => $claim->serviceCenter->center_address,
-                'status' => 'pending',
-                'current_stage' => 'service_center',
-                'stage_started_at' => now(),
-                'stage_expires_at' => now()->addMinutes(30), // 30 minutes for service centers
-                'tracking_url' => Str::random(32),
-            ]);
-
-            // Update claim with tow request
-            $claim->update(['tow_request_id' => $towRequest->id]);
-
-            // Send offers to service centers first
-            $this->sendOffersToServiceCenters($towRequest);
-
-            DB::commit();
-
-            \Log::info("Tow request created", [
-                'tow_request_id' => $towRequest->id,
-                'claim_id' => $claim->id,
-                'request_code' => $towRequest->request_code
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'tow_request' => $towRequest->load('offers'),
-                'message' => 'Tow request created and sent to service centers'
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Failed to create tow request', [
-                'claim_id' => $claim->id,
-                'error' => $e->getMessage()
-            ]);
-            return response()->json(['error' => 'Failed to create tow request: ' . $e->getMessage()], 500);
-        }
+ /**
+ * Create tow request when user accepts tow service
+ */
+public function createTowRequest(Claim $claim)
+{
+    if ($claim->tow_service_accepted !== true) {
+        return response()->json(['success' => false, 'error' => 'Tow service not accepted'], 400);
     }
+
+    if ($claim->tow_request_id) {
+        return response()->json(['success' => false, 'error' => 'Tow request already exists'], 400);
+    }
+
+    try {
+        DB::beginTransaction();
+
+        // Create tow request
+        $towRequest = TowRequest::create([
+            'claim_id' => $claim->id,
+            'request_code' => 'TOW' . rand(100000, 999999),
+            'pickup_location_lat' => $claim->vehicle_location_lat,
+            'pickup_location_lng' => $claim->vehicle_location_lng,
+            'pickup_location_address' => $claim->vehicle_location,
+            'dropoff_location_lat' => $claim->serviceCenter->center_location_lat,
+            'dropoff_location_lng' => $claim->serviceCenter->center_location_lng,
+            'dropoff_location_address' => $claim->serviceCenter->center_address,
+            'status' => 'pending',
+            'current_stage' => 'service_center',
+            'stage_started_at' => now(),
+            'stage_expires_at' => now()->addMinutes(30), // 30 minutes for service centers
+            'tracking_url' => Str::random(32), // إضافة tracking_url
+        ]);
+
+        // Update claim with tow request
+        $claim->update(['tow_request_id' => $towRequest->id]);
+
+        // Send offers to service centers first
+        $this->sendOffersToServiceCenters($towRequest);
+
+        DB::commit();
+
+        \Log::info("Tow request created", [
+            'tow_request_id' => $towRequest->id,
+            'claim_id' => $claim->id,
+            'request_code' => $towRequest->request_code
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'tow_request' => $towRequest->load('offers'),
+            'message' => 'Tow request created and sent to service centers'
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Failed to create tow request', [
+            'claim_id' => $claim->id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json([
+            'success' => false, 
+            'error' => 'Failed to create tow request: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     /**
      * Send offers to service centers only
@@ -452,10 +459,10 @@ class TowServiceController extends Controller
     private function getStageTimeout($stage)
     {
         return match($stage) {
-            'service_center' => 30, // 30 minutes
-            'tow_companies' => 20,  // 20 minutes  
-            'individuals' => 15,    // 15 minutes
-            default => 30
+            'service_center' => 0.1, // 30 minutes
+            'tow_companies' => 0.1,  // 20 minutes  
+            'individuals' => 0.1,    // 15 minutes
+            default => 0.1
         };
     }
 
