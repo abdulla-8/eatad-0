@@ -1,5 +1,4 @@
 <?php
-// Path: app/Http/Controllers/CustomerTrackingController.php
 
 namespace App\Http\Controllers;
 
@@ -117,4 +116,40 @@ class CustomerTrackingController extends Controller
             ],
             'provider_info' => $providerInfo,
             'latest_tracking' => $latestTracking ? [
-                '
+                'lat' => $latestTracking->driver_lat,
+                'lng' => $latestTracking->driver_lng,
+                'timestamp' => $latestTracking->formatted_timestamp,
+                'speed' => $latestTracking->speed,
+                'heading' => $latestTracking->heading
+            ] : null
+        ]);
+    }
+
+    /**
+     * Get tracking history
+     */
+    public function getTrackingHistory($requestCode)
+    {
+        $towRequest = TowRequest::where('request_code', $requestCode)->first();
+
+        if (!$towRequest) {
+            return response()->json(['error' => 'Invalid request code'], 404);
+        }
+
+        $history = TowTracking::getTrackingHistory($towRequest->id);
+
+        return response()->json([
+            'history' => $history->map(function ($tracking) {
+                return [
+                    'lat' => $tracking->driver_lat,
+                    'lng' => $tracking->driver_lng,
+                    'timestamp' => $tracking->formatted_timestamp,
+                    'status' => $tracking->status,
+                    'notes' => $tracking->notes,
+                    'speed' => $tracking->speed,
+                    'heading' => $tracking->heading
+                ];
+            })
+        ]);
+    }
+}
