@@ -177,7 +177,7 @@
 
 
 
-    @if($claim->status === 'approved' && !$claim->is_vehicle_working && !$claim->tow_service_accepted && $claim->customer_delivery_code)
+@if($claim->status === 'approved' && !$claim->is_vehicle_working && $claim->tow_service_accepted === false && $claim->customer_delivery_code)
     <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
         <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">

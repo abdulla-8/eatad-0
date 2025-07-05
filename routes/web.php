@@ -263,6 +263,7 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
         return redirect()->route('service-center.login');
     });
 
+    
     Route::middleware(['guest:service_center'])->group(function () {
         Route::get('/login', [ServiceCenterAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [ServiceCenterAuthController::class, 'login']);
@@ -282,7 +283,15 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::post('/{id}/mark-completed', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markCompleted'])->name('mark-completed');
             Route::post('/{id}/add-notes', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'addNotes'])->name('add-notes');
             Route::get('/api/stats', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'getStats'])->name('stats');
+            
+        Route::post('/{id}/verify-delivery', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'verifyCustomerDelivery'])->name('verify-delivery');
+        Route::post('/{id}/start-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'startInspection'])->name('start-inspection');
+        Route::post('/{id}/submit-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'submitInspection'])->name('submit-inspection');
+        Route::post('/{id}/mark-arrived', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markVehicleArrived'])->name('mark-arrived');
+
+
         });
+
 
         // Tow Service Offers Routes
         Route::prefix('tow-offers')->name('tow-offers.')->group(function () {
@@ -302,11 +311,9 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
         });
 
 
-        Route::post('/{id}/mark-arrived', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markVehicleArrived'])->name('mark-arrived');
-        Route::post('/{id}/verify-delivery', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'verifyCustomerDelivery'])->name('verify-delivery');
-        Route::post('/{id}/start-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'startInspection'])->name('start-inspection');
-        Route::post('/{id}/submit-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'submitInspection'])->name('submit-inspection');
+
     });
+
 });
 
 // ==== TOW SERVICE ROUTES ====
