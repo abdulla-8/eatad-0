@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
-    <!-- Header -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex items-center gap-4">
             <a href="{{ route('service-center.claims.index') }}" 
@@ -19,46 +18,80 @@
             </div>
         </div>
         
-<div class="flex items-center gap-4">
-    @if($claim->status === 'approved' && !$claim->vehicle_arrived_at_center)
-        @if(!$claim->is_vehicle_working && !$claim->tow_service_accepted)
-            <!-- Vehicle not working and customer bringing it themselves -->
-            <button onclick="showCustomerDeliveryModal()" 
-                    class="px-6 py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
-                {{ t('service_center.verify_customer_delivery') }}
-            </button>
-        @else
-            <!-- Vehicle is working or will be towed -->
-            <button onclick="markVehicleArrived()" 
-                    class="px-6 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
-                {{ t('service_center.mark_vehicle_arrived') }}
-            </button>
-        @endif
-    @elseif($claim->canStartInspection())
-        <span class="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-            {{ t('service_center.vehicle_arrived') }}
-        </span>
-        <button onclick="showInspectionModal()" 
-                class="px-6 py-2.5 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-            {{ t('service_center.start_inspection') }}
-        </button>
-    @elseif($claim->inspection_status === 'in_progress')
-        <span class="px-4 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-            {{ t('service_center.inspection_in_progress') }}
-        </span>
-    @elseif($claim->inspection_status === 'completed')
-        <span class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            {{ t('service_center.inspection_completed') }}
-        </span>
-    @endif
-</div>
-
+        <div class="flex items-center gap-4">
+            @if($claim->shouldShowDeliveryVerificationButton())
+                <button onclick="showCustomerDeliveryModal()" 
+                        class="px-6 py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                    {{ t('service_center.verify_customer_delivery') }}
+                </button>
+            @elseif($claim->shouldShowMarkArrivedButton())
+                <button onclick="markVehicleArrived()" 
+                        class="px-6 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
+                    {{ t('service_center.mark_vehicle_arrived') }}
+                </button>
+            @elseif($claim->canStartInspection())
+                <span class="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    {{ t('service_center.vehicle_arrived') }}
+                </span>
+                <button onclick="showInspectionModal()" 
+                        class="px-6 py-2.5 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                    {{ t('service_center.start_inspection') }}
+                </button>
+            @elseif($claim->inspection_status === 'in_progress')
+                <span class="px-4 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                    {{ t('service_center.inspection_in_progress') }}
+                </span>
+            @elseif($claim->inspection_status === 'completed')
+                <span class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    {{ t('service_center.inspection_completed') }}
+                </span>
+                @if($claim->canStartWork() && $claim->status === 'approved')
+                    <button onclick="markInProgress()" 
+                            class="px-6 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors">
+                        {{ t('service_center.start_work') }}
+                    </button>
+                @endif
+            @endif
+        </div>
     </div>
 
+    @if($claim->shouldShowCustomerDeliveryCode())
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-yellow-800 mb-2">{{ t('service_center.customer_has_delivery_code') }}</h3>
+                    <p class="text-yellow-700">{{ t('service_center.customer_will_provide_code_on_arrival') }}</p>
+                    <div class="bg-white border-2 border-yellow-300 rounded-lg p-3 mt-3 text-center">
+                        <span class="text-xl font-bold text-yellow-800 tracking-wider font-mono">{{ $claim->customer_delivery_code }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($claim->vehicle_arrived_at_center)
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-green-800 mb-2">{{ t('service_center.vehicle_arrived') }}</h3>
+                    <p class="text-green-700">{{ t('service_center.arrived_at') }}: {{ $claim->vehicle_arrived_at_center->format('M d, Y H:i') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Customer Information -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <div class="flex items-center gap-3">
@@ -93,7 +126,6 @@
                 </div>
             </div>
 
-            <!-- Vehicle & Claim Information -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t('service_center.vehicle_claim_information') }}</h3>
@@ -130,7 +162,6 @@
                 </div>
             </div>
 
-            <!-- Vehicle Location -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t('service_center.vehicle_location') }}</h3>
@@ -150,7 +181,6 @@
                 </div>
             </div>
 
-            <!-- Notes -->
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -163,9 +193,7 @@
             @endif
         </div>
 
-        <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Insurance Company -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t('service_center.insurance_company') }}</h3>
@@ -189,7 +217,6 @@
                 </div>
             </div>
 
-            <!-- Tow Service Status -->
             @if($claim->tow_service_offered)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -216,13 +243,12 @@
             </div>
             @endif
 
-            <!-- Quick Actions -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t('service_center.quick_actions') }}</h3>
                 </div>
                 <div class="p-6 space-y-3">
-                    @if($claim->status === 'approved')
+                    @if($claim->canStartWork() && $claim->status === 'approved')
                         <button onclick="markInProgress()" 
                                 class="w-full px-4 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
                             {{ t('service_center.start_work') }}
@@ -248,7 +274,6 @@
         </div>
     </div>
 
-    <!-- Attachments -->
     @if($claim->attachments->count())
     <div class="bg-white rounded-xl shadow-sm border">
         <div class="p-6 border-b">
@@ -283,7 +308,7 @@
                                         @else
                                             <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center">
                                                 <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656L9 8.586m6.586 6.586l-6.586 6.586a2 2 0 01-2.828-2.828l6.586-6.586a4 4 0 015.656 5.656L15.172 7z"></path>
                                                 </svg>
                                             </div>
                                         @endif
@@ -306,7 +331,6 @@
     @endif
 </div>
 
-<!-- Mark In Progress Modal -->
 <div id="inProgressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -331,7 +355,6 @@
     </div>
 </div>
 
-<!-- Mark Completed Modal -->
 <div id="completedModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -360,7 +383,7 @@
         </form>
     </div>
 </div>
-<!-- Inspection Modal -->
+
 <div id="inspectionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b">
@@ -368,7 +391,6 @@
         </div>
         
         <form id="inspectionForm" enctype="multipart/form-data" class="p-6 space-y-6">
-            <!-- Vehicle Details -->
             <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.vehicle_brand') }} *</label>
@@ -392,14 +414,12 @@
                 </div>
             </div>
 
-            <!-- Registration Image -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.registration_image') }} *</label>
                 <input type="file" name="registration_image" accept="image/*" required 
                        class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
             </div>
 
-            <!-- Required Parts -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.required_parts') }} *</label>
                 <div id="partsContainer">
@@ -415,7 +435,6 @@
                 </div>
             </div>
 
-            <!-- Notes -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.inspection_notes') }}</label>
                 <textarea name="inspection_notes" rows="4" 
@@ -437,8 +456,6 @@
     </div>
 </div>
 
-
-<!-- Customer Delivery Verification Modal -->
 <div id="customerDeliveryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -469,7 +486,6 @@
     </div>
 </div>
 
-<!-- Add Notes Modal -->
 <div id="addNotesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -498,13 +514,32 @@
         </form>
     </div>
 </div>
+
 <script>
 function showCustomerDeliveryModal() {
     document.getElementById('customerDeliveryModal').classList.remove('hidden');
 }
 
 function showInspectionModal() {
-    document.getElementById('inspectionModal').classList.remove('hidden');
+    fetch(`{{ route('service-center.claims.start-inspection', $claim->id) }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('inspectionModal').classList.remove('hidden');
+        } else {
+            alert(data.error || 'Failed to start inspection');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{{ t("service_center.error_occurred") }}');
+    });
 }
 
 function markVehicleArrived() {
@@ -603,12 +638,10 @@ document.getElementById('inspectionForm').addEventListener('submit', function(e)
     });
 });
 
-// Auto-format delivery code input
 document.getElementById('deliveryCode').addEventListener('input', function(e) {
     e.target.value = e.target.value.replace(/\D/g, '');
 });
-</script>
-<script>
+
 function markInProgress() {
     document.getElementById('inProgressModal').classList.remove('hidden');
 }
@@ -625,7 +658,6 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-// Close modal on outside click
 document.getElementById('inProgressModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('inProgressModal');
 });
@@ -636,6 +668,14 @@ document.getElementById('completedModal').addEventListener('click', function(e) 
 
 document.getElementById('addNotesModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('addNotesModal');
+});
+
+document.getElementById('inspectionModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('inspectionModal');
+});
+
+document.getElementById('customerDeliveryModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('customerDeliveryModal');
 });
 </script>
 @endsection

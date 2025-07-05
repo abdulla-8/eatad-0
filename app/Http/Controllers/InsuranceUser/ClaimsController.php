@@ -382,19 +382,17 @@ public function updateTowService(Request $request, $companySlug, $claim)
                 ]);
             }
         } else {
-            // User declined tow service - generate delivery code for customer to bring vehicle themselves
-            if (!$claim->is_vehicle_working) {
-                $deliveryCode = $claim->generateCustomerDeliveryCode();
-                $message = 'Tow service declined. Please use the delivery code (' . $deliveryCode . ') when you bring your vehicle to the service center.';
-                
-                \Log::info('Customer delivery code generated after tow service declined', [
-                    'claim_id' => $claim->id,
-                    'user_id' => $user->id,
-                    'delivery_code' => $deliveryCode
-                ]);
-            } else {
-                $message = 'Tow service declined. Please take your vehicle to the service center yourself.';
-            }
+            // User declined tow service - ALWAYS generate delivery code
+            // سواء السيارة تعمل أو لا تعمل - العميل محتاج كود توصيل
+            $deliveryCode = $claim->generateCustomerDeliveryCode();
+            $message = 'Tow service declined. Please use the delivery code (' . $deliveryCode . ') when you bring your vehicle to the service center.';
+            
+            \Log::info('Customer delivery code generated after tow service declined', [
+                'claim_id' => $claim->id,
+                'user_id' => $user->id,
+                'delivery_code' => $deliveryCode,
+                'vehicle_working' => $claim->is_vehicle_working
+            ]);
         }
 
         return redirect()->route('insurance.user.claims.show', [

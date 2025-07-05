@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto space-y-6">
-    <!-- Header -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex items-center gap-4">
             <a href="{{ route('insurance.user.claims.index', $company->company_slug) }}" 
@@ -39,7 +38,6 @@
         </div>
     </div>
 
-    <!-- Status Messages -->
     @if($claim->status === 'rejected')
         <div class="bg-red-50 border border-red-200 rounded-xl p-6">
             <div class="flex items-start gap-3">
@@ -63,7 +61,59 @@
         </div>
     @endif
 
-     @if($claim->tow_service_offered && is_null($claim->tow_service_accepted))
+    @if($claim->status === 'approved' && $claim->is_vehicle_working && !$claim->tow_service_offered)
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-blue-800 mb-2">{{ t($company->translation_group . '.vehicle_is_working') }}</h3>
+                    <p class="text-blue-700 mb-4">{{ t($company->translation_group . '.drive_to_service_center') }}</p>
+                    
+                    @if(!$claim->customer_delivery_code)
+                        @php
+                            $claim->generateCustomerDeliveryCode();
+                        @endphp
+                    @endif
+                    
+                    <div class="bg-white border-2 border-blue-300 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold text-blue-800 mb-2">{{ t($company->translation_group . '.delivery_verification_code') }}</h4>
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-blue-800 tracking-wider font-mono">{{ $claim->customer_delivery_code }}</span>
+                        </div>
+                        <p class="text-blue-700 text-sm mt-2 text-center">{{ t($company->translation_group . '.show_this_code_to_service_center') }}</p>
+                    </div>
+                    
+                    <div class="bg-blue-100 rounded-lg p-3">
+                        <h5 class="font-medium text-blue-800 mb-2">{{ t($company->translation_group . '.service_center_details') }}</h5>
+                        <div class="space-y-1 text-sm text-blue-700">
+                            <div><strong>{{ t($company->translation_group . '.name') }}:</strong> {{ $claim->serviceCenter->legal_name }}</div>
+                            <div><strong>{{ t($company->translation_group . '.phone') }}:</strong> {{ $claim->serviceCenter->formatted_phone }}</div>
+                            @if($claim->serviceCenter->center_address)
+                                <div><strong>{{ t($company->translation_group . '.address') }}:</strong> {{ $claim->serviceCenter->center_address }}</div>
+                            @endif
+                            @if($claim->serviceCenter->center_location_lat)
+                                <div class="mt-2">
+                                    <a href="{{ $claim->serviceCenter->location_url }}" target="_blank" 
+                                       class="inline-flex items-center gap-1 text-blue-800 hover:text-blue-900 font-medium">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        </svg>
+                                        {{ t($company->translation_group . '.view_on_map') }}
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if($claim->tow_service_offered && is_null($claim->tow_service_accepted))
         <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -91,7 +141,7 @@
         </div>
     @endif
 
-@if($claim->tow_service_accepted === true && $claim->tow_request_id)
+    @if($claim->tow_service_accepted === true && $claim->tow_request_id)
         <div class="bg-green-50 border border-green-200 rounded-xl p-6">
             <div class="flex items-start gap-3">
                 <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
@@ -126,7 +176,7 @@
                             @if($towRequestDetails['customer_verification_code'] && in_array($towRequestDetails['status'], ['arrived_at_pickup']))
                                 <div class="border-t border-green-100 pt-3">
                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                                        <h4 class="font-medium text-yellow-800 mb-2">🚛 {{ t($company->translation_group . '.driver_arrived') }}</h4>
+                                        <h4 class="font-medium text-yellow-800 mb-2">{{ t($company->translation_group . '.driver_arrived') }}</h4>
                                         <p class="text-yellow-700 text-sm mb-2">{{ t($company->translation_group . '.provide_verification_code') }}</p>
                                         <div class="bg-white border-2 border-yellow-300 rounded-lg p-3 text-center">
                                             <span class="text-2xl font-bold text-yellow-800 tracking-wider">{{ $towRequestDetails['customer_verification_code'] }}</span>
@@ -174,59 +224,54 @@
         </div>
     @endif
 
-
-
-
-@if($claim->status === 'approved' && !$claim->is_vehicle_working && $claim->tow_service_accepted === false && $claim->customer_delivery_code)
-    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-        <div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div class="flex-1">
-                <h3 class="font-bold text-yellow-800 mb-2">{{ t($company->translation_group . '.deliver_vehicle_yourself') }}</h3>
-                <p class="text-yellow-700 mb-4">{{ t($company->translation_group . '.take_vehicle_to_service_center') }}</p>
-                
-                <div class="bg-white border-2 border-yellow-300 rounded-lg p-4 mb-4">
-                    <h4 class="font-bold text-yellow-800 mb-2">{{ t($company->translation_group . '.delivery_verification_code') }}</h4>
-                    <div class="text-center">
-                        <span class="text-3xl font-bold text-yellow-800 tracking-wider font-mono">{{ $claim->customer_delivery_code }}</span>
-                    </div>
-                    <p class="text-yellow-700 text-sm mt-2 text-center">{{ t($company->translation_group . '.show_this_code_to_service_center') }}</p>
+    @if($claim->status === 'approved' && ($claim->tow_service_accepted === false || ($claim->is_vehicle_working && $claim->customer_delivery_code)) && $claim->customer_delivery_code)
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                 </div>
-                
-                <div class="bg-yellow-100 rounded-lg p-3">
-                    <h5 class="font-medium text-yellow-800 mb-2">{{ t($company->translation_group . '.service_center_details') }}</h5>
-                    <div class="space-y-1 text-sm text-yellow-700">
-                        <div><strong>{{ t($company->translation_group . '.name') }}:</strong> {{ $claim->serviceCenter->legal_name }}</div>
-                        <div><strong>{{ t($company->translation_group . '.phone') }}:</strong> {{ $claim->serviceCenter->formatted_phone }}</div>
-                        @if($claim->serviceCenter->center_address)
-                            <div><strong>{{ t($company->translation_group . '.address') }}:</strong> {{ $claim->serviceCenter->center_address }}</div>
-                        @endif
-                        @if($claim->serviceCenter->center_location_lat)
-                            <div class="mt-2">
-                                <a href="{{ $claim->serviceCenter->location_url }}" target="_blank" 
-                                   class="inline-flex items-center gap-1 text-yellow-800 hover:text-yellow-900 font-medium">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    </svg>
-                                    {{ t($company->translation_group . '.view_on_map') }}
-                                </a>
-                            </div>
-                        @endif
+                <div class="flex-1">
+                    <h3 class="font-bold text-yellow-800 mb-2">{{ t($company->translation_group . '.deliver_vehicle_yourself') }}</h3>
+                    <p class="text-yellow-700 mb-4">{{ t($company->translation_group . '.take_vehicle_to_service_center') }}</p>
+                    
+                    <div class="bg-white border-2 border-yellow-300 rounded-lg p-4 mb-4">
+                        <h4 class="font-bold text-yellow-800 mb-2">{{ t($company->translation_group . '.delivery_verification_code') }}</h4>
+                        <div class="text-center">
+                            <span class="text-3xl font-bold text-yellow-800 tracking-wider font-mono">{{ $claim->customer_delivery_code }}</span>
+                        </div>
+                        <p class="text-yellow-700 text-sm mt-2 text-center">{{ t($company->translation_group . '.show_this_code_to_service_center') }}</p>
+                    </div>
+                    
+                    <div class="bg-yellow-100 rounded-lg p-3">
+                        <h5 class="font-medium text-yellow-800 mb-2">{{ t($company->translation_group . '.service_center_details') }}</h5>
+                        <div class="space-y-1 text-sm text-yellow-700">
+                            <div><strong>{{ t($company->translation_group . '.name') }}:</strong> {{ $claim->serviceCenter->legal_name }}</div>
+                            <div><strong>{{ t($company->translation_group . '.phone') }}:</strong> {{ $claim->serviceCenter->formatted_phone }}</div>
+                            @if($claim->serviceCenter->center_address)
+                                <div><strong>{{ t($company->translation_group . '.address') }}:</strong> {{ $claim->serviceCenter->center_address }}</div>
+                            @endif
+                            @if($claim->serviceCenter->center_location_lat)
+                                <div class="mt-2">
+                                    <a href="{{ $claim->serviceCenter->location_url }}" target="_blank" 
+                                       class="inline-flex items-center gap-1 text-yellow-800 hover:text-yellow-900 font-medium">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        </svg>
+                                        {{ t($company->translation_group . '.view_on_map') }}
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-@endif
+    @endif
 
     <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Claim Information -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold flex items-center gap-2">
@@ -274,11 +319,16 @@
                                 </span>
                             </div>
                         @endif
+                        @if($claim->customer_delivery_code)
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">{{ t($company->translation_group . '.delivery_code') }}</span>
+                                <span class="font-medium font-mono text-lg" style="color: {{ $company->primary_color }};">{{ $claim->customer_delivery_code }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
 
-            <!-- Vehicle Location -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold flex items-center gap-2">
@@ -305,7 +355,6 @@
                 </div>
             </div>
 
-            <!-- Notes -->
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -323,9 +372,7 @@
             @endif
         </div>
 
-        <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Service Center -->
             @if($claim->service_center_id)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -344,7 +391,7 @@
                         @endif
                     </div>
                     
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
+<div class="flex items-center gap-2 text-sm text-gray-600">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                         </svg>
@@ -366,7 +413,6 @@
             </div>
             @endif
 
-            <!-- Company Information -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold flex items-center gap-2">
@@ -393,7 +439,6 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t($company->translation_group . '.quick_actions') }}</h3>
@@ -421,7 +466,6 @@
         </div>
     </div>
 
-    <!-- Attachments -->
     @if($claim->attachments->count())
     <div class="bg-white rounded-xl shadow-sm border">
         <div class="p-6 border-b">

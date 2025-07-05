@@ -14,7 +14,7 @@ class ClaimsController extends Controller
     public function index(Request $request)
     {
         $company = Auth::guard('insurance_company')->user();
-        
+
         $query = Claim::forCompany($company->id)
             ->with(['insuranceUser', 'attachments', 'serviceCenter'])
             ->orderBy('created_at', 'desc');
@@ -26,14 +26,14 @@ class ClaimsController extends Controller
 
         if ($request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('policy_number', 'like', "%{$search}%")
-                  ->orWhere('vehicle_plate_number', 'like', "%{$search}%")
-                  ->orWhere('chassis_number', 'like', "%{$search}%")
-                  ->orWhereHas('insuranceUser', function($userQuery) use ($search) {
-                      $userQuery->where('full_name', 'like', "%{$search}%")
-                               ->orWhere('phone', 'like', "%{$search}%");
-                  });
+                    ->orWhere('vehicle_plate_number', 'like', "%{$search}%")
+                    ->orWhere('chassis_number', 'like', "%{$search}%")
+                    ->orWhereHas('insuranceUser', function ($userQuery) use ($search) {
+                        $userQuery->where('full_name', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -53,15 +53,15 @@ class ClaimsController extends Controller
     public function show(Request $request, $companyRoute, $claim)
     {
         $company = Auth::guard('insurance_company')->user();
-        
+
         // الحصول على الـ Claim ID من الـ route parameters
         $claimId = $request->route('claim');
-        
+
         $claim = Claim::where('id', $claimId)
             ->where('insurance_company_id', $company->id)
             ->with(['insuranceUser', 'attachments', 'serviceCenter'])
             ->first();
-            
+
         if (!$claim) {
             abort(404, 'Claim not found');
         }
@@ -72,15 +72,15 @@ class ClaimsController extends Controller
     public function approve(Request $request, $companyRoute, $claim)
     {
         $company = Auth::guard('insurance_company')->user();
-        
+
         // الحصول على الـ Claim ID من الـ route parameters
         $claimId = $request->route('claim');
-        
+
         $claim = Claim::where('id', $claimId)
             ->where('insurance_company_id', $company->id)
             ->where('status', 'pending')
             ->first();
-            
+
         if (!$claim) {
             abort(404, 'Claim not found or not eligible for approval');
         }
@@ -97,34 +97,55 @@ class ClaimsController extends Controller
             ->firstOrFail();
 
         try {
-            $claim->approve($serviceCenter->id);
-            
+            // بيانات الموافقة
+            $approvalData = [
+                'status' => 'approved',
+                'service_center_id' => $serviceCenter->id
+            ];
+
+            // إذا كانت السيارة لا تعمل - اعرض خدمة السطحة
+            if (!$claim->is_vehicle_working) {
+                $approvalData['tow_service_offered'] = true;
+            } else {
+                // إذا كانت السيارة تعمل - ولّد كود التوصيل مباشرة
+                $approvalData['customer_delivery_code'] = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            }
+
             if ($request->notes) {
-                $claim->update(['notes' => $request->notes]);
+                $approvalData['notes'] = $request->notes;
+            }
+
+            $claim->update($approvalData);
+
+            $message = 'Claim approved successfully.';
+
+            // لو السيارة تشتغل - اعلم المستخدم بكود التوصيل
+            if ($claim->is_vehicle_working) {
+                $message .= ' Delivery code: ' . $claim->customer_delivery_code;
             }
 
             return redirect()->route('insurance.claims.show', [
                 'companyRoute' => $company->company_slug,
                 'claim' => $claim->id
-            ])->with('success', 'Claim approved successfully.');
-
+            ])->with('success', $message);
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to approve claim. Please try again.');
         }
     }
 
+
     public function reject(Request $request, $companyRoute, $claim)
     {
         $company = Auth::guard('insurance_company')->user();
-        
+
         // الحصول على الـ Claim ID من الـ route parameters
         $claimId = $request->route('claim');
-        
+
         $claim = Claim::where('id', $claimId)
             ->where('insurance_company_id', $company->id)
             ->where('status', 'pending')
             ->first();
-            
+
         if (!$claim) {
             abort(404, 'Claim not found or not eligible for rejection');
         }
@@ -140,7 +161,6 @@ class ClaimsController extends Controller
                 'companyRoute' => $company->company_slug,
                 'claim' => $claim->id
             ])->with('success', 'Claim rejected successfully.');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to reject claim. Please try again.');
         }
@@ -153,7 +173,7 @@ class ClaimsController extends Controller
             ->with('industrialArea')
             ->orderBy('legal_name')
             ->get()
-            ->map(function($center) {
+            ->map(function ($center) {
                 return [
                     'id' => $center->id,
                     'name' => $center->legal_name,
@@ -173,7 +193,7 @@ class ClaimsController extends Controller
     public function stats()
     {
         $company = Auth::guard('insurance_company')->user();
-        
+
         $stats = [
             'total_claims' => Claim::forCompany($company->id)->count(),
             'pending_claims' => Claim::forCompany($company->id)->pending()->count(),

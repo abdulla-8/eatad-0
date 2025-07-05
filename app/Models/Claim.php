@@ -26,7 +26,10 @@ class Claim extends Model
         'tow_request_id',
         'tow_service_offered',
         'tow_service_accepted',
-        'notes'
+        'notes',
+        'customer_delivery_code',
+        'vehicle_arrived_at_center',
+        'inspection_status'
     ];
 
     protected $casts = [
@@ -35,7 +38,8 @@ class Claim extends Model
         'tow_service_offered' => 'boolean',
         'tow_service_accepted' => 'boolean',
         'vehicle_location_lat' => 'decimal:8',
-        'vehicle_location_lng' => 'decimal:8'
+        'vehicle_location_lng' => 'decimal:8',
+        'vehicle_arrived_at_center' => 'datetime'
     ];
 
     // Relations
@@ -59,10 +63,14 @@ class Claim extends Model
         return $this->hasMany(ClaimAttachment::class);
     }
 
-    // Add towRequest relationship
     public function towRequest(): HasOne
     {
         return $this->hasOne(TowRequest::class);
+    }
+
+    public function inspection(): HasOne
+    {
+        return $this->hasOne(ClaimInspection::class);
     }
 
     // Scopes
@@ -161,7 +169,8 @@ class Claim extends Model
         $this->update([
             'status' => 'approved',
             'service_center_id' => $serviceCenterId,
-            'tow_service_offered' => !$this->is_vehicle_working ? true : null
+            'tow_service_offered' => !$this->is_vehicle_working ? true : null,
+            'inspection_status' => 'pending' // إضافة حالة الفحص
         ]);
 
         return true;
@@ -195,30 +204,82 @@ class Claim extends Model
         return true;
     }
 
+    /**
+     * إنتاج كود التسليم للعميل
+     */
+    public function generateCustomerDeliveryCode()
+    {
+        $this->customer_delivery_code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $this->save();
+        return $this->customer_delivery_code;
+    }
 
-    public function inspection()
-{
-    return $this->hasOne(ClaimInspection::class);
-}
+    /**
+     * تأكيد وصول السيارة لمركز الصيانة
+     */
+    public function markVehicleArrived()
+    {
+        $this->vehicle_arrived_at_center = now();
+        $this->save();
+        return true;
+    }
 
-public function generateCustomerDeliveryCode()
-{
-    $this->customer_delivery_code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-    $this->save();
-    return $this->customer_delivery_code;
-}
+    /**
+     * فحص إمكانية بدء الفحص
+     */
+    public function canStartInspection()
+    {
+        return $this->vehicle_arrived_at_center !== null && 
+               $this->status === 'approved' && 
+               $this->inspection_status === 'pending';
+    }
 
-public function markVehicleArrived()
-{
-    $this->vehicle_arrived_at_center = now();
-    $this->save();
-    return true;
-}
+    /**
+     * فحص إمكانية بدء العمل
+     */
+    public function canStartWork()
+    {
+        return $this->status === 'approved' && 
+               $this->inspection_status === 'completed';
+    }
 
-public function canStartInspection()
-{
-    return $this->vehicle_arrived_at_center !== null && 
-           $this->status === 'approved' && 
-           $this->inspection_status === 'pending';
-}
+    /**
+     * فحص إذا كان العميل يحتاج لإظهار كود التسليم
+     */
+    public function shouldShowCustomerDeliveryCode()
+    {
+        return $this->status === 'approved' && 
+               $this->tow_service_accepted === false && 
+               $this->customer_delivery_code;
+    }
+
+    /**
+     * فحص إذا كان مركز الصيانة يحتاج لزر التحقق من التسليم
+     */
+    public function shouldShowDeliveryVerificationButton()
+    {
+        return $this->status === 'approved' && 
+               !$this->vehicle_arrived_at_center && 
+               (
+                   // السيارة لا تعمل والعميل رفض السطحة
+                   (!$this->is_vehicle_working && $this->tow_service_accepted === false) ||
+                   // السيارة تعمل وظهر للعميل كود التسليم
+                   ($this->is_vehicle_working && $this->customer_delivery_code)
+               );
+    }
+
+    /**
+     * فحص إذا كان مركز الصيانة يحتاج لزر تأكيد الوصول العادي
+     */
+    public function shouldShowMarkArrivedButton()
+    {
+        return $this->status === 'approved' && 
+               !$this->vehicle_arrived_at_center && 
+               (
+                   // السيارة تعمل ولم يتم إنتاج كود تسليم
+                   ($this->is_vehicle_working && !$this->customer_delivery_code) ||
+                   // تم قبول خدمة السطحة
+                   ($this->tow_service_accepted === true)
+               );
+    }
 }
