@@ -19,29 +19,40 @@
             </div>
         </div>
         
-        <div class="flex items-center gap-4">
-            @if($claim->status === 'approved')
-                <span class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    {{ t('service_center.new_claim') }}
-                </span>
-                <button onclick="markInProgress()" 
-                        class="px-6 py-2.5 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
-                    {{ t('service_center.start_work') }}
-                </button>
-            @elseif($claim->status === 'in_progress')
-                <span class="px-4 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                    {{ t('service_center.in_progress') }}
-                </span>
-                <button onclick="markCompleted()" 
-                        class="px-6 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
-                    {{ t('service_center.mark_completed') }}
-                </button>
-            @elseif($claim->status === 'completed')
-                <span class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                    {{ t('service_center.completed') }}
-                </span>
-            @endif
-        </div>
+<div class="flex items-center gap-4">
+    @if($claim->status === 'approved' && !$claim->vehicle_arrived_at_center)
+        @if(!$claim->is_vehicle_working && !$claim->tow_service_accepted)
+            <!-- Vehicle not working and customer bringing it themselves -->
+            <button onclick="showCustomerDeliveryModal()" 
+                    class="px-6 py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                {{ t('service_center.verify_customer_delivery') }}
+            </button>
+        @else
+            <!-- Vehicle is working or will be towed -->
+            <button onclick="markVehicleArrived()" 
+                    class="px-6 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
+                {{ t('service_center.mark_vehicle_arrived') }}
+            </button>
+        @endif
+    @elseif($claim->canStartInspection())
+        <span class="px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+            {{ t('service_center.vehicle_arrived') }}
+        </span>
+        <button onclick="showInspectionModal()" 
+                class="px-6 py-2.5 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+            {{ t('service_center.start_inspection') }}
+        </button>
+    @elseif($claim->inspection_status === 'in_progress')
+        <span class="px-4 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+            {{ t('service_center.inspection_in_progress') }}
+        </span>
+    @elseif($claim->inspection_status === 'completed')
+        <span class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            {{ t('service_center.inspection_completed') }}
+        </span>
+    @endif
+</div>
+
     </div>
 
     <div class="grid lg:grid-cols-3 gap-6">
@@ -349,6 +360,114 @@
         </form>
     </div>
 </div>
+<!-- Inspection Modal -->
+<div id="inspectionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-bold">{{ t('service_center.vehicle_inspection') }}</h3>
+        </div>
+        
+        <form id="inspectionForm" enctype="multipart/form-data" class="p-6 space-y-6">
+            <!-- Vehicle Details -->
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.vehicle_brand') }} *</label>
+                    <input type="text" name="vehicle_brand" required 
+                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.vehicle_model') }} *</label>
+                    <input type="text" name="vehicle_model" required 
+                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.vehicle_year') }} *</label>
+                    <input type="number" name="vehicle_year" min="1900" max="{{ date('Y') + 1 }}" required 
+                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.chassis_number') }} *</label>
+                    <input type="text" name="chassis_number" required 
+                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
+                </div>
+            </div>
+
+            <!-- Registration Image -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.registration_image') }} *</label>
+                <input type="file" name="registration_image" accept="image/*" required 
+                       class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
+            </div>
+
+            <!-- Required Parts -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.required_parts') }} *</label>
+                <div id="partsContainer">
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" name="required_parts[]" required 
+                               class="flex-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                               placeholder="{{ t('service_center.part_name') }}">
+                        <button type="button" onclick="addPartField()" 
+                                class="px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                            +
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.inspection_notes') }}</label>
+                <textarea name="inspection_notes" rows="4" 
+                          class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                          placeholder="{{ t('service_center.additional_notes') }}"></textarea>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" 
+                        class="flex-1 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
+                    {{ t('service_center.submit_inspection') }}
+                </button>
+                <button type="button" onclick="closeModal('inspectionModal')" 
+                        class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.cancel') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Customer Delivery Verification Modal -->
+<div id="customerDeliveryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-bold">{{ t('service_center.verify_customer_delivery') }}</h3>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <p class="text-gray-600">{{ t('service_center.enter_6_digit_code_from_customer') }}</p>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.delivery_code') }}</label>
+                <input type="text" id="deliveryCode" maxlength="6" 
+                       class="w-full px-4 py-3 text-lg font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center tracking-widest"
+                       placeholder="000000">
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="verifyCustomerDelivery()" 
+                        class="flex-1 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                    {{ t('service_center.verify') }}
+                </button>
+                <button type="button" onclick="closeModal('customerDeliveryModal')" 
+                        class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Add Notes Modal -->
 <div id="addNotesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
@@ -379,7 +498,116 @@
         </form>
     </div>
 </div>
+<script>
+function showCustomerDeliveryModal() {
+    document.getElementById('customerDeliveryModal').classList.remove('hidden');
+}
 
+function showInspectionModal() {
+    document.getElementById('inspectionModal').classList.remove('hidden');
+}
+
+function markVehicleArrived() {
+    if (!confirm('{{ t("service_center.confirm_vehicle_arrived") }}')) return;
+    
+    fetch(`{{ route('service-center.claims.mark-arrived', $claim->id) }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{{ t("service_center.error_occurred") }}');
+    });
+}
+
+function verifyCustomerDelivery() {
+    const code = document.getElementById('deliveryCode').value;
+    
+    if (code.length !== 6) {
+        alert('{{ t("service_center.code_must_be_6_digits") }}');
+        return;
+    }
+    
+    fetch(`{{ route('service-center.claims.verify-delivery', $claim->id) }}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ delivery_code: code })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{{ t("service_center.error_occurred") }}');
+    });
+}
+
+function addPartField() {
+    const container = document.getElementById('partsContainer');
+    const div = document.createElement('div');
+    div.className = 'flex gap-2 mb-2';
+    div.innerHTML = `
+        <input type="text" name="required_parts[]" required 
+               class="flex-1 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+               placeholder="{{ t('service_center.part_name') }}">
+        <button type="button" onclick="this.parentElement.remove()" 
+                class="px-4 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+            -
+        </button>
+    `;
+    container.appendChild(div);
+}
+
+document.getElementById('inspectionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch(`{{ route('service-center.claims.submit-inspection', $claim->id) }}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('{{ t("service_center.error_occurred") }}');
+    });
+});
+
+// Auto-format delivery code input
+document.getElementById('deliveryCode').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
+</script>
 <script>
 function markInProgress() {
     document.getElementById('inProgressModal').classList.remove('hidden');

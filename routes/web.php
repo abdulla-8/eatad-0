@@ -85,7 +85,7 @@ Route::prefix('track')->name('tow.track.')->group(function () {
 });
 
 // Legacy tracking route
-Route::get('/track/{code}', function($code) {
+Route::get('/track/{code}', function ($code) {
     return view('tracking.show', compact('code'));
 })->name('tow.track');
 
@@ -152,6 +152,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{serviceSpecialization}/toggle', [ServiceSpecializationController::class, 'toggle'])->name('toggle');
             Route::post('/update-order', [ServiceSpecializationController::class, 'updateOrder'])->name('updateOrder');
         });
+
+
+        Route::prefix('inspections')->name('inspections.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\InspectionsController::class, 'index'])->name('index');
+            Route::get('/{inspection}', [\App\Http\Controllers\Admin\InspectionsController::class, 'show'])->name('show');
+        });
+
 
         Route::prefix('users')->name('users.')->group(function () {
             Route::prefix('parts-dealers')->name('parts-dealers.')->group(function () {
@@ -290,7 +297,15 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::get('/', [VerificationController::class, 'index'])->name('index');
             Route::post('/verify', [VerificationController::class, 'verify'])->name('verify');
             Route::get('/history', [VerificationController::class, 'history'])->name('history');
+            Route::post('/verify-delivery', [VerificationController::class, 'verifyDeliveryCode'])->name('verify-delivery');
+
         });
+
+
+        Route::post('/{id}/mark-arrived', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markVehicleArrived'])->name('mark-arrived');
+        Route::post('/{id}/verify-delivery', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'verifyCustomerDelivery'])->name('verify-delivery');
+        Route::post('/{id}/start-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'startInspection'])->name('start-inspection');
+        Route::post('/{id}/submit-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'submitInspection'])->name('submit-inspection');
     });
 });
 

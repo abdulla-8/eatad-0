@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TowRequest;
+use App\Models\Claim;
 
 class VerificationController extends Controller
 {
@@ -121,4 +122,53 @@ class VerificationController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Verify delivery code for vehicle arrival
+     */
+    public function verifyDeliveryCode(Request $request)
+{
+    $serviceCenter = Auth::guard('service_center')->user();
+    
+    $request->validate([
+        'delivery_code' => 'required|string|size:6'
+    ]);
+
+    // Find claim with this delivery code
+    $claim = Claim::where('customer_delivery_code', $request->delivery_code)
+        ->where('service_center_id', $serviceCenter->id)
+        ->whereNotNull('customer_delivery_code')
+        ->whereNull('vehicle_arrived_at_center')
+        ->with(['insuranceUser'])
+        ->first();
+
+    if (!$claim) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Invalid delivery code or vehicle already received'
+        ], 400);
+    }
+
+    try {
+        // Mark vehicle as arrived
+        $claim->markVehicleArrived();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Vehicle delivery verified successfully!',
+            'claim_info' => [
+                'claim_number' => $claim->claim_number,
+                'customer_name' => $claim->insuranceUser->full_name,
+                'vehicle_info' => $claim->vehicle_plate_number ?: $claim->chassis_number,
+                'delivery_time' => $claim->vehicle_arrived_at_center->format('M d, Y H:i'),
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'An error occurred while processing verification'
+        ], 500);
+    }
+}
 }

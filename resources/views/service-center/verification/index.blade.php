@@ -62,6 +62,102 @@
         </div>
     </div>
 
+    <!-- Customer Delivery Verification -->
+<div class="bg-white rounded-xl shadow-sm border">
+    <div class="p-6 border-b">
+        <h2 class="text-xl font-bold flex items-center gap-2">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            {{ t('service_center.verify_customer_delivery') }}
+        </h2>
+        <p class="text-gray-600 text-sm mt-1">{{ t('service_center.verify_customer_brought_vehicle') }}</p>
+    </div>
+    
+    <div class="p-6">
+        <form id="customerDeliveryForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('service_center.customer_delivery_code') }}</label>
+                <div class="flex gap-4">
+                    <input type="text" 
+                           id="customerDeliveryCode" 
+                           placeholder="Enter 6-digit code" 
+                           maxlength="6" 
+                           class="flex-1 px-4 py-3 text-lg font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-center tracking-widest">
+                    <button type="submit" 
+                            class="px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {{ t('service_center.verify') }}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+
+document.getElementById('customerDeliveryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const code = document.getElementById('customerDeliveryCode').value.trim();
+    
+    if (code.length !== 6) {
+        showMessage('{{ t("service_center.code_must_be_6_digits") }}', 'error');
+        return;
+    }
+
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<svg class="w-5 h-5 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>{{ t("service_center.verifying") }}...';
+
+    fetch('{{ route("service-center.verification.verify-delivery") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            delivery_code: code
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showCustomerDeliverySuccess(data.claim_info);
+            document.getElementById('customerDeliveryCode').value = '';
+            showMessage(data.message, 'success');
+        } else {
+            showMessage(data.error || '{{ t("service_center.verification_failed") }}', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('{{ t("service_center.error_occurred") }}', 'error');
+    })
+    .finally(() => {
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>{{ t("service_center.verify") }}';
+    });
+});
+
+function showCustomerDeliverySuccess(claimInfo) {
+    // You can customize this modal as needed
+    alert(`Vehicle received successfully!\nClaim: ${claimInfo.claim_number}\nCustomer: ${claimInfo.customer_name}\nVehicle: ${claimInfo.vehicle_info}\nTime: ${claimInfo.delivery_time}`);
+    
+    // Reload page to show updated delivery list
+    setTimeout(() => {
+        location.reload();
+    }, 2000);
+}
+
+// Auto-format customer delivery code input
+document.getElementById('customerDeliveryCode').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
+</script>
+
     <!-- Recent Deliveries -->
     @if($recentDeliveries->count())
     <div class="bg-white rounded-xl shadow-sm border">

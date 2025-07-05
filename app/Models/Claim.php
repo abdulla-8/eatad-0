@@ -194,4 +194,31 @@ class Claim extends Model
 
         return true;
     }
+
+
+    public function inspection()
+{
+    return $this->hasOne(ClaimInspection::class);
+}
+
+public function generateCustomerDeliveryCode()
+{
+    $this->customer_delivery_code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $this->save();
+    return $this->customer_delivery_code;
+}
+
+public function markVehicleArrived()
+{
+    $this->vehicle_arrived_at_center = now();
+    $this->save();
+    return true;
+}
+
+public function canStartInspection()
+{
+    return $this->vehicle_arrived_at_center !== null && 
+           $this->status === 'approved' && 
+           $this->inspection_status === 'pending';
+}
 }
