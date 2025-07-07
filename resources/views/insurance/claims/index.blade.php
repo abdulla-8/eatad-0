@@ -130,13 +130,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+                        @if(!empty($claim->vehicle_location))
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-900">{{ t($company->translation_group . '.location') }}</h4>
                             <div class="text-sm text-gray-600">
                                 {{ Str::limit($claim->vehicle_location, 40) }}
                             </div>
                         </div>
+                        @endif
                         
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-900">{{ t($company->translation_group . '.dates') }}</h4>

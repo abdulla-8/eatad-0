@@ -73,7 +73,13 @@ class ClaimsController extends Controller
             'policy_number' => 'required|string|max:100',
             'vehicle_plate_number' => 'nullable|string|max:50',
             'chassis_number' => 'nullable|string|max:100',
-            'vehicle_location' => 'required|string',
+            
+        'vehicle_brand' => 'nullable|string|max:100',
+        'vehicle_type' => 'nullable|string|max:100',
+        'vehicle_model' => 'nullable|string|max:100',
+           'vehicle_location' => 'required_if:is_vehicle_working,1|string|nullable',
+
+
             'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
             'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
             'is_vehicle_working' => 'required|boolean',
@@ -99,6 +105,10 @@ class ClaimsController extends Controller
                 'policy_number' => $request->policy_number,
                 'vehicle_plate_number' => $request->vehicle_plate_number,
                 'chassis_number' => $request->chassis_number,
+                 'vehicle_brand' => $request->vehicle_brand,
+        'vehicle_type' => $request->vehicle_type,
+        'vehicle_model' => $request->vehicle_model,
+        
                 'vehicle_location' => $request->vehicle_location,
                 'vehicle_location_lat' => $request->vehicle_location_lat,
                 'vehicle_location_lng' => $request->vehicle_location_lng,
@@ -133,6 +143,11 @@ class ClaimsController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to submit claim. Please try again.')
                 ->withInput();
+          
+    // return back()->with('error', 'Failed to submit claim. ' . $e->getMessage())
+    //     ->withInput();
+
+
         }
     }
 
@@ -174,7 +189,8 @@ class ClaimsController extends Controller
                 'latest_location' => \App\Models\TowTracking::getLatestLocation($claim->towRequest->id),
                 'estimated_pickup_time' => $claim->towRequest->estimated_pickup_time,
                 'actual_pickup_time' => $claim->towRequest->actual_pickup_time,
-                'actual_delivery_time' => $claim->towRequest->actual_delivery_time
+                'actual_delivery_time' => $claim->towRequest->actual_delivery_time,
+                
             ];
         }
 
@@ -239,7 +255,10 @@ class ClaimsController extends Controller
             'policy_number' => 'required|string|max:100',
             'vehicle_plate_number' => 'nullable|string|max:50',
             'chassis_number' => 'nullable|string|max:100',
-            'vehicle_location' => 'required|string',
+            'vehicle_location' => 'required_if:is_vehicle_working,1|string|nullable',
+                  'vehicle_brand' => 'nullable|string|max:100',
+        'vehicle_type' => 'nullable|string|max:100',
+        'vehicle_model' => 'nullable|string|max:100',
             'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
             'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
             'is_vehicle_working' => 'required|boolean',
@@ -264,6 +283,9 @@ class ClaimsController extends Controller
                 'vehicle_plate_number' => $request->vehicle_plate_number,
                 'chassis_number' => $request->chassis_number,
                 'vehicle_location' => $request->vehicle_location,
+                        'vehicle_brand' => $request->vehicle_brand,
+        'vehicle_type' => $request->vehicle_type,
+        'vehicle_model' => $request->vehicle_model,
                 'vehicle_location_lat' => $request->vehicle_location_lat,
                 'vehicle_location_lng' => $request->vehicle_location_lng,
                 'is_vehicle_working' => $request->is_vehicle_working,
@@ -293,10 +315,15 @@ class ClaimsController extends Controller
                 'claim' => $claim->id
             ])->with('success', 'Claim updated and resubmitted successfully.');
 
-        } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update claim. Please try again.')
-                ->withInput();
-        }
+             } catch (\Exception $e) {
+        // هنا تظهر رسالة الخطأ للمستخدم
+        Log::error('Error in update: '.$e->getMessage());
+dd('وصلت للكاتش: '.$e->getMessage());
+
+        return back()->with('error', 'حدث خطأ أثناء التعديل: ' . $e->getMessage())->withInput();
+        
+    }
+
     }
 
 public function updateTowService(Request $request, $companySlug, $claim)

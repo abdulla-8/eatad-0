@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+
 class Claim extends Model
 {
     protected $fillable = [
@@ -15,6 +16,9 @@ class Claim extends Model
         'policy_number',
         'vehicle_plate_number',
         'chassis_number',
+        'vehicle_brand',
+        'vehicle_type',
+        'vehicle_model',
         'vehicle_location',
         'vehicle_location_lat',
         'vehicle_location_lng',

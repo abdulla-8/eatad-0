@@ -158,10 +158,24 @@
                             <span class="text-gray-600">{{ t('service_center.assigned') }}</span>
                             <span class="font-medium">{{ $claim->updated_at->format('M d, Y H:i') }}</span>
                         </div>
+                            <!-- الحقول الجديدة -->
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t('service_center.vehicle_brand') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t('service_center.vehicle_type') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_type }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t('service_center.vehicle_model') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_model }}</span>
+        </div>
                     </div>
                 </div>
             </div>
-
+            
+@if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t('service_center.vehicle_location') }}</h3>
@@ -180,7 +194,7 @@
                     @endif
                 </div>
             </div>
-
+@endif
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">

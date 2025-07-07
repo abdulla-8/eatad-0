@@ -22,9 +22,9 @@
                     <p class="text-blue-200">{{ $serviceCenter->legal_name }}</p>
                 </div>
             </div>
-            <div class="text-{{ $isRtl ? 'left' : 'right' }}">
-                <p class="text-blue-300 text-sm">{{ t('service_center.profile') }}</p>
-                <p class="text-xl font-bold">{{ $stats['profile_completion'] }}% Complete</p>
+            <div class="text-{{ $isRtl ? 'left' : 'right' }} ">
+                <p class="text-blue-300 text-sm text-{{ $isRtl ? 'right' : 'left' }}">{{ t('service_center.profile') }}</p>
+                <p class="text-xl font-bold ">{{ t('service_center.complete') }} {{ $stats['profile_completion'] }}% </p>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span class="font-medium">Account Pending Approval</span>
+                <span class="font-medium  ">Account Pending Approval</span>
                 <span class="{{ $isRtl ? 'mr-2' : 'ml-2' }}">- Your service center is awaiting admin approval to access all features.</span>
             </div>
         </div>
@@ -50,7 +50,7 @@
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Profile Completion</p>
+                    <p class="text-sm font-medium text-gray-600">{{ t('service_center.profile_completion') }}</p>
                     <p class="text-3xl font-bold text-blue-600">{{ $stats['profile_completion'] }}%</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -66,7 +66,7 @@
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Account Status</p>
+                    <p class="text-sm font-medium text-gray-600">{{ t('service_center.account_status') }}</p>
                     <p
                         class="text-xl font-bold {{ $stats['account_status'] == 'approved' ? 'text-green-600' : 'text-yellow-600' }}">
                         {{ ucfirst($stats['account_status']) }}
@@ -88,7 +88,7 @@
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Technicians</p>
+                    <p class="text-sm font-medium text-gray-600">{{ t('service_center.total_tech') }}</p>
                     <p class="text-3xl font-bold text-purple-600">{{ $stats['total_technicians'] }}</p>
                 </div>
                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -105,7 +105,7 @@
         <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Center Area</p>
+                    <p class="text-sm font-medium text-gray-600">{{ t('service_center.center_area') }}</p>
                     <p class="text-lg font-bold text-gray-900">{{ $stats['center_area'] ? number_format($stats['center_area']) . ' م²' : 'Not Set' }}</p>
                 </div>
                 <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -127,7 +127,7 @@
                     <svg class="w-5 h-5 {{ $isRtl ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
-                    Technicians Breakdown
+        {{ t('service_center.staff') }}
                 </h3>
             </div>
             <div class="p-6">
@@ -135,36 +135,36 @@
                     @if($stats['technicians_breakdown']['body_work'] > 0)
                         <div class="text-center p-4 bg-blue-50 rounded-lg">
                             <div class="text-2xl font-bold text-blue-600">{{ $stats['technicians_breakdown']['body_work'] }}</div>
-                            <div class="text-sm text-blue-700">Body Work</div>
-                            <div class="text-xs text-gray-500">سمكرة</div>
+                            <div class="text-sm text-blue-700">{{ t('service_center.body_work') }}</div>
+                            <!-- <div class="text-xs text-gray-500">سمكرة</div> -->
                         </div>
                     @endif
                     @if($stats['technicians_breakdown']['mechanical'] > 0)
                         <div class="text-center p-4 bg-green-50 rounded-lg">
                             <div class="text-2xl font-bold text-green-600">{{ $stats['technicians_breakdown']['mechanical'] }}</div>
-                            <div class="text-sm text-green-700">Mechanical</div>
-                            <div class="text-xs text-gray-500">ميكانيكا</div>
+                            <div class="text-sm text-green-700">{{ t('service_center.mechanical') }}</div>
+                            <!-- <div class="text-xs text-gray-500">ميكانيكا</div> -->
                         </div>
                     @endif
                     @if($stats['technicians_breakdown']['painting'] > 0)
                         <div class="text-center p-4 bg-yellow-50 rounded-lg">
                             <div class="text-2xl font-bold text-yellow-600">{{ $stats['technicians_breakdown']['painting'] }}</div>
-                            <div class="text-sm text-yellow-700">Painting</div>
-                            <div class="text-xs text-gray-500">دهان</div>
+                            <div class="text-sm text-yellow-700">{{ t('service_center.painting') }}</div>
+                            <!-- <div class="text-xs text-gray-500">دهان</div> -->
                         </div>
                     @endif
                     @if($stats['technicians_breakdown']['electrical'] > 0)
                         <div class="text-center p-4 bg-orange-50 rounded-lg">
                             <div class="text-2xl font-bold text-orange-600">{{ $stats['technicians_breakdown']['electrical'] }}</div>
-                            <div class="text-sm text-orange-700">Electrical</div>
-                            <div class="text-xs text-gray-500">كهرباء</div>
+                            <div class="text-sm text-orange-700">{{ t('service_center.electrical') }}</div>
+                            <!-- <div class="text-xs text-gray-500">كهرباء</div> -->
                         </div>
                     @endif
                     @if($stats['technicians_breakdown']['other'] > 0)
                         <div class="text-center p-4 bg-gray-50 rounded-lg">
                             <div class="text-2xl font-bold text-gray-600">{{ $stats['technicians_breakdown']['other'] }}</div>
-                            <div class="text-sm text-gray-700">Other</div>
-                            <div class="text-xs text-gray-500">أخرى</div>
+                            <div class="text-sm text-gray-700">{{ t('service_center.other') }}</div>
+                            <!-- <div class="text-xs text-gray-500">أخرى</div> -->
                         </div>
                     @endif
                 </div>
@@ -287,38 +287,38 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    Center Information
+                   {{ t('service_center.center_info') }}
                 </h3>
             </div>
             <div class="p-6 space-y-4">
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-gray-600">Phone Number</span>
+                    <span class="text-gray-600">{{ t('service_center.phone') }}</span>
                     <span class="font-medium">{{ $serviceCenter->formatted_phone }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span class="text-gray-600">Commercial Register</span>
+                    <span class="text-gray-600">{{ t('service_center.register') }}</span>
                     <span class="font-medium">{{ $serviceCenter->commercial_register }}</span>
                 </div>
                 @if ($serviceCenter->tax_number)
                     <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-gray-600">Tax Number</span>
+                        <span class="text-gray-600">{{ t('service_center.tax') }}</span>
                         <span class="font-medium">{{ $serviceCenter->tax_number }}</span>
                     </div>
                 @endif
                 @if ($stats['industrial_area'])
                     <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-gray-600">Industrial Area</span>
+                        <span class="text-gray-600">{{ t('service_center.industrial_area') }}</span>
                         <span class="font-medium">{{ $stats['industrial_area'] }}</span>
                     </div>
                 @endif
                 @if ($stats['specialization'])
                     <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span class="text-gray-600">Specialization</span>
+                        <span class="text-gray-600">{{ t('service_center.specialization') }}</span>
                         <span class="font-medium">{{ $stats['specialization'] }}</span>
                     </div>
                 @endif
                 <div class="flex justify-between items-center py-2">
-                    <span class="text-gray-600">Member Since</span>
+                    <span class="text-gray-600">{{ t('service_center.member_since') }}</span>
                     <span class="font-medium">{{ $stats['registration_date']->format('M Y') }}</span>
                 </div>
             </div>

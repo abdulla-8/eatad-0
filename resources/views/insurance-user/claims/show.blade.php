@@ -256,60 +256,75 @@
                         {{ t($company->translation_group . '.claim_information') }}
                     </h3>
                 </div>
-                <div class="p-6 space-y-4">
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
-                            <span class="font-medium">{{ $claim->policy_number }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle') }}</span>
-                            <span class="font-medium">{{ $claim->vehicle_plate_number ?: $claim->chassis_number }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_working') }}</span>
-                            <span class="font-medium {{ $claim->is_vehicle_working ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $claim->is_vehicle_working ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">{{ t($company->translation_group . '.receipt_ready') }}</span>
-                            <span class="font-medium">{{ $claim->repair_receipt_ready ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">{{ t($company->translation_group . '.submitted') }}</span>
-                            <span class="font-medium">{{ $claim->created_at->format('M d, Y H:i') }}</span>
-                        </div>
-                        @if($claim->tow_service_offered)
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">{{ t($company->translation_group . '.tow_service') }}</span>
-                                <span class="font-medium {{ is_null($claim->tow_service_accepted) ? 'text-yellow-600' : ($claim->tow_service_accepted ? 'text-green-600' : 'text-red-600') }}">
-                                    @if(is_null($claim->tow_service_accepted))
-                                        {{ t($company->translation_group . '.pending_response') }}
-                                    @elseif($claim->tow_service_accepted)
-                                        {{ t($company->translation_group . '.accepted') }}
-                                    @else
-                                        {{ t($company->translation_group . '.declined') }}
-                                    @endif
-                                </span>
-                            </div>
-                        @endif
-                        @if($claim->customer_delivery_code && !$claim->vehicle_arrived_at_center)
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">{{ t($company->translation_group . '.delivery_code') }}</span>
-                                <span class="font-medium font-mono text-lg" style="color: {{ $company->primary_color }};">{{ $claim->customer_delivery_code }}</span>
-                            </div>
-                        @endif
-                        @if($claim->vehicle_arrived_at_center)
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">{{ t($company->translation_group . '.arrived_at_center') }}</span>
-                                <span class="font-medium text-green-600">{{ $claim->vehicle_arrived_at_center->format('M d, Y H:i') }}</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
+            <div class="p-6 space-y-4 ">
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
+            <span class="font-medium">{{ $claim->policy_number }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_plate_number ?: $claim->chassis_number }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_working') }}</span>
+            <span class="font-medium {{ $claim->is_vehicle_working ? 'text-green-600' : 'text-red-600' }}">
+                {{ $claim->is_vehicle_working ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
+            </span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.receipt_ready') }}</span>
+            <span class="font-medium">{{ $claim->repair_receipt_ready ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}</span>
+        </div>
+        <!-- الحقول الجديدة -->
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_brand') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_type') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_type }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_model') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_model }}</span>
+        </div>
+        <!-- نهاية الحقول الجديدة -->
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.submitted') }}</span>
+            <span class="font-medium">{{ $claim->created_at->format('M d, Y H:i') }}</span>
+        </div>
+        @if($claim->tow_service_offered)
+            <div class="flex justify-between">
+                <span class="text-gray-600">{{ t($company->translation_group . '.tow_service') }}</span>
+                <span class="font-medium {{ is_null($claim->tow_service_accepted) ? 'text-yellow-600' : ($claim->tow_service_accepted ? 'text-green-600' : 'text-red-600') }}">
+                    @if(is_null($claim->tow_service_accepted))
+                        {{ t($company->translation_group . '.pending_response') }}
+                    @elseif($claim->tow_service_accepted)
+                        {{ t($company->translation_group . '.accepted') }}
+                    @else
+                        {{ t($company->translation_group . '.declined') }}
+                    @endif
+                </span>
             </div>
+        @endif
+        @if($claim->customer_delivery_code && !$claim->vehicle_arrived_at_center)
+            <div class="flex justify-between">
+                <span class="text-gray-600">{{ t($company->translation_group . '.delivery_code') }}</span>
+                <span class="font-medium font-mono text-lg" style="color: {{ $company->primary_color }};">{{ $claim->customer_delivery_code }}</span>
+            </div>
+        @endif
+        @if($claim->vehicle_arrived_at_center)
+            <div class="flex justify-between">
+                <span class="text-gray-600">{{ t($company->translation_group . '.arrived_at_center') }}</span>
+                <span class="font-medium text-green-600">{{ $claim->vehicle_arrived_at_center->format('M d, Y H:i') }}</span>
+            </div>
+        @endif
+    </div>
+</div>
 
+            </div>
+@if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold flex items-center gap-2">
@@ -335,7 +350,7 @@
                     @endif
                 </div>
             </div>
-
+@endif
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">

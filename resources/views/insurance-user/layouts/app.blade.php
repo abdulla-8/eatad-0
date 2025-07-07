@@ -116,7 +116,9 @@
                         </div>
                         <div>
                             <h1 class="text-lg font-bold">
-                                {{ t($company->translation_group . '.user_portal', 'User Portal') }}</h1>
+                                {{ t($company->translation_group . '.user_dashboard', 'User Dashboard') }}</h1>
+                     
+                                 <!-- <h1>  {{      t('user.user_dashboard') }}</h1> -->
                             <p class="text-sm" style="color: {{ $company->primary_color }};">
                                 {{ $company->legal_name }}</p>
                         </div>

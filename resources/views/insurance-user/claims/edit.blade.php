@@ -66,7 +66,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_working') }} *</label>
-                        <select name="is_vehicle_working" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
+                        <select name="is_vehicle_working" id="is_vehicle_working" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                                 style="focus:ring-color: {{ $company->primary_color }};" required>
                             <option value="1" {{ old('is_vehicle_working', $claim->is_vehicle_working) == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.yes') }}</option>
                             <option value="0" {{ old('is_vehicle_working', $claim->is_vehicle_working) == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.no') }}</option>
@@ -86,6 +86,30 @@
                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                                style="focus:ring-color: {{ $company->primary_color }};">
                     </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_brand') }} *</label>
+                        <input type="text" name="vehicle_brand" value="{{ old('vehicle_brand', $claim->vehicle_brand) }}" 
+                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_brand') border-red-500 @enderror" 
+                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                        @error('vehicle_brand')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_type') }} *</label>
+                        <input type="text" name="vehicle_type" value="{{ old('vehicle_type', $claim->vehicle_type) }}" 
+                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_type') border-red-500 @enderror" 
+                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                        @error('vehicle_type')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_model') }} *</label>
+                        <input type="text" name="vehicle_model" value="{{ old('vehicle_model', $claim->vehicle_model) }}" 
+                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_model') border-red-500 @enderror" 
+                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                        @error('vehicle_model')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
                 </div>
 
                 <div>
@@ -100,7 +124,7 @@
         </div>
 
         <!-- Vehicle Location -->
-        <div class="bg-white rounded-xl shadow-sm border">
+        <div class="bg-white rounded-xl shadow-sm border" id="vehicle-location-section">
             <div class="p-6 border-b">
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,6 +307,23 @@
                 </div>
             </div>
         </div>
+
+        @if($errors->any())
+    <div class="bg-red-100 text-red-700 p-2 my-2 rounded">
+        <ul>
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="bg-red-100 text-red-700 p-2 my-2 rounded">
+        {{ session('error') }}
+    </div>
+@endif
+
     </form>
 </div>
 
@@ -326,5 +367,21 @@ function openMap() {
     }
     setTimeout(() => map.invalidateSize(), 100);
 }
+
+// --- إظهار/إخفاء قسم اللوكيشن حسب حالة السيارة ---
+function toggleLocationSection() {
+    var working = document.getElementById('is_vehicle_working').value;
+    var locationSection = document.getElementById('vehicle-location-section');
+    if (working === '1') {
+        locationSection.style.display = '';
+    } else {
+        locationSection.style.display = 'none';
+        document.querySelector('[name="vehicle_location"]').value = '';
+        document.getElementById('lat').value = '';
+        document.getElementById('lng').value = '';
+    }
+}
+document.getElementById('is_vehicle_working').addEventListener('change', toggleLocationSection);
+window.addEventListener('DOMContentLoaded', toggleLocationSection);
 </script>
 @endsection

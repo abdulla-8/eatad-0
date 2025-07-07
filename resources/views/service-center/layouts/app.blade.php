@@ -80,7 +80,7 @@
                         </div>
                         <div>
                             <h1 class="text-lg font-bold">{{ t('service_center.dashboard') }}</h1>
-                            <p class="text-gold-400 text-sm">{{ t('service_center.title') }}</p>
+                            <!-- <p class="text-gold-400 text-sm">{{ t('service_center.title') }}</p> -->
                         </div>
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                             </div>
                             <div class="hidden lg:block">
                                 <p class="text-white text-sm font-medium">{{ Str::limit(auth('service_center')->user()->legal_name, 20) }}</p>
-                                <p class="text-gray-400 text-xs">{{ t('service_center.title') }}</p>
+                                <!-- <p class="text-gray-400 text-xs">{{ t('service_center.title') }}</p> -->
                             </div>
                         </div>
                         <form method="POST" action="{{ route('service-center.logout') }}">

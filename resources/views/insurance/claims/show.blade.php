@@ -74,6 +74,19 @@
                             <span class="text-gray-600">{{ t($company->translation_group . '.user_policy') }}</span>
                             <span class="font-medium">{{ $claim->insuranceUser->policy_number }}</span>
                         </div>
+                            <!-- الحقول الجديدة -->
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_brand') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_type') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_type }}</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_model') }}</span>
+            <span class="font-medium">{{ $claim->vehicle_model }}</span>
+        </div>
                     </div>
                 </div>
             </div>
@@ -112,6 +125,7 @@
             </div>
 
             <!-- Vehicle Location -->
+             @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t($company->translation_group . '.vehicle_location') }}</h3>
@@ -131,7 +145,7 @@
                     @endif
                 </div>
             </div>
-
+@endif
             <!-- Rejection Reason -->
             @if($claim->status === 'rejected' && $claim->rejection_reason)
             <div class="bg-red-50 border border-red-200 rounded-xl">
