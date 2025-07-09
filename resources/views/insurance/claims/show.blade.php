@@ -39,6 +39,63 @@
         </div>
     </div>
 
+    <!-- Parts Pricing Alert -->
+    @if($claim->inspection && $claim->inspection->pricing_status === 'sent_to_insurance')
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-blue-800 mb-2">Parts Pricing Available for Review</h3>
+                    <p class="text-blue-700 mb-4">A detailed parts pricing has been submitted for this claim. Please review and respond.</p>
+                    <div class="flex gap-3">
+                        <a href="{{ route('insurance.parts-quotes.show', [$company->company_slug, $claim->inspection->id]) }}" 
+                           class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            Review Pricing Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif($claim->inspection && $claim->inspection->insurance_response === 'approved')
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-green-800 mb-2">Parts Pricing Approved</h3>
+                    <p class="text-green-700 mb-2">You have approved the parts pricing for {{ number_format($claim->inspection->total_amount, 2) }} SAR</p>
+                    @if($claim->inspection->insurance_notes)
+                        <p class="text-green-600 text-sm">{{ $claim->inspection->insurance_notes }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @elseif($claim->inspection && $claim->inspection->insurance_response === 'rejected')
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-red-800 mb-2">Parts Pricing Rejected</h3>
+                    <p class="text-red-700 mb-2">You have rejected the parts pricing. Reason: {{ $claim->inspection->rejection_reason }}</p>
+                    @if($claim->inspection->insurance_notes)
+                        <p class="text-red-600 text-sm">Additional notes: {{ $claim->inspection->insurance_notes }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="grid lg:grid-cols-3 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
@@ -74,24 +131,24 @@
                             <span class="text-gray-600">{{ t($company->translation_group . '.user_policy') }}</span>
                             <span class="font-medium">{{ $claim->insuranceUser->policy_number }}</span>
                         </div>
-                            <!-- الحقول الجديدة -->
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_brand') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_type') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_type }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_model') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_model }}</span>
-        </div>
+                        <!-- Vehicle Information -->
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_brand') }}</span>
+                            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_type') }}</span>
+                            <span class="font-medium">{{ $claim->vehicle_type }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_model') }}</span>
+                            <span class="font-medium">{{ $claim->vehicle_model }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Claim Information -->
+<!-- Claim Information -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t($company->translation_group . '.claim_information') }}</h3>
@@ -125,7 +182,7 @@
             </div>
 
             <!-- Vehicle Location -->
-             @if(!empty($claim->vehicle_location))
+            @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t($company->translation_group . '.vehicle_location') }}</h3>
@@ -145,7 +202,8 @@
                     @endif
                 </div>
             </div>
-@endif
+            @endif
+
             <!-- Rejection Reason -->
             @if($claim->status === 'rejected' && $claim->rejection_reason)
             <div class="bg-red-50 border border-red-200 rounded-xl">
@@ -156,6 +214,19 @@
                     <p class="text-red-700">{{ $claim->rejection_reason }}</p>
                 </div>
             </div>
+            @endif
+
+            <!-- Service Center Response -->
+            @if($claim->status === 'service_center_accepted')
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4 my-4">
+                    <div class="font-bold text-green-800 mb-2">{{ t('insurance.service_center_accepted') }}</div>
+                    <div class="text-green-700">{{ $claim->service_center_note }}</div>
+                </div>
+            @elseif($claim->status === 'service_center_rejected')
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 my-4">
+                    <div class="font-bold text-red-800 mb-2">{{ t('insurance.service_center_rejected') }}</div>
+                    <div class="text-red-700">{{ $claim->service_center_note }}</div>
+                </div>
             @endif
 
             <!-- Notes -->
@@ -211,6 +282,43 @@
             </div>
             @endif
 
+            <!-- Parts Pricing Summary -->
+            @if($claim->inspection && $claim->inspection->hasPricing())
+            <div class="bg-white rounded-xl shadow-sm border">
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-bold">Parts Pricing Summary</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Parts Total:</span>
+                        <span class="font-medium">{{ number_format($claim->inspection->parts_total, 2) }} SAR</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Service Fees:</span>
+                        <span class="font-medium">{{ number_format($claim->inspection->service_center_fees, 2) }} SAR</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Tax ({{ $claim->inspection->tax_percentage }}%):</span>
+                        <span class="font-medium">{{ number_format($claim->inspection->tax_amount, 2) }} SAR</span>
+                    </div>
+                    <div class="border-t pt-2 flex justify-between font-bold">
+                        <span>Total Amount:</span>
+                        <span class="text-lg" style="color: {{ $company->primary_color }};">{{ number_format($claim->inspection->total_amount, 2) }} SAR</span>
+                    </div>
+                    
+                    @if($claim->inspection->pricing_status === 'sent_to_insurance')
+                        <div class="pt-3">
+                            <a href="{{ route('insurance.parts-quotes.show', [$company->company_slug, $claim->inspection->id]) }}" 
+                               class="w-full px-4 py-2 rounded-lg text-sm font-medium text-white text-center block"
+                               style="background: {{ $company->primary_color }};">
+                                Review & Respond
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+
             <!-- Tow Service Status -->
             @if($claim->tow_service_offered)
             <div class="bg-white rounded-xl shadow-sm border">
@@ -255,6 +363,14 @@
                         </button>
                     @endif
                     
+                    @if($claim->inspection && $claim->inspection->pricing_status === 'sent_to_insurance')
+                        <a href="{{ route('insurance.parts-quotes.show', [$company->company_slug, $claim->inspection->id]) }}" 
+                           class="w-full px-4 py-3 rounded-lg font-medium text-white text-center block"
+                           style="background: {{ $company->primary_color }};">
+                            Review Parts Pricing
+                        </a>
+                    @endif
+                    
                     <a href="{{ route('insurance.claims.index', $company->company_slug) }}" 
                        class="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors text-center block">
                         {{ t($company->translation_group . '.back_to_claims') }}
@@ -263,17 +379,6 @@
             </div>
         </div>
     </div>
-@if($claim->status === 'service_center_accepted')
-    <div class="bg-green-50 border border-green-200 rounded-xl p-4 my-4">
-        <div class="font-bold text-green-800 mb-2">{{ t('insurance.service_center_accepted') }}</div>
-        <div class="text-green-700">{{ $claim->service_center_note }}</div>
-    </div>
-@elseif($claim->status === 'service_center_rejected')
-    <div class="bg-red-50 border border-red-200 rounded-xl p-4 my-4">
-        <div class="font-bold text-red-800 mb-2">{{ t('insurance.service_center_rejected') }}</div>
-        <div class="text-red-700">{{ $claim->service_center_note }}</div>
-    </div>
-@endif
 
     <!-- Attachments -->
     @if($claim->attachments->count())
@@ -408,7 +513,6 @@
 </div>
 
 <script>
-// Load service centers
 // Load service centers with accepted claims count
 fetch('{{ route("insurance.claims.service-centers", $company->company_slug) }}')
     .then(response => response.json())
@@ -428,8 +532,6 @@ fetch('{{ route("insurance.claims.service-centers", $company->company_slug) }}')
         const select = document.getElementById('serviceCenterSelect');
         select.innerHTML = '<option value="">{{ t($company->translation_group . ".error_loading") }}</option>';
     });
-
-
 
 function approveModal() {
     document.getElementById('approveModal').classList.remove('hidden');

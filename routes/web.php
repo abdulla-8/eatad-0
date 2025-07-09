@@ -168,6 +168,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('inspections')->name('inspections.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\InspectionsController::class, 'index'])->name('index');
             Route::get('/{inspection}', [\App\Http\Controllers\Admin\InspectionsController::class, 'show'])->name('show');
+
+            // Pricing routes
+            Route::post('/{inspection}/update-pricing', [\App\Http\Controllers\Admin\InspectionsController::class, 'updatePricing'])->name('update-pricing');
+            Route::post('/{inspection}/send-to-insurance', [\App\Http\Controllers\Admin\InspectionsController::class, 'sendToInsurance'])->name('send-to-insurance');
+            Route::post('/{inspection}/reset-pricing', [\App\Http\Controllers\Admin\InspectionsController::class, 'resetPricing'])->name('reset-pricing');
+            Route::delete('/{inspection}/delete-pricing', [\App\Http\Controllers\Admin\InspectionsController::class, 'deletePricing'])->name('delete-pricing');
+            Route::get('/{inspection}/pricing-data', [\App\Http\Controllers\Admin\InspectionsController::class, 'getInspectionPricingData'])->name('pricing-data');
         });
 
         Route::prefix('users')->name('users.')->group(function () {
@@ -259,7 +266,7 @@ Route::prefix('dealer')->name('dealer.')->group(function () {
     });
 
     Route::middleware(['auth:parts_dealer'])->group(function () {
-        Route::get('/dashboard', [DealerDashboardController::class, 'index'])->name('dashboard');
+        // Route::get('/dashboard', [DealerDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [DealerAuthController::class, 'logout'])->name('logout');
     });
 });
@@ -375,6 +382,8 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
         return redirect()->route('insurance.login', request()->route('companyRoute'));
     });
 
+
+
     Route::middleware(['guest:insurance_company'])->group(function () {
         Route::get('/login', [InsuranceAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [InsuranceAuthController::class, 'login']);
@@ -412,6 +421,17 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
             Route::post('/{claim}/reject', [\App\Http\Controllers\Insurance\ClaimsController::class, 'reject'])->name('reject');
             Route::get('/api/service-centers', [\App\Http\Controllers\Insurance\ClaimsController::class, 'getServiceCenters'])->name('service-centers');
         });
+
+        // Parts Quotes Routes
+        Route::prefix('parts-quotes')->name('parts-quotes.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Insurance\PartsQuotesController::class, 'index'])->name('index');
+            Route::get('/{inspection}', [\App\Http\Controllers\Insurance\PartsQuotesController::class, 'show'])->name('show');
+            Route::post('/{inspection}/approve', [\App\Http\Controllers\Insurance\PartsQuotesController::class, 'approve'])->name('approve');
+            Route::post('/{inspection}/reject', [\App\Http\Controllers\Insurance\PartsQuotesController::class, 'reject'])->name('reject');
+        });
+
+
+
     });
 });
 
