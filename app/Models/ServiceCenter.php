@@ -211,4 +211,10 @@ class ServiceCenter extends Authenticatable
     {
         return $this->hasMany(Claim::class)->whereIn('status', ['approved', 'in_progress']);
     }
+
+ 
+    public function complaints()
+    {
+        return $this->morphMany(Complaint::class, 'complainant');
+    }
 }

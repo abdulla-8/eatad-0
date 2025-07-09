@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-
 class Claim extends Model
 {
     protected $fillable = [
@@ -33,7 +32,8 @@ class Claim extends Model
         'notes',
         'customer_delivery_code',
         'vehicle_arrived_at_center',
-        'inspection_status'
+        'inspection_status',
+        'service_center_note'
     ];
 
     protected $casts = [
@@ -110,11 +110,46 @@ class Claim extends Model
             'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
             'approved' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Approved'],
             'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
+            'service_center_accepted' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'Accepted by Service Center'],
+            'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected by Service Center'],
             'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
             'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
         ];
 
         return $badges[$this->status] ?? $badges['pending'];
+    }
+
+    /**
+     * حالة تُعرَض للمستخدم التأميني فقط
+     */
+    public function getUserStatusAttribute(): string
+    {
+        // لو مركز الصيانة لم يقبل بعد (الطلب معتمد من التأمين لكن لم يوافق المركز)
+        if ($this->status === 'approved') {
+            return 'pending';
+        }
+
+        // في باقي الحالات نعيد الـ status الحقيقي
+        return $this->status;
+    }
+
+    /**
+     * بادج اللون للمستخدم التأميني
+     */
+    public function getUserStatusBadgeAttribute(): array
+    {
+        $status = $this->user_status;   // accessor السابق
+        
+        $badges = [
+            'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
+            'service_center_accepted' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Accepted'],
+            'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
+            'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
+            'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
+            'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
+        ];
+
+        return $badges[$status] ?? $badges['pending'];
     }
 
     public function getVehicleLocationUrlAttribute()

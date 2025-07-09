@@ -263,6 +263,17 @@
             </div>
         </div>
     </div>
+@if($claim->status === 'service_center_accepted')
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 my-4">
+        <div class="font-bold text-green-800 mb-2">{{ t('insurance.service_center_accepted') }}</div>
+        <div class="text-green-700">{{ $claim->service_center_note }}</div>
+    </div>
+@elseif($claim->status === 'service_center_rejected')
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 my-4">
+        <div class="font-bold text-red-800 mb-2">{{ t('insurance.service_center_rejected') }}</div>
+        <div class="text-red-700">{{ $claim->service_center_note }}</div>
+    </div>
+@endif
 
     <!-- Attachments -->
     @if($claim->attachments->count())
@@ -398,15 +409,27 @@
 
 <script>
 // Load service centers
+// Load service centers with accepted claims count
 fetch('{{ route("insurance.claims.service-centers", $company->company_slug) }}')
     .then(response => response.json())
     .then(data => {
         const select = document.getElementById('serviceCenterSelect');
         select.innerHTML = '<option value="">{{ t($company->translation_group . ".select_service_center") }}</option>';
         data.forEach(center => {
-            select.innerHTML += `<option value="${center.id}">${center.name} - ${center.area || '{{ t($company->translation_group . ".no_area") }}'}</option>`;
+            let claimsCount = center.accepted_claims_count ?? 0;
+            let claimsText = claimsCount > 0 
+                ? `(${claimsCount} {{ t($company->translation_group . ".accepted_claims") }})`
+                : `({{ t($company->translation_group . ".no_accepted_claims") }})`;
+            let areaText = center.area ? ` - ${center.area}` : '';
+            select.innerHTML += `<option value="${center.id}">${center.name}${areaText} ${claimsText}</option>`;
         });
+    })
+    .catch(error => {
+        const select = document.getElementById('serviceCenterSelect');
+        select.innerHTML = '<option value="">{{ t($company->translation_group . ".error_loading") }}</option>';
     });
+
+
 
 function approveModal() {
     document.getElementById('approveModal').classList.remove('hidden');

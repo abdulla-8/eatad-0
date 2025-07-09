@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Http\Controllers\TranslationHelper;
-
+use Illuminate\Database\Eloquent\Relations\Relation;
 class AppServiceProvider extends ServiceProvider
 {
     public function boot(): void
@@ -25,6 +25,15 @@ class AppServiceProvider extends ServiceProvider
                 'isRtl' => $isRtl, 
                 'fontLink' => $fontLink,
             ]);
+
+            
+        // إضافة Morph Map للـ Polymorphic Relationships
+        Relation::morphMap([
+            'insurance_company' => \App\Models\InsuranceCompany::class,
+            'service_center' => \App\Models\ServiceCenter::class,
+        ]);
+    
         });
+        
     }
 }

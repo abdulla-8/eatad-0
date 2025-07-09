@@ -40,9 +40,10 @@
                         </div>
                         
                         <div class="flex flex-col items-end gap-2">
-                            <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $claim->status_badge['class'] }}">
-                                {{ t($company->translation_group . '.' . $claim->status) }}
-                            </span>
+                      
+<span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $claim->user_status_badge['class'] }}">
+    {{ t($company->translation_group . '.' . $claim->user_status) }}
+</span>
                             <span class="text-sm text-gray-500">{{ $claim->created_at->format('M d, Y') }}</span>
                         </div>
                     </div>

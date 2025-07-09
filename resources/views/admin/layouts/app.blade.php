@@ -128,7 +128,9 @@
                                 </svg>
                                 {{ t('admin.specializations') }}
                             </a>
-                            <!-- New Industrial Areas -->
+                        </li>
+
+                        <!-- New Industrial Areas -->
                         <li>
                             <a href="{{ route('admin.industrial-areas.index') }}"
                                 class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.industrial-areas.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
@@ -157,6 +159,7 @@
                                 {{ t('admin.maintanance_specialities') }}
                             </a>
                         </li>
+
                         <!-- Users Management Section with Dropdown -->
                         <li>
                             <div class="px-4 py-2">
@@ -165,6 +168,19 @@
                             </div>
                         </li>
 
+                        <!-- Complaints Section -->
+                        <li>
+                            <a href="{{ route('admin.complaints.index') }}"
+                                class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('admin.complaints.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                                <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+                                    </path>
+                                </svg>
+                                {{ t('admin.complaints_inquiries') }}
+                            </a>
+                        </li>
 
                         <li>
                             <a href="{{ route('admin.inspections.index') }}"
@@ -221,7 +237,6 @@
                                     </svg>
                                     {{ t('admin.insurance_companies') }}
                                 </a>
-
 
                                 <!-- New Service Centers -->
                                 <a href="{{ route('admin.users.service-centers.index') }}"
@@ -293,12 +308,14 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3 {{ $isRtl ? 'space-x-reverse' : '' }}">
                             <div class="w-10 h-10 bg-gold-500 rounded-lg flex items-center justify-center">
-                                <span
-                                    class="text-dark-900 font-bold">{{ substr(auth('admin')->user()->name, 0, 1) }}</span>
+                                <span class="text-dark-900 font-bold">
+                                    {{ auth('admin')->check() ? substr(auth('admin')->user()->name ?? 'A', 0, 1) : 'A' }}
+                                </span>
                             </div>
                             <div class="hidden lg:block">
-
-                                <p class="text-white text-sm font-medium">{{ auth('admin')->user()->name }}</p>
+                                <p class="text-white text-sm font-medium">
+                                    {{ auth('admin')->check() ? (auth('admin')->user()->name ?? 'Administrator') : 'Administrator' }}
+                                </p>
                                 <p class="text-gray-400 text-xs">{{ t('admin.administrator') }}</p>
                             </div>
                         </div>
@@ -326,7 +343,10 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-2xl font-bold text-gray-900">@yield('title', t('admin.dashboard'))</h2>
-                            <p class="text-gray-600">{{ t('admin.welcome') }}, {{ auth('admin')->user()->name }}</p>
+                            <p class="text-gray-600">
+                                {{ t('admin.welcome') }}, 
+                                {{ auth('admin')->check() ? (auth('admin')->user()->name ?? 'Administrator') : 'Administrator' }}
+                            </p>
                         </div>
                         <x-language-switcher
                             class="bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100" />

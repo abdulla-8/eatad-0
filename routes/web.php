@@ -1,5 +1,4 @@
 <?php
-// Path: routes/web.php
 
 use Illuminate\Support\Facades\Route;
 
@@ -15,10 +14,11 @@ use App\Http\Controllers\Admin\IndustrialAreaController;
 use App\Http\Controllers\Admin\ServiceSpecializationController;
 use App\Http\Controllers\Admin\InsuranceUsersManagementController;
 use App\Http\Controllers\Admin\TowServiceManagementController;
+use App\Http\Controllers\Admin\ComplaintsController as AdminComplaintsController;
 
 // Parts Dealer Controllers
 use App\Http\Controllers\PartsDealer\AuthController as DealerAuthController;
-use App\Http\Controllers\PartsDealer\DashboardController as DealerDashboardController;
+use App\Http\Controllers\PartsDealer\DashboardController as DealerDealerDashboardController;
 
 // Insurance Company Controllers
 use App\Http\Controllers\Insurance\AuthController as InsuranceAuthController;
@@ -27,6 +27,7 @@ use App\Http\Controllers\Insurance\DashboardController as InsuranceDashboardCont
 // Service Center Controllers
 use App\Http\Controllers\ServiceCenter\AuthController as ServiceCenterAuthController;
 use App\Http\Controllers\ServiceCenter\DashboardController as ServiceCenterDashboardController;
+use App\Http\Controllers\ServiceCenter\ClaimsController as ServiceCenterClaimsController;
 
 // Insurance User Controllers
 use App\Http\Controllers\InsuranceUser\AuthController as InsuranceUserAuthController;
@@ -49,6 +50,9 @@ use App\Http\Controllers\TowService\TowIndividualController;
 use App\Http\Controllers\DriverTrackingController;
 use App\Http\Controllers\CustomerTrackingController;
 use App\Http\Controllers\ServiceCenter\VerificationController;
+
+// Unified Complaints Controller - استخدم alias واضح
+use App\Http\Controllers\Complaints\ComplaintsManagementController as UnifiedComplaintsController;
 
 // Language route
 Route::get('/language/{code}', [LanguageController::class, 'changeLanguage'])
@@ -107,6 +111,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+        // Admin complaints routes
+        Route::prefix('complaints')->name('complaints.')->group(function () {
+            Route::get('/', [AdminComplaintsController::class, 'index'])->name('index');
+            Route::get('/{id}', [AdminComplaintsController::class, 'show'])->name('show');
+            Route::post('/{id}/mark-read', [AdminComplaintsController::class, 'markAsRead'])->name('mark-read');
+            Route::post('/{id}/mark-unread', [AdminComplaintsController::class, 'markAsUnread'])->name('mark-unread');
+        });
+
         Route::prefix('languages')->name('languages.')->group(function () {
             Route::get('/', [LanguageController::class, 'index'])->name('index');
             Route::post('/{id}/toggle', [LanguageController::class, 'toggle'])->name('toggle');
@@ -153,12 +165,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/update-order', [ServiceSpecializationController::class, 'updateOrder'])->name('updateOrder');
         });
 
-
         Route::prefix('inspections')->name('inspections.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\InspectionsController::class, 'index'])->name('index');
             Route::get('/{inspection}', [\App\Http\Controllers\Admin\InspectionsController::class, 'show'])->name('show');
         });
-
 
         Route::prefix('users')->name('users.')->group(function () {
             Route::prefix('parts-dealers')->name('parts-dealers.')->group(function () {
@@ -263,7 +273,6 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
         return redirect()->route('service-center.login');
     });
 
-    
     Route::middleware(['guest:service_center'])->group(function () {
         Route::get('/login', [ServiceCenterAuthController::class, 'showLogin'])->name('login');
         Route::post('/login', [ServiceCenterAuthController::class, 'login']);
@@ -275,23 +284,28 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
         Route::get('/dashboard', [ServiceCenterDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [ServiceCenterAuthController::class, 'logout'])->name('logout');
 
-        // Claims management routes
-        Route::prefix('claims')->name('claims.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'index'])->name('index');
-            Route::get('/{id}', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'show'])->name('show');
-            Route::post('/{id}/mark-progress', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markInProgress'])->name('mark-progress');
-            Route::post('/{id}/mark-completed', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markCompleted'])->name('mark-completed');
-            Route::post('/{id}/add-notes', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'addNotes'])->name('add-notes');
-            Route::get('/api/stats', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'getStats'])->name('stats');
-            
-        Route::post('/{id}/verify-delivery', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'verifyCustomerDelivery'])->name('verify-delivery');
-        Route::post('/{id}/start-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'startInspection'])->name('start-inspection');
-        Route::post('/{id}/submit-inspection', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'submitInspection'])->name('submit-inspection');
-        Route::post('/{id}/mark-arrived', [\App\Http\Controllers\ServiceCenter\ClaimsController::class, 'markVehicleArrived'])->name('mark-arrived');
-
-
+        // Service center complaints routes using unified controller
+        Route::prefix('complaints')->name('complaints.')->group(function () {
+            Route::get('/', [UnifiedComplaintsController::class, 'index'])->name('index');
+            Route::post('/', [UnifiedComplaintsController::class, 'store'])->name('store');
+            Route::get('/{id}', [UnifiedComplaintsController::class, 'show'])->name('show');
         });
 
+        // Claims management routes
+        Route::prefix('claims')->name('claims.')->group(function () {
+            Route::get('/', [ServiceCenterClaimsController::class, 'index'])->name('index');
+            Route::get('/{id}', [ServiceCenterClaimsController::class, 'show'])->name('show');
+            Route::post('/{id}/mark-progress', [ServiceCenterClaimsController::class, 'markInProgress'])->name('mark-progress');
+            Route::post('/{id}/mark-completed', [ServiceCenterClaimsController::class, 'markCompleted'])->name('mark-completed');
+            Route::post('/{id}/add-notes', [ServiceCenterClaimsController::class, 'addNotes'])->name('add-notes');
+            Route::get('/api/stats', [ServiceCenterClaimsController::class, 'getStats'])->name('stats');
+            Route::post('/{id}/verify-delivery', [ServiceCenterClaimsController::class, 'verifyCustomerDelivery'])->name('verify-delivery');
+            Route::post('/{id}/start-inspection', [ServiceCenterClaimsController::class, 'startInspection'])->name('start-inspection');
+            Route::post('/{id}/submit-inspection', [ServiceCenterClaimsController::class, 'submitInspection'])->name('submit-inspection');
+            Route::post('/{id}/mark-arrived', [ServiceCenterClaimsController::class, 'markVehicleArrived'])->name('mark-arrived');
+            Route::post('/{id}/approve', [ServiceCenterClaimsController::class, 'approveClaim'])->name('approve');
+            Route::post('/{id}/reject', [ServiceCenterClaimsController::class, 'rejectClaim'])->name('reject');
+        });
 
         // Tow Service Offers Routes
         Route::prefix('tow-offers')->name('tow-offers.')->group(function () {
@@ -307,13 +321,8 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::post('/verify', [VerificationController::class, 'verify'])->name('verify');
             Route::get('/history', [VerificationController::class, 'history'])->name('history');
             Route::post('/verify-delivery', [VerificationController::class, 'verifyDeliveryCode'])->name('verify-delivery');
-
         });
-
-
-
     });
-
 });
 
 // ==== TOW SERVICE ROUTES ====
@@ -376,6 +385,13 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
     Route::middleware(['auth:insurance_company'])->group(function () {
         Route::get('/dashboard', [InsuranceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceAuthController::class, 'logout'])->name('logout');
+
+        // Insurance company complaints routes using unified controller
+        Route::prefix('complaints')->name('complaints.')->group(function () {
+            Route::get('/', [UnifiedComplaintsController::class, 'index'])->name('index');
+            Route::post('/', [UnifiedComplaintsController::class, 'store'])->name('store');
+            Route::get('/{id}', [UnifiedComplaintsController::class, 'show'])->name('show');
+        });
 
         // Insurance company settings
         Route::prefix('settings')->name('settings.')->group(function () {

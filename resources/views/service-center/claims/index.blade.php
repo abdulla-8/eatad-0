@@ -10,26 +10,34 @@
             <h1 class="text-3xl font-bold text-gray-900">{{ t('service_center.claims') }}</h1>
             <p class="text-gray-600 mt-1">{{ t('service_center.manage_assigned_claims') }}</p>
         </div>
-        
         <!-- Quick Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
-                <div class="text-xs text-gray-600">{{ t('service_center.total') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-green-600">{{ $stats['approved'] }}</div>
-                <div class="text-xs text-gray-600">{{ t('service_center.new_claims') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-yellow-600">{{ $stats['in_progress'] }}</div>
-                <div class="text-xs text-gray-600">{{ t('service_center.in_progress') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-gray-600">{{ $stats['completed'] }}</div>
-                <div class="text-xs text-gray-600">{{ t('service_center.completed') }}</div>
-            </div>
-        </div>
+   <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+    <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
+        <div class="text-xs text-gray-600">{{ t('service_center.total') }}</div>
+    </div>
+    <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="text-2xl font-bold text-green-600">{{ $stats['approved'] }}</div>
+        <div class="text-xs text-gray-600">{{ t('service_center.awaiting_center_decision') }}</div>
+    </div>
+    <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="text-2xl font-bold text-blue-600">{{ $stats['accepted'] }}</div>
+        <div class="text-xs text-gray-600">{{ t('service_center.accepted_by_center') }}</div>
+    </div>
+    <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
+        <div class="text-xs text-gray-600">{{ t('service_center.rejected_by_center') }}</div>
+    </div>
+    <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="text-2xl font-bold text-yellow-600">{{ $stats['in_progress'] }}</div>
+        <div class="text-xs text-gray-600">{{ t('service_center.in_progress') }}</div>
+    </div>
+    <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="text-2xl font-bold text-gray-600">{{ $stats['completed'] }}</div>
+        <div class="text-xs text-gray-600">{{ t('service_center.completed') }}</div>
+    </div>
+</div>
+
     </div>
 
     <!-- Filters Card -->
@@ -42,7 +50,6 @@
                            placeholder="{{ t('service_center.search_placeholder') }}"
                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
                 </div>
-                
                 <div class="lg:w-48">
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.status') }}</label>
                     <select name="status" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
@@ -52,12 +59,10 @@
                         <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>{{ t('service_center.completed') }}</option>
                     </select>
                 </div>
-                
                 <div class="flex gap-2 lg:items-end">
                     <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
                         {{ t('service_center.filter') }}
                     </button>
-                    
                     @if(request()->hasAny(['status', 'search']))
                         <a href="{{ route('service-center.claims.index') }}" 
                            class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
@@ -86,11 +91,19 @@
                                 <p class="text-gray-600 text-sm">{{ $claim->policy_number }}</p>
                             </div>
                         </div>
-                        
                         <div class="flex items-center gap-3">
+                            
                             @if($claim->status === 'approved')
                                 <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                     {{ t('service_center.new_claim') }}
+                                </span>
+                            @elseif($claim->status === 'service_center_accepted')
+                                <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    {{ t('service_center.accepted') }}
+                                </span>
+                            @elseif($claim->status === 'service_center_rejected')
+                                <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                    {{ t('service_center.rejected_by_center') }}
                                 </span>
                             @elseif($claim->status === 'in_progress')
                                 <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
@@ -101,8 +114,16 @@
                                     {{ t('service_center.completed') }}
                                 </span>
                             @endif
-                            
+
                             @if($claim->status === 'approved')
+                                <button onclick="openSCApproveModal({{ $claim->id }})"
+                                    class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
+                                    {{ t('service_center.approve_claim') }}
+                                </button>
+                                <button onclick="openSCRejectModal({{ $claim->id }})"
+                                    class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
+                                    {{ t('service_center.reject_claim') }}
+                                </button>
                                 <button onclick="markInProgress({{ $claim->id }})" 
                                         class="px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors">
                                     {{ t('service_center.start_work') }}
@@ -125,7 +146,6 @@
                                 <div>{{ $claim->insuranceUser->formatted_phone }}</div>
                             </div>
                         </div>
-                        
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-900">{{ t('service_center.vehicle_info') }}</h4>
                             <div class="space-y-1 text-sm text-gray-600">
@@ -135,14 +155,12 @@
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-900">{{ t('service_center.insurance_company') }}</h4>
                             <div class="text-sm text-gray-600">
                                 {{ $claim->insuranceCompany->legal_name }}
                             </div>
                         </div>
-                        
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-900">{{ t('service_center.received_date') }}</h4>
                             <div class="text-sm text-gray-600">
@@ -150,6 +168,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Service Center Note (if exists) -->
+                    @if($claim->service_center_note)
+                        <div class="mb-4">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-blue-800">
+                                <span class="font-bold">{{ t('service_center.center_note') }}:</span>
+                                {{ $claim->service_center_note }}
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Action -->
                     <div class="flex justify-end">
@@ -186,18 +214,69 @@
     @endif
 </div>
 
+<!-- Approve Modal -->
+<div id="scApproveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-bold">{{ t('service_center.approve_claim') }}</h3>
+        </div>
+        <form id="scApproveForm" method="POST" class="p-6 space-y-4">
+            @csrf
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.approval_note') }}</label>
+                <textarea name="approval_note" rows="4"
+                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                    placeholder="{{ t('service_center.approval_note_placeholder') }}"></textarea>
+            </div>
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
+                    {{ t('service_center.confirm_approval') }}
+                </button>
+                <button type="button" onclick="closeModal('scApproveModal')"
+                    class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.cancel') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="scRejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-bold">{{ t('service_center.reject_claim') }}</h3>
+        </div>
+        <form id="scRejectForm" method="POST" class="p-6 space-y-4">
+            @csrf
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.rejection_reason') }} *</label>
+                <textarea name="rejection_reason" rows="4" required
+                    class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                    placeholder="{{ t('service_center.rejection_reason_placeholder') }}"></textarea>
+            </div>
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
+                    {{ t('service_center.confirm_rejection') }}
+                </button>
+                <button type="button" onclick="closeModal('scRejectModal')"
+                    class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.cancel') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Mark In Progress Modal -->
 <div id="inProgressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
             <h3 class="text-xl font-bold">{{ t('service_center.start_working_on_claim') }}</h3>
         </div>
-        
         <form id="inProgressForm" method="POST" class="p-6">
             @csrf
-            
             <p class="text-gray-600 mb-6">{{ t('service_center.confirm_start_work_message') }}</p>
-            
             <div class="flex gap-4">
                 <button type="submit" class="flex-1 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
                     {{ t('service_center.start_work') }}
@@ -217,17 +296,14 @@
         <div class="p-6 border-b">
             <h3 class="text-xl font-bold">{{ t('service_center.mark_claim_completed') }}</h3>
         </div>
-        
         <form id="completedForm" method="POST" class="p-6 space-y-4">
             @csrf
-            
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.completion_notes') }}</label>
                 <textarea name="completion_notes" rows="4" 
                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
                           placeholder="{{ t('service_center.completion_notes_placeholder') }}"></textarea>
             </div>
-            
             <div class="flex gap-4">
                 <button type="submit" class="flex-1 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
                     {{ t('service_center.mark_completed') }}
@@ -242,27 +318,95 @@
 </div>
 
 <script>
+// رسالة تنبيه ديناميكية
+function showAlert(message, color) {
+    let alertDiv = document.createElement('div');
+    alertDiv.className = `fixed top-6 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded shadow-lg text-white font-bold bg-${color}-500`;
+    alertDiv.textContent = message;
+    document.body.appendChild(alertDiv);
+    setTimeout(() => { alertDiv.remove(); }, 3000);
+}
+
+function openSCApproveModal(claimId) {
+    document.getElementById('scApproveForm').action = `/service-center/claims/${claimId}/approve`;
+    document.getElementById('scApproveModal').classList.remove('hidden');
+}
+function openSCRejectModal(claimId) {
+    document.getElementById('scRejectForm').action = `/service-center/claims/${claimId}/reject`;
+    document.getElementById('scRejectModal').classList.remove('hidden');
+}
 function markInProgress(claimId) {
     document.getElementById('inProgressForm').action = `{{ route('service-center.claims.mark-progress', '__ID__') }}`.replace('__ID__', claimId);
     document.getElementById('inProgressModal').classList.remove('hidden');
 }
-
 function markCompleted(claimId) {
     document.getElementById('completedForm').action = `{{ route('service-center.claims.mark-completed', '__ID__') }}`.replace('__ID__', claimId);
     document.getElementById('completedModal').classList.remove('hidden');
 }
-
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
-
-// Close modal on outside click
+document.getElementById('scApproveModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('scApproveModal');
+});
+document.getElementById('scRejectModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('scRejectModal');
+});
 document.getElementById('inProgressModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('inProgressModal');
 });
-
 document.getElementById('completedModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('completedModal');
+});
+
+// AJAX للموافقة
+document.getElementById('scApproveForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let form = this;
+    let formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message || 'تمت الموافقة بنجاح', 'green');
+            closeModal('scApproveModal');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showAlert(data.error || 'حدث خطأ أثناء الموافقة', 'red');
+        }
+    })
+    .catch(() => {
+        showAlert('حدث خطأ أثناء الاتصال بالخادم', 'red');
+    });
+});
+
+// AJAX للرفض
+document.getElementById('scRejectForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let form = this;
+    let formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message || 'تم الرفض بنجاح', 'green');
+            closeModal('scRejectModal');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showAlert(data.error || 'حدث خطأ أثناء الرفض', 'red');
+        }
+    })
+    .catch(() => {
+        showAlert('حدث خطأ أثناء الاتصال بالخادم', 'red');
+    });
 });
 </script>
 @endsection

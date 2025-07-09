@@ -124,6 +124,7 @@
         </div>
 
         <!-- Vehicle Location -->
+
         <div class="bg-white rounded-xl shadow-sm border" id="vehicle-location-section">
             <div class="p-6 border-b">
                 <h2 class="text-lg font-bold flex items-center gap-2">
@@ -173,6 +174,7 @@
                 @endif
             </div>
         </div>
+        
 
         <!-- Current Attachments -->
         @if($claim->attachments->count())

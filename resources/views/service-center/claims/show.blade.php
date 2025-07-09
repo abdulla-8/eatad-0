@@ -174,7 +174,6 @@
                     </div>
                 </div>
             </div>
-            
 @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">

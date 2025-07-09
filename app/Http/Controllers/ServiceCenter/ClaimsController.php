@@ -48,6 +48,14 @@ class ClaimsController extends Controller
             'approved' => Claim::where('service_center_id', $serviceCenter->id)->where('status', 'approved')->count(),
             'in_progress' => Claim::where('service_center_id', $serviceCenter->id)->where('status', 'in_progress')->count(),
             'completed' => Claim::where('service_center_id', $serviceCenter->id)->where('status', 'completed')->count(),
+
+            'accepted' => Claim::where('service_center_id', $serviceCenter->id)
+             ->whereIn('status', ['service_center_accepted', 'in_progress', 'completed'])
+             ->count(),
+
+            'rejected' => Claim::where('service_center_id', $serviceCenter->id)
+            ->where('status', 'service_center_rejected')
+            ->count(),
         ];
 
         return view('service-center.claims.index', compact('claims', 'stats', 'serviceCenter'));
@@ -318,4 +326,60 @@ class ClaimsController extends Controller
             ], 500);
         }
     }
+
+public function approveClaim(Request $request, $id)
+{
+    $serviceCenter = Auth::guard('service_center')->user();
+
+    $claim = Claim::where('service_center_id', $serviceCenter->id)
+        ->where('id', $id)
+        ->where('status', 'approved')
+        ->firstOrFail();
+
+    $request->validate([
+        'approval_note' => 'nullable|string|max:1000'
+    ]);
+
+    $updateData = [
+        'status' => 'service_center_accepted',
+        'service_center_note' => $request->approval_note ?? '',
+    ];
+
+    if ($claim->is_vehicle_working) {
+        $updateData['customer_delivery_code'] = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    }
+
+    $claim->update($updateData);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'تمت الموافقة بنجاح'
+    ]);
 }
+
+public function rejectClaim(Request $request, $id)
+{
+    $serviceCenter = Auth::guard('service_center')->user();
+
+    $claim = Claim::where('service_center_id', $serviceCenter->id)
+        ->where('id', $id)
+        ->where('status', 'approved')
+        ->firstOrFail();
+
+    $request->validate([
+        'rejection_reason' => 'required|string|max:1000'
+    ]);
+
+    $claim->update([
+        'status' => 'service_center_rejected',
+        'service_center_note' => $request->rejection_reason,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'تم الرفض بنجاح'
+    ]);
+}
+
+}
+

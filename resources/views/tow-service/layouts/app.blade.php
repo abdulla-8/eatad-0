@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', t('tow.dashboard')) - {{ t('tow.service_dashboard') }}</title>
+    <title>@yield('title', t('tow.dashboard')) - {{ t('tow.dashboard') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +44,7 @@
                         <svg class="w-8 h-8 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                         </svg>
-                        <h1 class="font-bold text-lg">{{ t('tow.service_dashboard') }}</h1>
+                        <h1 class="font-bold text-lg">{{ t('tow.dashboard') }}</h1>
                     </div>
                 </div>
                 <x-language-switcher class="bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100" />
@@ -64,7 +64,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold">{{ t('tow.service_dashboard') }}</h1>
+                            <h1 class="text-lg font-bold">{{ t('tow.dashboard') }}</h1>
                             <p class="text-gold-400 text-sm">{{ isset($userType) && $userType == 'company' ? t('tow.company') : t('tow.individual') }}</p>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                                 {{ t('tow.my_profile') }}
-                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('common.soon') }}</span>
+                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('tow.soon') }}</span>
                             </a>
                         </li>
 
@@ -121,9 +121,12 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                 </svg>
                                 {{ t('tow.requests') }}
-                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('common.soon') }}</span>
+                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('tow.soon') }}</span>
                             </a>
                         </li>
+                   
+
+
                     </ul>
                 </nav>
 

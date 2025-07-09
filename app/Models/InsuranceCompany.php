@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
 class InsuranceCompany extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -186,5 +185,13 @@ class InsuranceCompany extends Authenticatable
     public function pendingClaims()
     {
         return $this->hasMany(Claim::class)->where('status', 'pending');
+    }
+
+    
+
+
+    public function complaints()
+    {
+        return $this->morphMany(Complaint::class, 'complainant');
     }
 }

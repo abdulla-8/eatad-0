@@ -138,7 +138,6 @@
                             </div>
                         </div>
                         @endif
-                        
                         <div class="space-y-2">
                             <h4 class="font-medium text-gray-900">{{ t($company->translation_group . '.dates') }}</h4>
                             <div class="space-y-1 text-sm text-gray-600">
@@ -264,17 +263,28 @@
 <script>
 let serviceCenters = [];
 
-// Load service centers
+// Load service centers with new claims count
+// Load service centers with accepted claims count
 fetch('{{ route("insurance.claims.service-centers", $company->company_slug) }}')
     .then(response => response.json())
     .then(data => {
-        serviceCenters = data;
         const select = document.getElementById('serviceCenterSelect');
         select.innerHTML = '<option value="">{{ t($company->translation_group . ".select_service_center") }}</option>';
         data.forEach(center => {
-            select.innerHTML += `<option value="${center.id}">${center.name} - ${center.area || '{{ t($company->translation_group . ".no_area") }}'}</option>`;
+            let claimsCount = center.accepted_claims_count ?? 0;
+            let claimsText = claimsCount > 0 
+                ? `(${claimsCount} {{ t($company->translation_group . ".accepted_claims") }})`
+                : `({{ t($company->translation_group . ".no_accepted_claims") }})`;
+            let areaText = center.area ? ` - ${center.area}` : '';
+            select.innerHTML += `<option value="${center.id}">${center.name}${areaText} ${claimsText}</option>`;
         });
+    })
+    .catch(error => {
+        const select = document.getElementById('serviceCenterSelect');
+        select.innerHTML = '<option value="">{{ t($company->translation_group . ".error_loading") }}</option>';
     });
+
+
 
 function approveModal(claimId) {
     document.getElementById('approveForm').action = `{{ route('insurance.claims.approve', [$company->company_slug, '__ID__']) }}`.replace('__ID__', claimId);
@@ -299,4 +309,6 @@ document.getElementById('rejectModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('rejectModal');
 });
 </script>
+
+
 @endsection

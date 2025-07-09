@@ -21,7 +21,7 @@
         </div>
         <div class="text-{{ $isRtl ? 'left' : 'right' }}">
             <p class="text-dark-700 text-sm">{{ t('tow.profile_completion') }}</p>
-            <p class="text-xl font-bold">{{ $stats['profile_completion'] }}% {{ t('common.complete') }}</p>
+            <p class="text-xl font-bold">{{ $stats['profile_completion'] }}% {{ t('tow.complete') }}</p>
         </div>
     </div>
 </div>
@@ -136,7 +136,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                     </svg>
                 </div>
-                <span class="font-semibold text-gray-600">{{ t('tow.requests') }} ({{ t('common.coming_soon') }})</span>
+                <span class="font-semibold text-gray-600">{{ t('tow.requests') }} ({{ t('tow.soon') }})</span>
             </div>
         </div>
     </div>
@@ -167,15 +167,15 @@
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-gray-600">{{ t('tow.office_number') }}</span>
-                    <span class="font-medium">{{ $user->office_number ?? t('common.not_set') }}</span>
+                    <span class="font-medium">{{ $user->office_number ?? t('tow.not_set') }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-gray-600">{{ t('tow.delegate_number') }}</span>
-                    <span class="font-medium">{{ $user->delegate_number ?? t('common.not_set') }}</span>
+                    <span class="font-medium">{{ $user->delegate_number ?? t('tow.not_set') }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2">
                     <span class="text-gray-600">{{ t('tow.daily_capacity') }}</span>
-                    <span class="font-medium">{{ $user->daily_capacity ?? t('common.not_set') }}</span>
+                    <span class="font-medium">{{ $user->daily_capacity ?? t('tow.not_set') }}</span>
                 </div>
             @else
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
@@ -192,15 +192,15 @@
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-gray-600">{{ t('tow.plate_number') }}</span>
-                    <span class="font-medium">{{ $user->tow_truck_plate_number ?? t('common.not_set') }}</span>
+                    <span class="font-medium">{{ $user->tow_truck_plate_number ?? t('tow.not_set') }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2">
                     <span class="text-gray-600">{{ t('tow.truck_form') }}</span>
                     <span class="font-medium">
                         @if($user->tow_truck_form)
-                            <span class="text-green-600">{{ t('common.uploaded') }}</span>
+                            <span class="text-green-600">{{ t('tow.uploaded') }}</span>
                         @else
-                            <span class="text-red-600">{{ t('common.not_uploaded') }}</span>
+                            <span class="text-red-600">{{ t('tow.not_uploaded') }}</span>
                         @endif
                     </span>
                 </div>
