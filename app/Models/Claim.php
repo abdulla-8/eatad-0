@@ -33,7 +33,9 @@ class Claim extends Model
         'customer_delivery_code',
         'vehicle_arrived_at_center',
         'inspection_status',
-        'service_center_note'
+        'service_center_note',
+        'parts_received_at',
+        'parts_received_notes'
     ];
 
     protected $casts = [
@@ -43,7 +45,8 @@ class Claim extends Model
         'tow_service_accepted' => 'boolean',
         'vehicle_location_lat' => 'decimal:8',
         'vehicle_location_lng' => 'decimal:8',
-        'vehicle_arrived_at_center' => 'datetime'
+        'vehicle_arrived_at_center' => 'datetime',
+        'parts_received_at' => 'datetime'
     ];
 
     // Relations
@@ -112,6 +115,7 @@ class Claim extends Model
             'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
             'service_center_accepted' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'Accepted by Service Center'],
             'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected by Service Center'],
+            'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved - Awaiting Delivery'],
             'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
             'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
         ];
@@ -145,6 +149,7 @@ class Claim extends Model
             'service_center_accepted' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Accepted'],
             'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
             'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
+            'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved'],
             'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
             'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
         ];
@@ -274,12 +279,39 @@ class Claim extends Model
     }
 
     /**
-     * فحص إمكانية بدء العمل
+     * فحص إمكانية تأكيد استلام القطع
+     */
+    public function canConfirmPartsReceived()
+    {
+        return $this->inspection && 
+               $this->inspection->insurance_response === 'approved' && 
+               !$this->parts_received_at;
+    }
+
+    /**
+     * فحص إمكانية بدء العمل (بعد استلام القطع)
      */
     public function canStartWork()
     {
-        return $this->status === 'approved' && 
-               $this->inspection_status === 'completed';
+        return $this->parts_received_at !== null && 
+               $this->status === 'service_center_accepted';
+    }
+
+    /**
+     * تأكيد استلام القطع
+     */
+    public function confirmPartsReceived($notes = null)
+    {
+        if (!$this->canConfirmPartsReceived()) {
+            return false;
+        }
+
+        $this->update([
+            'parts_received_at' => now(),
+            'parts_received_notes' => $notes
+        ]);
+
+        return true;
     }
 
     /**
@@ -320,5 +352,21 @@ class Claim extends Model
                    // تم قبول خدمة السطحة
                    ($this->tow_service_accepted === true)
                );
+    }
+
+    /**
+     * فحص إذا كان يجب إظهار زرار تأكيد استلام القطع
+     */
+    public function shouldShowConfirmPartsButton()
+    {
+        return $this->canConfirmPartsReceived();
+    }
+
+    /**
+     * فحص إذا كان تم استلام القطع
+     */
+    public function isPartsReceived()
+    {
+        return $this->parts_received_at !== null;
     }
 }

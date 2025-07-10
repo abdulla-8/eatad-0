@@ -28,8 +28,42 @@
                 </span>
             @endif
         </div>
-    </div>
 
+        
+    </div>
+    <!-- Parts Status Alert -->
+    @if($inspection->claim && $inspection->claim->parts_received_at && $inspection->insurance_response === 'approved')
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-green-800 mb-2">Parts Received by Service Center</h3>
+                    <p class="text-green-700">Service center confirmed receipt on: {{ $inspection->claim->parts_received_at->format('M d, Y H:i') }}</p>
+                    @if($inspection->claim->parts_received_notes)
+                        <p class="text-green-600 text-sm mt-1">Notes: {{ $inspection->claim->parts_received_notes }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @elseif($inspection->insurance_response === 'approved' && !$inspection->claim->parts_received_at)
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-yellow-800 mb-2">Awaiting Parts Delivery</h3>
+                    <p class="text-yellow-700">Parts pricing approved. Service center has not yet confirmed receipt of parts.</p>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="grid lg:grid-cols-3 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
@@ -318,6 +352,12 @@
                             <p class="font-medium">{{ $inspection->priced_at->format('M d, Y H:i') }}</p>
                         </div>
                     @endif
+                    @if($inspection->claim && $inspection->claim->parts_received_at)
+    <div>
+        <span class="text-gray-600">Parts Received:</span>
+        <p class="font-medium text-green-600">{{ $inspection->claim->parts_received_at->format('M d, Y H:i') }}</p>
+    </div>
+@endif
                 </div>
             </div>
 

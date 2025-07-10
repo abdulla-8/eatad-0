@@ -94,10 +94,45 @@
                 </div>
             </div>
         </div>
-    @endif
+@endif
 
-    <div class="grid lg:grid-cols-3 gap-6">
-        <!-- Main Content -->
+<!-- Parts Receipt Status Alert -->
+@if($claim->inspection && $claim->inspection->insurance_response === 'approved')
+    @if($claim->parts_received_at)
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-emerald-800 mb-2">Parts Delivered & Received</h3>
+                    <p class="text-emerald-700">Service center confirmed receipt on: {{ $claim->parts_received_at->format('M d, Y H:i') }}</p>
+                    @if($claim->parts_received_notes)
+                        <p class="text-emerald-600 text-sm mt-1">Notes: {{ $claim->parts_received_notes }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-amber-800 mb-2">Parts Delivery Pending</h3>
+                    <p class="text-amber-700">Parts pricing approved. Awaiting delivery confirmation from service center.</p>
+                </div>
+            </div>
+        </div>
+    @endif
+@endif
+
+<div class="grid lg:grid-cols-3 gap-6">        <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             <!-- User Information -->
             <div class="bg-white rounded-xl shadow-sm border">

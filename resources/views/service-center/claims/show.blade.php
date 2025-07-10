@@ -45,7 +45,12 @@
                 <span class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
                     {{ t('service_center.inspection_completed') }}
                 </span>
-                @if($claim->canStartWork() && $claim->status === 'approved')
+                @if($claim->shouldShowConfirmPartsButton())
+                    <button onclick="showConfirmPartsModal()" 
+                            class="px-6 py-2.5 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors">
+                        {{ t('service_center.confirm_parts_received') }}
+                    </button>
+                @elseif($claim->canStartWork())
                     <button onclick="markInProgress()" 
                             class="px-6 py-2.5 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors">
                         {{ t('service_center.start_work') }}
@@ -54,6 +59,45 @@
             @endif
         </div>
     </div>
+
+    <!-- Parts Status Alerts -->
+    @if($claim->inspection && $claim->inspection->insurance_response === 'approved' && !$claim->parts_received_at)
+        <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-purple-800 mb-2">{{ t('service_center.parts_pricing_approved') }}</h3>
+                    <p class="text-purple-700 mb-3">{{ t('service_center.insurance_approved_parts_pricing') }}</p>
+                    <p class="text-purple-600 text-sm mb-4">{{ t('service_center.please_confirm_when_parts_arrive') }}</p>
+                    <div class="bg-white border-2 border-purple-300 rounded-lg p-3 text-center">
+                        <span class="text-lg font-bold text-purple-800">{{ number_format($claim->inspection->total_amount, 2) }} SAR</span>
+                        <p class="text-purple-600 text-sm">{{ t('service_center.approved_amount') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif($claim->parts_received_at)
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-green-800 mb-2">{{ t('service_center.parts_received_confirmed') }}</h3>
+                    <p class="text-green-700">{{ t('service_center.received_at') }}: {{ $claim->parts_received_at->format('M d, Y H:i') }}</p>
+                    @if($claim->parts_received_notes)
+                        <p class="text-green-600 text-sm mt-1">{{ $claim->parts_received_notes }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 
     @if($claim->shouldShowCustomerDeliveryCode())
         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
@@ -158,23 +202,23 @@
                             <span class="text-gray-600">{{ t('service_center.assigned') }}</span>
                             <span class="font-medium">{{ $claim->updated_at->format('M d, Y H:i') }}</span>
                         </div>
-                            <!-- الحقول الجديدة -->
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t('service_center.vehicle_brand') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t('service_center.vehicle_type') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_type }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t('service_center.vehicle_model') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_model }}</span>
-        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{{ t('service_center.vehicle_brand') }}</span>
+                            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{{ t('service_center.vehicle_type') }}</span>
+                            <span class="font-medium">{{ $claim->vehicle_type }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">{{ t('service_center.vehicle_model') }}</span>
+                            <span class="font-medium">{{ $claim->vehicle_model }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-@if(!empty($claim->vehicle_location))
+
+            @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold">{{ t('service_center.vehicle_location') }}</h3>
@@ -193,7 +237,8 @@
                     @endif
                 </div>
             </div>
-@endif
+            @endif
+
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -230,6 +275,39 @@
                 </div>
             </div>
 
+            <!-- Parts Pricing Summary -->
+            @if($claim->inspection && $claim->inspection->hasPricing())
+            <div class="bg-white rounded-xl shadow-sm border">
+                <div class="p-6 border-b">
+                    <h3 class="text-lg font-bold">{{ t('service_center.parts_pricing_summary') }}</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">{{ t('service_center.parts_total') }}:</span>
+                        <span class="font-medium">{{ number_format($claim->inspection->parts_total, 2) }} SAR</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">{{ t('service_center.service_fees') }}:</span>
+                        <span class="font-medium">{{ number_format($claim->inspection->service_center_fees, 2) }} SAR</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">{{ t('service_center.tax') }} ({{ $claim->inspection->tax_percentage }}%):</span>
+                        <span class="font-medium">{{ number_format($claim->inspection->tax_amount, 2) }} SAR</span>
+                    </div>
+                    <div class="border-t pt-2 flex justify-between font-bold">
+                        <span>{{ t('service_center.total_amount') }}:</span>
+                        <span class="text-lg text-blue-600">{{ number_format($claim->inspection->total_amount, 2) }} SAR</span>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $claim->inspection->insurance_response_badge['class'] }}">
+                            {{ $claim->inspection->insurance_response_badge['text'] }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             @if($claim->tow_service_offered)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -261,7 +339,12 @@
                     <h3 class="text-lg font-bold">{{ t('service_center.quick_actions') }}</h3>
                 </div>
                 <div class="p-6 space-y-3">
-                    @if($claim->canStartWork() && $claim->status === 'approved')
+                    @if($claim->shouldShowConfirmPartsButton())
+                        <button onclick="showConfirmPartsModal()" 
+                                class="w-full px-4 py-3 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors">
+                            {{ t('service_center.confirm_parts_received') }}
+                        </button>
+                    @elseif($claim->canStartWork())
                         <button onclick="markInProgress()" 
                                 class="w-full px-4 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors">
                             {{ t('service_center.start_work') }}
@@ -312,7 +395,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                 </svg>
                                             </div>
-                                        @elseif($attachment->isPdf())
+@elseif($attachment->isPdf())
                                             <div class="w-8 h-8 rounded bg-red-100 flex items-center justify-center">
                                                 <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -344,6 +427,43 @@
     @endif
 </div>
 
+<!-- Confirm Parts Received Modal -->
+<div id="confirmPartsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full">
+        <div class="p-6 border-b">
+            <h3 class="text-xl font-bold">{{ t('service_center.confirm_parts_received') }}</h3>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <p class="text-purple-800 font-medium">{{ t('service_center.confirm_parts_delivery_message') }}</p>
+                @if($claim->inspection && $claim->inspection->total_amount)
+                    <p class="text-purple-700 text-sm mt-2">{{ t('service_center.approved_amount') }}: {{ number_format($claim->inspection->total_amount, 2) }} SAR</p>
+                @endif
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.parts_received_notes') }}</label>
+                <textarea id="partsReceivedNotes" rows="4" 
+                          class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent px-4 py-2.5"
+                          placeholder="{{ t('service_center.parts_received_notes_placeholder') }}"></textarea>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="confirmPartsReceived()" 
+                        class="flex-1 py-3 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition-colors">
+                    {{ t('service_center.confirm_received') }}
+                </button>
+                <button type="button" onclick="closeModal('confirmPartsModal')" 
+                        class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    {{ t('service_center.cancel') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- In Progress Modal -->
 <div id="inProgressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -368,6 +488,7 @@
     </div>
 </div>
 
+<!-- Completed Modal -->
 <div id="completedModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -397,6 +518,7 @@
     </div>
 </div>
 
+<!-- Inspection Modal -->
 <div id="inspectionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b">
@@ -469,6 +591,7 @@
     </div>
 </div>
 
+<!-- Customer Delivery Modal -->
 <div id="customerDeliveryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -499,6 +622,7 @@
     </div>
 </div>
 
+<!-- Add Notes Modal -->
 <div id="addNotesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
@@ -552,6 +676,41 @@ function showInspectionModal() {
     .catch(error => {
         console.error('Error:', error);
         alert('{{ t("service_center.error_occurred") }}');
+    });
+}
+
+function showConfirmPartsModal() {
+    document.getElementById('confirmPartsModal').classList.remove('hidden');
+}
+
+function confirmPartsReceived() {
+    const notes = document.getElementById('partsReceivedNotes').value;
+    
+    fetch(`/service-center/claims/{{ $claim->id }}/confirm-parts-received`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            parts_received_notes: notes
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to confirm parts receipt');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء الاتصال بالخادم');
     });
 }
 
@@ -670,6 +829,11 @@ function addNotesModal() {
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
+
+// Event listeners for outside clicks
+document.getElementById('confirmPartsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal('confirmPartsModal');
+});
 
 document.getElementById('inProgressModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('inProgressModal');

@@ -56,6 +56,13 @@ class ClaimsController extends Controller
             'rejected' => Claim::where('service_center_id', $serviceCenter->id)
             ->where('status', 'service_center_rejected')
             ->count(),
+
+            'awaiting_parts' => Claim::where('service_center_id', $serviceCenter->id)
+            ->whereHas('inspection', function($q) {
+                $q->where('insurance_response', 'approved');
+            })
+            ->whereNull('parts_received_at')
+            ->count(),
         ];
 
         return view('service-center.claims.index', compact('claims', 'stats', 'serviceCenter'));
@@ -68,13 +75,51 @@ class ClaimsController extends Controller
     {
         $serviceCenter = Auth::guard('service_center')->user();
         
-        $claim = Claim::with(['insuranceUser', 'insuranceCompany', 'attachments'])
+        $claim = Claim::with(['insuranceUser', 'insuranceCompany', 'attachments', 'inspection'])
             ->where('service_center_id', $serviceCenter->id)
             ->where('id', $id)
             ->firstOrFail();
 
         return view('service-center.claims.show', compact('claim', 'serviceCenter'));
     }
+
+    /**
+     * Confirm parts received
+     */
+public function confirmPartsReceived(Request $request, $id)
+{
+    try {
+        $serviceCenter = Auth::guard('service_center')->user();
+        
+        $claim = Claim::where('service_center_id', $serviceCenter->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $request->validate([
+            'parts_received_notes' => 'nullable|string|max:1000'
+        ]);
+
+        if (!$claim->canConfirmPartsReceived()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Cannot confirm parts receipt at this time.'
+            ]);
+        }
+
+        $claim->confirmPartsReceived($request->parts_received_notes);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Parts receipt confirmed successfully.'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to confirm parts receipt. Please try again.'
+        ], 500);
+    }
+}
 
     /**
      * Mark claim as in progress
@@ -85,9 +130,13 @@ class ClaimsController extends Controller
         
         $claim = Claim::where('service_center_id', $serviceCenter->id)
             ->where('id', $id)
-            ->where('status', 'approved')
-            ->where('inspection_status', 'completed') // يجب أن يكون الفحص مكتمل أولاً
+            ->where('status', 'service_center_accepted')
             ->firstOrFail();
+
+        // Check if parts are received
+        if (!$claim->isPartsReceived()) {
+            return redirect()->back()->with('error', 'Parts must be received before starting work.');
+        }
 
         $claim->update([
             'status' => 'in_progress'
@@ -105,7 +154,7 @@ class ClaimsController extends Controller
         
         $claim = Claim::where('service_center_id', $serviceCenter->id)
             ->where('id', $id)
-            ->whereIn('status', ['approved', 'in_progress'])
+            ->whereIn('status', ['service_center_accepted', 'in_progress'])
             ->firstOrFail();
 
         $request->validate([
@@ -162,6 +211,12 @@ class ClaimsController extends Controller
                 ->count(),
             'completed_claims' => Claim::where('service_center_id', $serviceCenter->id)
                 ->where('status', 'completed')
+                ->count(),
+            'awaiting_parts' => Claim::where('service_center_id', $serviceCenter->id)
+                ->whereHas('inspection', function($q) {
+                    $q->where('insurance_response', 'approved');
+                })
+                ->whereNull('parts_received_at')
                 ->count(),
             'claims_this_month' => Claim::where('service_center_id', $serviceCenter->id)
                 ->whereMonth('created_at', now()->month)
@@ -327,59 +382,58 @@ class ClaimsController extends Controller
         }
     }
 
-public function approveClaim(Request $request, $id)
-{
-    $serviceCenter = Auth::guard('service_center')->user();
+    public function approveClaim(Request $request, $id)
+    {
+        $serviceCenter = Auth::guard('service_center')->user();
 
-    $claim = Claim::where('service_center_id', $serviceCenter->id)
-        ->where('id', $id)
-        ->where('status', 'approved')
-        ->firstOrFail();
+        $claim = Claim::where('service_center_id', $serviceCenter->id)
+            ->where('id', $id)
+            ->where('status', 'approved')
+            ->firstOrFail();
 
-    $request->validate([
-        'approval_note' => 'nullable|string|max:1000'
-    ]);
+        $request->validate([
+            'approval_note' => 'nullable|string|max:1000'
+        ]);
 
-    $updateData = [
-        'status' => 'service_center_accepted',
-        'service_center_note' => $request->approval_note ?? '',
-    ];
+        $updateData = [
+            'status' => 'service_center_accepted',
+            'service_center_note' => $request->approval_note ?? '',
+        ];
 
-    if ($claim->is_vehicle_working) {
-        $updateData['customer_delivery_code'] = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        if ($claim->is_vehicle_working) {
+            $updateData['customer_delivery_code'] = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        }
+
+        $claim->update($updateData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تمت الموافقة بنجاح'
+        ]);
     }
 
-    $claim->update($updateData);
+    public function rejectClaim(Request $request, $id)
+    {
+        $serviceCenter = Auth::guard('service_center')->user();
 
-    return response()->json([
-        'success' => true,
-        'message' => 'تمت الموافقة بنجاح'
-    ]);
-}
+        $claim = Claim::where('service_center_id', $serviceCenter->id)
+            ->where('id', $id)
+            ->where('status', 'approved')
+            ->firstOrFail();
 
-public function rejectClaim(Request $request, $id)
-{
-    $serviceCenter = Auth::guard('service_center')->user();
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000'
+        ]);
 
-    $claim = Claim::where('service_center_id', $serviceCenter->id)
-        ->where('id', $id)
-        ->where('status', 'approved')
-        ->firstOrFail();
+        $claim->update([
+            'status' => 'service_center_rejected',
+            'service_center_note' => $request->rejection_reason,
+        ]);
 
-    $request->validate([
-        'rejection_reason' => 'required|string|max:1000'
-    ]);
-
-    $claim->update([
-        'status' => 'service_center_rejected',
-        'service_center_note' => $request->rejection_reason,
-    ]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'تم الرفض بنجاح'
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'تم الرفض بنجاح'
+        ]);
+    }
 
 }
-

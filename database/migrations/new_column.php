@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('claims', function (Blueprint $table) {
-            //
+            $table->timestamp('parts_received_at')->nullable()->after('priced_at');
+            $table->text('parts_received_notes')->nullable()->after('parts_received_at');
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('claims', function (Blueprint $table) {
-            //
+            $table->dropColumn(['parts_received_at', 'parts_received_notes']);
         });
     }
 };

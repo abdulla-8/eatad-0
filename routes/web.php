@@ -312,6 +312,8 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::post('/{id}/mark-arrived', [ServiceCenterClaimsController::class, 'markVehicleArrived'])->name('mark-arrived');
             Route::post('/{id}/approve', [ServiceCenterClaimsController::class, 'approveClaim'])->name('approve');
             Route::post('/{id}/reject', [ServiceCenterClaimsController::class, 'rejectClaim'])->name('reject');
+            Route::post('/{claim}/confirm-parts-received', [ServiceCenterClaimsController::class, 'confirmPartsReceived'])->name('confirm-parts-received');
+            
         });
 
         // Tow Service Offers Routes
