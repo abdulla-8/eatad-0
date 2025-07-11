@@ -172,7 +172,7 @@ public function deleteTranslation($companyRoute, $id)
     if ($company->company_slug !== $companyRoute) {
         abort(404);
     }
-
+    
     $translation = Translation::findOrFail($id);
 
     if (!str_starts_with($translation->translation_key, $company->translation_group . '.')) {
