@@ -97,13 +97,24 @@ function openEditTranslationModal(id, key, value) {
     const form = document.getElementById('editTranslationForm');
     const keyInput = document.getElementById('editTranslationKey');
     const valueInput = document.getElementById('editTranslationValue');
+
+     
+    console.log('Generated URL:', form.action);
+    console.log('Translation ID:', id);
+    console.log('Company Slug:', '{{ $company->company_slug }}');
     
-    form.action = form.action.replace('/translations/0', '/translations/' + id);
+
+    const baseUrl = "{{ route('insurance.settings.translations.update', [$company->company_slug, '__ID__']) }}";
+    form.action = baseUrl.replace('__ID__', id);
+    
     keyInput.value = key;
     valueInput.value = value;
     
+   
+    // إظهار الـ modal
     modal.classList.remove('hidden');
 }
+
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');

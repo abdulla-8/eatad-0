@@ -35,7 +35,9 @@ class Claim extends Model
         'inspection_status',
         'service_center_note',
         'parts_received_at',
-        'parts_received_notes'
+        'parts_received_notes',
+        'service_center_approved_at',    // ← الحقل الجديد
+        'service_center_rejected_at'     // ← الحقل الجديد
     ];
 
     protected $casts = [
@@ -46,7 +48,9 @@ class Claim extends Model
         'vehicle_location_lat' => 'decimal:8',
         'vehicle_location_lng' => 'decimal:8',
         'vehicle_arrived_at_center' => 'datetime',
-        'parts_received_at' => 'datetime'
+        'parts_received_at' => 'datetime',
+        'service_center_approved_at' => 'datetime',    // ← Cast للحقل الجديد
+        'service_center_rejected_at' => 'datetime'     // ← Cast للحقل الجديد
     ];
 
     // Relations
@@ -242,7 +246,8 @@ class Claim extends Model
 
         $this->update([
             'status' => 'pending',
-            'rejection_reason' => null
+            'rejection_reason' => null,
+            'service_center_rejected_at' => null  // ← إعادة تعيين التاريخ عند إعادة الإرسال
         ]);
 
         return true;
@@ -368,5 +373,37 @@ class Claim extends Model
     public function isPartsReceived()
     {
         return $this->parts_received_at !== null;
+    }
+
+    /**
+     * فحص إذا كان مركز الصيانة وافق على الطلب
+     */
+    public function isServiceCenterApproved()
+    {
+        return $this->service_center_approved_at !== null;
+    }
+
+    /**
+     * فحص إذا كان مركز الصيانة رفض الطلب
+     */
+    public function isServiceCenterRejected()
+    {
+        return $this->service_center_rejected_at !== null;
+    }
+
+    /**
+     * الحصول على تاريخ آخر قرار من مركز الصيانة
+     */
+    public function getLastServiceCenterDecisionAttribute()
+    {
+        if ($this->service_center_approved_at) {
+            return $this->service_center_approved_at;
+        }
+        
+        if ($this->service_center_rejected_at) {
+            return $this->service_center_rejected_at;
+        }
+        
+        return null;
     }
 }

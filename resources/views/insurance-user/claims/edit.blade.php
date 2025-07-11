@@ -38,8 +38,60 @@
         </div>
     </div>
 
+    <!-- Error Messages -->
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-red-800 mb-2">{{ t($company->translation_group . '.validation_errors') }}</h3>
+                <ul class="text-red-700 text-sm space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>• {{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-red-800 mb-2">{{ t($company->translation_group . '.error') }}</h3>
+                <p class="text-red-700">{{ session('error') }}</p>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Location Warning Alert -->
+    <div id="location-warning" class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 hidden">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-yellow-800 mb-2">{{ t($company->translation_group . '.location_required') }}</h3>
+                <p class="text-yellow-700">{{ t($company->translation_group . '.location_required_message') }}</p>
+            </div>
+        </div>
+    </div>
+
     <form method="POST" action="{{ route('insurance.user.claims.update', [$company->company_slug, $claim->id]) }}" 
-          enctype="multipart/form-data" class="space-y-6">
+          enctype="multipart/form-data" class="space-y-6" id="claim-form">
         @csrf
         @method('PUT')
 
@@ -124,7 +176,6 @@
         </div>
 
         <!-- Vehicle Location -->
-
         <div class="bg-white rounded-xl shadow-sm border" id="vehicle-location-section">
             <div class="p-6 border-b">
                 <h2 class="text-lg font-bold flex items-center gap-2">
@@ -133,7 +184,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
                     {{ t($company->translation_group . '.vehicle_location') }}
+                    <span class="text-red-500">*</span>
                 </h2>
+                <p class="text-gray-600 text-sm mt-1">{{ t($company->translation_group . '.location_description_help') }}</p>
             </div>
             
             <div class="p-6 space-y-6">
@@ -141,7 +194,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.location_description') }} *</label>
                     <textarea name="vehicle_location" rows="3" 
                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5" 
-                              style="focus:ring-color: {{ $company->primary_color }};" required>{{ old('vehicle_location', $claim->vehicle_location) }}</textarea>
+                              style="focus:ring-color: {{ $company->primary_color }};" 
+                              placeholder="{{ t($company->translation_group . '.location_description_placeholder') }}" required>{{ old('vehicle_location', $claim->vehicle_location) }}</textarea>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-4">
@@ -167,14 +221,31 @@
                 </div>
 
                 <div id="map" style="height: 300px; display: none;" class="border rounded-lg"></div>
-                @if($claim->vehicle_location_lat)
+                
+                <div id="location-status" class="hidden">
                     <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <p class="text-green-700 text-sm" id="location-text">{{ t($company->translation_group . '.location_selected') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                @if($claim->vehicle_location_lat)
+                <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
                         <p class="text-green-700 text-sm">{{ t($company->translation_group . '.current_location') }}: {{ $claim->vehicle_location_lat }}, {{ $claim->vehicle_location_lng }}</p>
                     </div>
+                </div>
                 @endif
             </div>
         </div>
-        
 
         <!-- Current Attachments -->
         @if($claim->attachments->count())
@@ -243,6 +314,7 @@
                         <input type="file" name="policy_image[]" multiple accept="image/*,.pdf" 
                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                                style="focus:ring-color: {{ $company->primary_color }};">
+                        <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
 
                     <div>
@@ -250,6 +322,7 @@
                         <input type="file" name="registration_form[]" multiple accept="image/*,.pdf" 
                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                                style="focus:ring-color: {{ $company->primary_color }};">
+                        <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
 
                     <div>
@@ -257,6 +330,7 @@
                         <input type="file" name="damage_report[]" multiple accept="image/*,.pdf" 
                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                                style="focus:ring-color: {{ $company->primary_color }};">
+                        <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
 
                     <div>
@@ -264,6 +338,7 @@
                         <input type="file" name="estimation_report[]" multiple accept="image/*,.pdf" 
                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                                style="focus:ring-color: {{ $company->primary_color }};">
+                        <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
                 </div>
 
@@ -272,6 +347,7 @@
                     <input type="file" name="repair_receipt[]" multiple accept="image/*,.pdf" 
                            class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                            style="focus:ring-color: {{ $company->primary_color }};">
+                    <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                 </div>
             </div>
         </div>
@@ -285,11 +361,13 @@
                     </svg>
                     {{ t($company->translation_group . '.additional_notes') }}
                 </h2>
+                <p class="text-gray-600 text-sm mt-1">{{ t($company->translation_group . '.additional_notes_help') }}</p>
             </div>
             <div class="p-6">
                 <textarea name="notes" rows="4" 
                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                          style="focus:ring-color: {{ $company->primary_color }};">{{ old('notes', $claim->notes) }}</textarea>
+                          style="focus:ring-color: {{ $company->primary_color }};"
+                          placeholder="{{ t($company->translation_group . '.additional_notes_placeholder') }}">{{ old('notes', $claim->notes) }}</textarea>
             </div>
         </div>
 
@@ -309,23 +387,6 @@
                 </div>
             </div>
         </div>
-
-        @if($errors->any())
-    <div class="bg-red-100 text-red-700 p-2 my-2 rounded">
-        <ul>
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="bg-red-100 text-red-700 p-2 my-2 rounded">
-        {{ session('error') }}
-    </div>
-@endif
-
     </form>
 </div>
 
@@ -337,6 +398,7 @@ function getLocation() {
         navigator.geolocation.getCurrentPosition(function(position) {
             document.getElementById('lat').value = position.coords.latitude;
             document.getElementById('lng').value = position.coords.longitude;
+            updateLocationStatus();
         }, function(error) {
             alert('{{ t($company->translation_group . '.location_error') }}');
         });
@@ -365,25 +427,74 @@ function openMap() {
             marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
             document.getElementById('lat').value = e.latlng.lat;
             document.getElementById('lng').value = e.latlng.lng;
+            updateLocationStatus();
         });
     }
     setTimeout(() => map.invalidateSize(), 100);
 }
 
-// --- إظهار/إخفاء قسم اللوكيشن حسب حالة السيارة ---
+function updateLocationStatus() {
+    const lat = document.getElementById('lat').value;
+    const lng = document.getElementById('lng').value;
+    const statusDiv = document.getElementById('location-status');
+    const textElement = document.getElementById('location-text');
+    
+    if (lat && lng) {
+        statusDiv.classList.remove('hidden');
+        textElement.textContent = '{{ t($company->translation_group . '.location_selected') }}: ' + lat + ', ' + lng;
+    }
+}
+
 function toggleLocationSection() {
     var working = document.getElementById('is_vehicle_working').value;
     var locationSection = document.getElementById('vehicle-location-section');
-    if (working === '1') {
+    var warningDiv = document.getElementById('location-warning');
+    
+    if (working === '0') {
         locationSection.style.display = '';
+        warningDiv.classList.add('hidden');
     } else {
         locationSection.style.display = 'none';
+        warningDiv.classList.add('hidden');
+        // Clear location data when vehicle is working
         document.querySelector('[name="vehicle_location"]').value = '';
         document.getElementById('lat').value = '';
         document.getElementById('lng').value = '';
+        document.getElementById('location-status').classList.add('hidden');
     }
 }
+
+function validateForm() {
+    var working = document.getElementById('is_vehicle_working').value;
+    var locationDescription = document.querySelector('[name="vehicle_location"]').value.trim();
+    var lat = document.getElementById('lat').value;
+    var lng = document.getElementById('lng').value;
+    var warningDiv = document.getElementById('location-warning');
+    
+    if (working === '0') {
+        if (!locationDescription || (!lat || !lng)) {
+            warningDiv.classList.remove('hidden');
+            document.getElementById('vehicle-location-section').scrollIntoView({ behavior: 'smooth' });
+            return false;
+        }
+    }
+    
+    warningDiv.classList.add('hidden');
+    return true;
+}
+
+// Event listeners
 document.getElementById('is_vehicle_working').addEventListener('change', toggleLocationSection);
-window.addEventListener('DOMContentLoaded', toggleLocationSection);
+document.getElementById('claim-form').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+    }
+});
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', function() {
+    toggleLocationSection();
+    updateLocationStatus();
+});
 </script>
 @endsection

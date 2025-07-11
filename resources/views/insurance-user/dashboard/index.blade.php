@@ -23,8 +23,8 @@
             </div>
         </div>
         <div class="text-{{ $isRtl ? 'left' : 'right' }}">
-            <p class="text-white/70 text-sm">{{ t($company->translation_group . '.member_since', 'Member Since') }}</p>
-            <p class="text-xl font-bold">{{ $stats['user_info']['member_since'] }}</p>
+            <p class="text-white/70 text-sm text-{{ $isRtl ? 'right' : 'left' }}">{{ t($company->translation_group . '.member_since', 'Member Since') }}</p>
+            <p class="text-xl font-bold ">{{ $stats['user_info']['member_since'] }}</p>
         </div>
     </div>
 </div>
@@ -121,7 +121,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <span class="font-semibold text-gray-600">{{ t($company->translation_group . '.my_claims', 'My Claims') }} (Coming Soon)</span>
+                <span class="font-semibold text-gray-600">{{ t($company->translation_group . '.my_claims', 'My Claims') }} {{ t($company->translation_group . 'soon', 'Soon') }}</span>
             </div>
             
             <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
@@ -130,7 +130,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                     </svg>
                 </div>
-                <span class="font-semibold text-gray-600">{{ t($company->translation_group . '.policy_details', 'Policy Details') }} (Coming Soon)</span>
+                <span class="font-semibold text-gray-600">{{ t($company->translation_group . '.policy_details', 'Policy Details') }} {{ t($company->translation_group . 'soon', 'Soon') }}</span>
             </div>
             
             <div class="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
@@ -139,7 +139,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 1.26a2 2 0 001.11 0L20 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                 </div>
-                <span class="font-semibold text-gray-600">{{ t($company->translation_group . '.contact_support', 'Contact Support') }} (Coming Soon)</span>
+                <span class="font-semibold text-gray-600">{{ t($company->translation_group . '.contact_support', 'Contact Support') }} {{ t($company->translation_group . 'soon', 'Soon') }}</span>
             </div>
         </div>
     </div>

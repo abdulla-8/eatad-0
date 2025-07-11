@@ -13,28 +13,30 @@ use App\Models\TowRequest;
 
 class ClaimsController extends Controller
 {
-    public function index(Request $request)
-    {
-        $companySlug = $request->route('companySlug');
-        $company = InsuranceCompany::where('company_slug', $companySlug)
-            ->where('is_active', true)
-            ->where('is_approved', true)
-            ->firstOrFail();
+  public function index(Request $request)
+{
+    $companySlug = $request->route('companySlug');
+    $company = InsuranceCompany::where('company_slug', $companySlug)
+        ->where('is_active', true)
+        ->where('is_approved', true)
+        ->firstOrFail();
 
-        $user = Auth::guard('insurance_user')->user();
+    $user = Auth::guard('insurance_user')->user();
 
-        if ($user->insurance_company_id !== $company->id) {
-            Auth::guard('insurance_user')->logout();
-            return redirect()->route('insurance.user.login', $companySlug);
-        }
-
-        $claims = Claim::forUser($user->id)
-            ->with(['attachments', 'serviceCenter', 'towRequest'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('insurance-user.claims.index', compact('claims', 'user', 'company'));
+    if ($user->insurance_company_id !== $company->id) {
+        Auth::guard('insurance_user')->logout();
+        return redirect()->route('insurance.user.login', $companySlug);
     }
+
+    // إضافة العلاقات المطلوبة لعرض معلومات السطحة
+    $claims = Claim::forUser($user->id)
+        ->with(['attachments', 'serviceCenter', 'towRequest'])
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+
+    return view('insurance-user.claims.index', compact('claims', 'user', 'company'));
+}
+
 
     public function create(Request $request)
     {
@@ -54,102 +56,97 @@ class ClaimsController extends Controller
         return view('insurance-user.claims.create', compact('user', 'company'));
     }
 
-    public function store(Request $request)
-    {
-        $companySlug = $request->route('companySlug');
-        $company = InsuranceCompany::where('company_slug', $companySlug)
-            ->where('is_active', true)
-            ->where('is_approved', true)
-            ->firstOrFail();
+ public function store(Request $request)
+{
+    $companySlug = $request->route('companySlug');
+    $company = InsuranceCompany::where('company_slug', $companySlug)
+        ->where('is_active', true)
+        ->where('is_approved', true)
+        ->firstOrFail();
 
-        $user = Auth::guard('insurance_user')->user();
+    $user = Auth::guard('insurance_user')->user();
 
-        if ($user->insurance_company_id !== $company->id) {
-            Auth::guard('insurance_user')->logout();
-            return redirect()->route('insurance.user.login', $companySlug);
-        }
+    if ($user->insurance_company_id !== $company->id) {
+        Auth::guard('insurance_user')->logout();
+        return redirect()->route('insurance.user.login', $companySlug);
+    }
 
-        $request->validate([
-            'policy_number' => 'required|string|max:100',
-            'vehicle_plate_number' => 'nullable|string|max:50',
-            'chassis_number' => 'nullable|string|max:100',
-            
+    $request->validate([
+        'policy_number' => 'required|string|max:100',
+        'vehicle_plate_number' => 'nullable|string|max:50',
+        'chassis_number' => 'nullable|string|max:100',
         'vehicle_brand' => 'nullable|string|max:100',
         'vehicle_type' => 'nullable|string|max:100',
         'vehicle_model' => 'nullable|string|max:100',
-           'vehicle_location' => 'required_if:is_vehicle_working,1|string|nullable',
-
-
-            'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
-            'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
-            'is_vehicle_working' => 'required|boolean',
-            'repair_receipt_ready' => 'required|boolean',
-            'notes' => 'nullable|string|max:1000',
-            
-            'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'damage_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'estimation_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
-        ]);
-
-        if (!$request->vehicle_plate_number && !$request->chassis_number) {
-            return back()->withErrors(['vehicle_info' => 'Either vehicle plate number or chassis number is required'])
-                ->withInput();
-        }
-
-        try {
-            $claimData = [
-                'insurance_user_id' => $user->id,
-                'insurance_company_id' => $company->id,
-                'policy_number' => $request->policy_number,
-                'vehicle_plate_number' => $request->vehicle_plate_number,
-                'chassis_number' => $request->chassis_number,
-                 'vehicle_brand' => $request->vehicle_brand,
-        'vehicle_type' => $request->vehicle_type,
-        'vehicle_model' => $request->vehicle_model,
         
-                'vehicle_location' => $request->vehicle_location,
-                'vehicle_location_lat' => $request->vehicle_location_lat,
-                'vehicle_location_lng' => $request->vehicle_location_lng,
-                'is_vehicle_working' => $request->is_vehicle_working,
-                'repair_receipt_ready' => $request->repair_receipt_ready,
-                'notes' => $request->notes,
-                'status' => 'pending'
-            ];
+        // ✅ التصحيح: الموقع مطلوب فقط عندما السيارة لا تعمل
+        'vehicle_location' => 'required_if:is_vehicle_working,0|string|nullable',
+        
+        'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
+        'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
+        'is_vehicle_working' => 'required|boolean',
+        'repair_receipt_ready' => 'required|boolean',
+        'notes' => 'nullable|string|max:1000',
+        
+        'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'damage_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'estimation_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+    ]);
 
-            $claim = Claim::create($claimData);
+    if (!$request->vehicle_plate_number && !$request->chassis_number) {
+        return back()->withErrors(['vehicle_info' => 'Either vehicle plate number or chassis number is required'])
+            ->withInput();
+    }
 
-            $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
-            
-            foreach ($fileTypes as $type) {
-                if ($request->hasFile($type)) {
-                    $files = $request->file($type);
-                    if (!is_array($files)) {
-                        $files = [$files];
-                    }
+    try {
+        $claimData = [
+            'insurance_user_id' => $user->id,
+            'insurance_company_id' => $company->id,
+            'policy_number' => $request->policy_number,
+            'vehicle_plate_number' => $request->vehicle_plate_number,
+            'chassis_number' => $request->chassis_number,
+            'vehicle_brand' => $request->vehicle_brand,
+            'vehicle_type' => $request->vehicle_type,
+            'vehicle_model' => $request->vehicle_model,
+            'vehicle_location' => $request->vehicle_location,
+            'vehicle_location_lat' => $request->vehicle_location_lat,
+            'vehicle_location_lng' => $request->vehicle_location_lng,
+            'is_vehicle_working' => $request->is_vehicle_working,
+            'repair_receipt_ready' => $request->repair_receipt_ready,
+            'notes' => $request->notes,
+            'status' => 'pending'
+        ];
 
-                    foreach ($files as $file) {
-                        $this->storeAttachment($claim, $file, $type);
-                    }
+        $claim = Claim::create($claimData);
+
+        $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
+        
+        foreach ($fileTypes as $type) {
+            if ($request->hasFile($type)) {
+                $files = $request->file($type);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+
+                foreach ($files as $file) {
+                    $this->storeAttachment($claim, $file, $type);
                 }
             }
-
-            return redirect()->route('insurance.user.claims.show', [
-                'companySlug' => $companySlug,
-                'claim' => $claim->id
-            ])->with('success', 'Claim submitted successfully. Claim number: ' . $claim->claim_number);
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Failed to submit claim. Please try again.')
-                ->withInput();
-          
-    // return back()->with('error', 'Failed to submit claim. ' . $e->getMessage())
-    //     ->withInput();
-
-
         }
+
+        return redirect()->route('insurance.user.claims.show', [
+            'companySlug' => $companySlug,
+            'claim' => $claim->id
+        ])->with('success', 'Claim submitted successfully. Claim number: ' . $claim->claim_number);
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Failed to submit claim. Please try again.')
+            ->withInput();
     }
+}
+
 
     public function show(Request $request, $companySlug, $claim)
     {
@@ -226,105 +223,104 @@ class ClaimsController extends Controller
         return view('insurance-user.claims.edit', compact('claim', 'user', 'company'));
     }
 
-    public function update(Request $request, $companySlug, $claim)
-    {
-        $company = InsuranceCompany::where('company_slug', $companySlug)
-            ->where('is_active', true)
-            ->where('is_approved', true)
-            ->firstOrFail();
+ public function update(Request $request, $companySlug, $claim)
+{
+    $company = InsuranceCompany::where('company_slug', $companySlug)
+        ->where('is_active', true)
+        ->where('is_approved', true)
+        ->firstOrFail();
 
-        $user = Auth::guard('insurance_user')->user();
+    $user = Auth::guard('insurance_user')->user();
 
-        if ($user->insurance_company_id !== $company->id) {
-            Auth::guard('insurance_user')->logout();
-            return redirect()->route('insurance.user.login', $companySlug);
-        }
+    if ($user->insurance_company_id !== $company->id) {
+        Auth::guard('insurance_user')->logout();
+        return redirect()->route('insurance.user.login', $companySlug);
+    }
 
-        $claimId = $request->route('claim');
+    $claimId = $request->route('claim');
 
-        $claim = Claim::where('insurance_user_id', $user->id)
-            ->where('status', 'rejected')
-            ->where('id', $claimId)
-            ->first();
+    $claim = Claim::where('insurance_user_id', $user->id)
+        ->where('status', 'rejected')
+        ->where('id', $claimId)
+        ->first();
 
-        if (!$claim) {
-            abort(404, 'Claim not found or not editable');
-        }
+    if (!$claim) {
+        abort(404, 'Claim not found or not editable');
+    }
 
-        $request->validate([
-            'policy_number' => 'required|string|max:100',
-            'vehicle_plate_number' => 'nullable|string|max:50',
-            'chassis_number' => 'nullable|string|max:100',
-            'vehicle_location' => 'required_if:is_vehicle_working,1|string|nullable',
-                  'vehicle_brand' => 'nullable|string|max:100',
+    $request->validate([
+        'policy_number' => 'required|string|max:100',
+        'vehicle_plate_number' => 'nullable|string|max:50',
+        'chassis_number' => 'nullable|string|max:100',
+        'vehicle_brand' => 'nullable|string|max:100',
         'vehicle_type' => 'nullable|string|max:100',
         'vehicle_model' => 'nullable|string|max:100',
-            'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
-            'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
-            'is_vehicle_working' => 'required|boolean',
-            'repair_receipt_ready' => 'required|boolean',
-            'notes' => 'nullable|string|max:1000',
-            
-            'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'damage_report.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
-            'estimation_report.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        
+       
+        'vehicle_location' => 'required_if:is_vehicle_working,0|string|nullable',
+        
+        'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
+        'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
+        'is_vehicle_working' => 'required|boolean',
+        'repair_receipt_ready' => 'required|boolean',
+        'notes' => 'nullable|string|max:1000',
+        
+        'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'damage_report.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+        'estimation_report.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+    ]);
+
+    if (!$request->vehicle_plate_number && !$request->chassis_number) {
+        return back()->withErrors(['vehicle_info' => 'Either vehicle plate number or chassis number is required'])
+            ->withInput();
+    }
+
+    try {
+        $claim->update([
+            'policy_number' => $request->policy_number,
+            'vehicle_plate_number' => $request->vehicle_plate_number,
+            'chassis_number' => $request->chassis_number,
+            'vehicle_location' => $request->vehicle_location,
+            'vehicle_brand' => $request->vehicle_brand,
+            'vehicle_type' => $request->vehicle_type,
+            'vehicle_model' => $request->vehicle_model,
+            'vehicle_location_lat' => $request->vehicle_location_lat,
+            'vehicle_location_lng' => $request->vehicle_location_lng,
+            'is_vehicle_working' => $request->is_vehicle_working,
+            'repair_receipt_ready' => $request->repair_receipt_ready,
+            'notes' => $request->notes,
         ]);
 
-        if (!$request->vehicle_plate_number && !$request->chassis_number) {
-            return back()->withErrors(['vehicle_info' => 'Either vehicle plate number or chassis number is required'])
-                ->withInput();
-        }
+        $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
+        
+        foreach ($fileTypes as $type) {
+            if ($request->hasFile($type)) {
+                $files = $request->file($type);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
 
-        try {
-            $claim->update([
-                'policy_number' => $request->policy_number,
-                'vehicle_plate_number' => $request->vehicle_plate_number,
-                'chassis_number' => $request->chassis_number,
-                'vehicle_location' => $request->vehicle_location,
-                        'vehicle_brand' => $request->vehicle_brand,
-        'vehicle_type' => $request->vehicle_type,
-        'vehicle_model' => $request->vehicle_model,
-                'vehicle_location_lat' => $request->vehicle_location_lat,
-                'vehicle_location_lng' => $request->vehicle_location_lng,
-                'is_vehicle_working' => $request->is_vehicle_working,
-                'repair_receipt_ready' => $request->repair_receipt_ready,
-                'notes' => $request->notes,
-            ]);
-
-            $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
-            
-            foreach ($fileTypes as $type) {
-                if ($request->hasFile($type)) {
-                    $files = $request->file($type);
-                    if (!is_array($files)) {
-                        $files = [$files];
-                    }
-
-                    foreach ($files as $file) {
-                        $this->storeAttachment($claim, $file, $type);
-                    }
+                foreach ($files as $file) {
+                    $this->storeAttachment($claim, $file, $type);
                 }
             }
+        }
 
-            $claim->resubmit();
+        $claim->resubmit();
 
-            return redirect()->route('insurance.user.claims.show', [
-                'companySlug' => $companySlug,
-                'claim' => $claim->id
-            ])->with('success', 'Claim updated and resubmitted successfully.');
+        return redirect()->route('insurance.user.claims.show', [
+            'companySlug' => $companySlug,
+            'claim' => $claim->id
+        ])->with('success', 'Claim updated and resubmitted successfully.');
 
-             } catch (\Exception $e) {
-        // هنا تظهر رسالة الخطأ للمستخدم
-        Log::error('Error in update: '.$e->getMessage());
-dd('وصلت للكاتش: '.$e->getMessage());
-
+    } catch (\Exception $e) {
+        \Log::error('Error in update: '.$e->getMessage());
         return back()->with('error', 'حدث خطأ أثناء التعديل: ' . $e->getMessage())->withInput();
-        
     }
+}
 
-    }
 
 public function updateTowService(Request $request, $companySlug, $claim)
 {
@@ -530,4 +526,6 @@ public function updateTowService(Request $request, $companySlug, $claim)
             return response()->json(['error' => 'Failed to create tow request: ' . $e->getMessage()], 500);
         }
     }
+
 }
+

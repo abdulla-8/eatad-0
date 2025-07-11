@@ -119,58 +119,75 @@ private function getTranslations($company, $request, $languageId)
     /**
      * Update an existing translation
      */
-    public function updateTranslation(Request $request, Translation $translation)
-    {
-        $company = Auth::guard('insurance_company')->user();
-        
-        // Check if this translation belongs to the company
-        if (!str_starts_with($translation->translation_key, $company->translation_group . '.')) {
-            return redirect()->back()
-                ->with('error', t('admin.unauthorized_action', 'Unauthorized action'));
-        }
-        
-        $request->validate([
-            'translation_value' => 'required|string'
-        ]);
-
-        try {
-            $translation->update(['translation_value' => $request->translation_value]);
-            
-            return redirect()->back()
-                ->with('success', t('admin.translation_updated', 'Translation updated successfully'))
-                ->with('tab', 'translations');
-                
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', t('admin.error_occurred', 'An error occurred'));
-        }
+ /**
+ * Update an existing translation
+ */
+public function updateTranslation(Request $request, $companyRoute, $id)
+{
+    $company = Auth::guard('insurance_company')->user();
+    
+    // التأكد من أن الشركة تطابق الـ route
+    if ($company->company_slug !== $companyRoute) {
+        abort(404);
     }
+    
+    $translation = Translation::findOrFail($id);
+    
+    // Check if this translation belongs to the company
+    if (!str_starts_with($translation->translation_key, $company->translation_group . '.')) {
+        return redirect()->back()
+            ->with('error', 'غير مسموح بهذا الإجراء');
+    }
+    
+    $request->validate([
+        'translation_value' => 'required|string'
+    ]);
+
+    try {
+        $translation->update(['translation_value' => $request->translation_value]);
+        
+        return redirect()->route('insurance.settings.index', [
+            'companyRoute' => $companyRoute,
+            'tab' => 'translations'
+        ])->with('success', 'تم تحديث الترجمة بنجاح');
+        
+    } catch (\Exception $e) {
+        return redirect()->back()
+            ->with('error', 'حدث خطأ أثناء التحديث');
+    }
+}
+
+
     
     /**
      * Delete a translation
      */
-    public function deleteTranslation(Translation $translation)
-    {
-        $company = Auth::guard('insurance_company')->user();
-        
-        // Check if this translation belongs to the company
-        if (!str_starts_with($translation->translation_key, $company->translation_group . '.')) {
-            return redirect()->back()
-                ->with('error', t('admin.unauthorized_action', 'Unauthorized action'));
-        }
+  /**
+ * Delete a translation
+ */
+public function deleteTranslation($companyRoute, $id)
+{
+    $company = Auth::guard('insurance_company')->user();
 
-        try {
-            $translation->delete();
-            
-            return redirect()->back()
-                ->with('success', t('admin.translation_deleted', 'Translation deleted successfully'))
-                ->with('tab', 'translations');
-                
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', t('admin.error_occurred', 'An error occurred'));
-        }
+    if ($company->company_slug !== $companyRoute) {
+        abort(404);
     }
+
+    $translation = Translation::findOrFail($id);
+
+    if (!str_starts_with($translation->translation_key, $company->translation_group . '.')) {
+        return redirect()->back()->with('error', t('admin.unauthorized_action', 'Unauthorized action'));
+    }
+
+    try {
+        $translation->delete();
+
+        return redirect()->back()->with('success', t('admin.translation_deleted', 'Translation deleted successfully'))->with('tab', 'translations');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', t('admin.error_occurred', 'An error occurred'));
+    }
+}
+
     
     /**
      * Update company colors

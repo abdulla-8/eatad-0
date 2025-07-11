@@ -247,84 +247,222 @@
 
     <div class="grid lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6">
+            {{-- Enhanced Claim Information Section --}}
             <div class="bg-white rounded-xl shadow-sm border">
-                <div class="p-6 border-b">
+                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
                     <h3 class="text-lg font-bold flex items-center gap-2">
-                        <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                            <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
                         {{ t($company->translation_group . '.claim_information') }}
                     </h3>
                 </div>
-            <div class="p-6 space-y-4 ">
-    <div class="grid md:grid-cols-2 gap-4">
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
-            <span class="font-medium">{{ $claim->policy_number }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_plate_number ?: $claim->chassis_number }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_working') }}</span>
-            <span class="font-medium {{ $claim->is_vehicle_working ? 'text-green-600' : 'text-red-600' }}">
-                {{ $claim->is_vehicle_working ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
-            </span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.receipt_ready') }}</span>
-            <span class="font-medium">{{ $claim->repair_receipt_ready ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}</span>
-        </div>
-        <!-- الحقول الجديدة -->
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_brand') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_brand }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_type') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_type }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.vehicle_model') }}</span>
-            <span class="font-medium">{{ $claim->vehicle_model }}</span>
-        </div>
-        <!-- نهاية الحقول الجديدة -->
-        <div class="flex justify-between">
-            <span class="text-gray-600">{{ t($company->translation_group . '.submitted') }}</span>
-            <span class="font-medium">{{ $claim->created_at->format('M d, Y H:i') }}</span>
-        </div>
-        @if($claim->tow_service_offered)
-            <div class="flex justify-between">
-                <span class="text-gray-600">{{ t($company->translation_group . '.tow_service') }}</span>
-                <span class="font-medium {{ is_null($claim->tow_service_accepted) ? 'text-yellow-600' : ($claim->tow_service_accepted ? 'text-green-600' : 'text-red-600') }}">
-                    @if(is_null($claim->tow_service_accepted))
-                        {{ t($company->translation_group . '.pending_response') }}
-                    @elseif($claim->tow_service_accepted)
-                        {{ t($company->translation_group . '.accepted') }}
-                    @else
-                        {{ t($company->translation_group . '.declined') }}
-                    @endif
-                </span>
-            </div>
-        @endif
-        @if($claim->customer_delivery_code && !$claim->vehicle_arrived_at_center)
-            <div class="flex justify-between">
-                <span class="text-gray-600">{{ t($company->translation_group . '.delivery_code') }}</span>
-                <span class="font-medium font-mono text-lg" style="color: {{ $company->primary_color }};">{{ $claim->customer_delivery_code }}</span>
-            </div>
-        @endif
-        @if($claim->vehicle_arrived_at_center)
-            <div class="flex justify-between">
-                <span class="text-gray-600">{{ t($company->translation_group . '.arrived_at_center') }}</span>
-                <span class="font-medium text-green-600">{{ $claim->vehicle_arrived_at_center->format('M d, Y H:i') }}</span>
-            </div>
-        @endif
-    </div>
-</div>
+                
+                <div class="p-6">
+                    {{-- Basic Information Section --}}
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }};">
+                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-md font-semibold text-gray-900">{{ t($company->translation_group . '.basic_information') }}</h4>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
+                                    </div>
+                                    <span class="font-semibold text-gray-900">{{ $claim->policy_number }}</span>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 12v-6m6 6H6a2 2 0 01-2-2v-6a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.submitted') }}</span>
+                                    </div>
+                                    <span class="font-semibold text-gray-900">{{ $claim->created_at->format('M d, Y H:i') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    {{-- Vehicle Information Section --}}
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }};">
+                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-md font-semibold text-gray-900">{{ t($company->translation_group . '.vehicle_information') }}</h4>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.vehicle') }}</span>
+                                    </div>
+                                    <span class="font-semibold text-gray-900">{{ $claim->vehicle_plate_number ?: $claim->chassis_number }}</span>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.vehicle_brand') }}</span>
+                                    </div>
+                                    <span class="font-semibold text-gray-900">{{ $claim->vehicle_brand }}</span>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.vehicle_type') }}</span>
+                                    </div>
+                                    <span class="font-semibold text-gray-900">{{ $claim->vehicle_type }}</span>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.vehicle_model') }}</span>
+                                    </div>
+                                    <span class="font-semibold text-gray-900">{{ $claim->vehicle_model }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Vehicle Status Section --}}
+                    <div class="mb-8">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }};">
+                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-md font-semibold text-gray-900">{{ t($company->translation_group . '.vehicle_status') }}</h4>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $claim->is_vehicle_working ? '#10b981' : '#ef4444' }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 {{ $claim->is_vehicle_working ? 'text-green-500' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $claim->is_vehicle_working ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12' }}"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.vehicle_working') }}</span>
+                                    </div>
+                                    <span class="font-semibold {{ $claim->is_vehicle_working ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $claim->is_vehicle_working ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $claim->repair_receipt_ready ? '#10b981' : '#ef4444' }};">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 {{ $claim->repair_receipt_ready ? 'text-green-500' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.receipt_ready') }}</span>
+                                    </div>
+                                    <span class="font-semibold {{ $claim->repair_receipt_ready ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $claim->repair_receipt_ready ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Service Information Section --}}
+                    @if($claim->tow_service_offered || $claim->customer_delivery_code || $claim->vehicle_arrived_at_center)
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }};">
+                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-md font-semibold text-gray-900">{{ t($company->translation_group . '.service_information') }}</h4>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            @if($claim->tow_service_offered)
+                                <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ is_null($claim->tow_service_accepted) ? '#f59e0b' : ($claim->tow_service_accepted ? '#10b981' : '#ef4444') }};">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                            </svg>
+                                            <span class="text-sm text-gray-600">{{ t($company->translation_group . '.tow_service') }}</span>
+                                        </div>
+                                        <span class="font-semibold {{ is_null($claim->tow_service_accepted) ? 'text-yellow-600' : ($claim->tow_service_accepted ? 'text-green-600' : 'text-red-600') }}">
+                                            @if(is_null($claim->tow_service_accepted))
+                                                {{ t($company->translation_group . '.pending_response') }}
+                                            @elseif($claim->tow_service_accepted)
+                                                {{ t($company->translation_group . '.accepted') }}
+                                            @else
+                                                {{ t($company->translation_group . '.declined') }}
+                                            @endif
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            @if($claim->customer_delivery_code && !$claim->vehicle_arrived_at_center)
+                                <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                            </svg>
+                                            <span class="text-sm text-gray-600">{{ t($company->translation_group . '.delivery_code') }}</span>
+                                        </div>
+                                        <span class="font-semibold font-mono text-lg" style="color: {{ $company->primary_color }};">{{ $claim->customer_delivery_code }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            @if($claim->vehicle_arrived_at_center)
+                                <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-green-500">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span class="text-sm text-gray-600">{{ t($company->translation_group . '.arrived_at_center') }}</span>
+                                        </div>
+                                        <span class="font-semibold text-green-600">{{ $claim->vehicle_arrived_at_center->format('M d, Y H:i') }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+                </div>
             </div>
-@if(!empty($claim->vehicle_location))
+
+            @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold flex items-center gap-2">
@@ -350,7 +488,8 @@
                     @endif
                 </div>
             </div>
-@endif
+            @endif
+
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
@@ -394,7 +533,7 @@
                         {{ $claim->serviceCenter->formatted_phone }}
                     </div>
                     
-@if($claim->serviceCenter->center_location_lat)
+                    @if($claim->serviceCenter->center_location_lat)
                         <a href="{{ $claim->serviceCenter->location_url }}" target="_blank" 
                            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white transition-colors w-full justify-center"
                            style="background: {{ $company->primary_color }};">

@@ -97,7 +97,7 @@
             </div>
 
             <!-- Edit Translation Form -->
-            <form method="POST" action="{{ route('insurance.settings.translations.update', [$company->company_slug, 0]) }}" id="editTranslationForm">
+            <form method="POST" action="#" id="editTranslationForm">
                 @csrf
                 @method('PUT')
                 

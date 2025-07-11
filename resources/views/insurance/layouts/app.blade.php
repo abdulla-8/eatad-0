@@ -146,6 +146,18 @@
                             </a>
                         </li>
 
+<li>
+    <a href="{{ route('insurance.users.index', $company->company_slug) }}"
+        class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('insurance.users.*') ? 'text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
+        style="{{ request()->routeIs('insurance.users.*') ? 'background: ' . $company->primary_color : '' }}">
+        <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+            </path>
+        </svg>
+        {{ t($company->translation_group . '.users_management') }}
+    </a>
+</li>
 
 
                         <li>
@@ -178,11 +190,13 @@
 
 
 <li>
-    <a href="{{ route('insurance.complaints.index', ['companyRoute' => $company->company_slug]) }}" 
-
-       class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+    <a href="{{ route('insurance.complaints.index', ['companyRoute' => $company->company_slug]) }}"
+        class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('insurance.complaints.*') ? 'text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
+        style="{{ request()->routeIs('insurance.complaints.*') ? 'background: ' . $company->primary_color : '' }}">
+        <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
+            </path>
         </svg>
         {{ t($company->translation_group . '.complaints_inquiries') }}
     </a>

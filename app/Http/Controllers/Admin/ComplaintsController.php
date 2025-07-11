@@ -30,7 +30,7 @@ class ComplaintsController extends Controller
             $query->search($request->search);
         }
 
-        $complaints = $query->paginate(15);
+        $complaints = $query->paginate(5);
 
         // Statistics - إضافة الإحصائيات المفقودة
         $stats = [

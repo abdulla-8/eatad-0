@@ -128,6 +128,7 @@
                                 <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('service_center.coming_soon') }}</span>
                             </a>
                         </li>
+                        
 <li>
     <a href="{{ route('service-center.complaints.index') }}" 
        class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors {{ request()->routeIs('service-center.complaints.*') ? 'bg-green-50 text-green-600' : '' }}">

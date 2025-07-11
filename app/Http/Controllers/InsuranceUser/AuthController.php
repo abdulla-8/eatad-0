@@ -70,6 +70,34 @@ class AuthController extends Controller
         return redirect()->back()
             ->withErrors(['phone' => t('auth.failed')])
             ->withInput();
+
+             $credentials = [
+        'phone' => $request->phone,
+        'password' => $request->password,
+        'insurance_company_id' => $company->id,
+        'is_active' => true  // ← هذا مهم لمنع المعطلين
+    ];
+
+    if (Auth::guard('insurance_user')->attempt($credentials, $request->boolean('remember'))) {
+        $request->session()->regenerate();
+        return redirect()->intended(route('insurance.user.dashboard', $companySlug));
+    }
+
+    // رسالة خطأ محددة للمعطلين
+    $user = InsuranceUser::where('phone', $request->phone)
+        ->where('insurance_company_id', $company->id)
+        ->first();
+
+    if ($user && !$user->is_active) {
+        return redirect()->back()
+            ->withErrors(['phone' => 'تم تعطيل حسابك. يرجى التواصل مع شركة التأمين.'])
+            ->withInput();
+    }
+
+    return redirect()->back()
+        ->withErrors(['phone' => t('auth.failed')])
+        ->withInput();
+
     }
 
     public function showRegister(Request $request)

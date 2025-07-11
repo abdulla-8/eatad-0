@@ -408,10 +408,11 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [InsuranceSettingsController::class, 'index'])->name('index');
             Route::post('/translations', [InsuranceSettingsController::class, 'storeTranslation'])->name('translations.store');
-            Route::put('/translations/{translation}', [InsuranceSettingsController::class, 'updateTranslation'])->name('translations.update');
-            Route::delete('/translations/{translation}', [InsuranceSettingsController::class, 'deleteTranslation'])->name('translations.delete');
+           Route::put('/translations/{id}', [InsuranceSettingsController::class, 'updateTranslation'])->name('translations.update');
+            Route::delete('/translations/{id}', [InsuranceSettingsController::class, 'deleteTranslation'])->name('translations.delete');
             Route::put('/colors', [InsuranceSettingsController::class, 'updateColors'])->name('colors.update');
-            Route::post('/logo', [InsuranceSettingsController::class, 'updateLogo'])->name('logo.update');
+         Route::match(['POST', 'PUT'], '/logo', [InsuranceSettingsController::class, 'updateLogo'])->name('logo.update');
+
             Route::delete('/logo', [InsuranceSettingsController::class, 'deleteLogo'])->name('logo.delete');
         });
 
@@ -431,8 +432,18 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
             Route::post('/{inspection}/approve', [\App\Http\Controllers\Insurance\PartsQuotesController::class, 'approve'])->name('approve');
             Route::post('/{inspection}/reject', [\App\Http\Controllers\Insurance\PartsQuotesController::class, 'reject'])->name('reject');
         });
-
-
+// insurance company users 
+Route::prefix('users')->name('users.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Insurance\UsersController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Insurance\UsersController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Insurance\UsersController::class, 'store'])->name('store');
+    Route::get('/{user}/edit', [\App\Http\Controllers\Insurance\UsersController::class, 'edit'])->name('edit');
+    Route::get('/{user}', [\App\Http\Controllers\Insurance\UsersController::class, 'show'])->name('show');
+    Route::put('/{user}', [\App\Http\Controllers\Insurance\UsersController::class, 'update'])->name('update');
+    Route::post('/{user}/toggle-status', [\App\Http\Controllers\Insurance\UsersController::class, 'toggleStatus'])->name('toggle-status');
+    Route::delete('/{user}', [\App\Http\Controllers\Insurance\UsersController::class, 'destroy'])->name('destroy');
+    Route::post('/{user}/reset-password', [\App\Http\Controllers\Insurance\UsersController::class, 'resetPassword'])->name('reset-password');
+});
 
     });
 });

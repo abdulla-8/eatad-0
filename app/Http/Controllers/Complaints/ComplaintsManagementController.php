@@ -39,7 +39,7 @@ class ComplaintsManagementController extends Controller
             $query->search($request->search);
         }
 
-        $complaints = $query->paginate(10);
+        $complaints = $query->paginate(5);
 
         // Statistics
         $stats = [
