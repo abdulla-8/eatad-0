@@ -20,10 +20,18 @@ class SettingsController extends Controller
         $company = Auth::guard('insurance_company')->user();
         $activeTab = $request->get('tab', 'translations');
         
+        
+
+    
+    // احصل على اللغة الحالية من request أو افتراضيًا الأولى
+    $currentLanguageId = $request->get('language_id') ?: 1; // 1 مثلا للغة العربية
+    $currentLanguage = Language::find($currentLanguageId);
+    
         // Get available languages
         $languages = Language::where('is_active', true)->get();
         $currentLanguageId = $request->get('language_id') ?: 1; // Default to Arabic
         $currentLanguage = Language::find($currentLanguageId);
+        
         
         $data = [
             'company' => $company,
@@ -172,7 +180,7 @@ public function deleteTranslation($companyRoute, $id)
     if ($company->company_slug !== $companyRoute) {
         abort(404);
     }
-    
+
     $translation = Translation::findOrFail($id);
 
     if (!str_starts_with($translation->translation_key, $company->translation_group . '.')) {

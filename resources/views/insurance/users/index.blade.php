@@ -1,4 +1,3 @@
-{{-- resources/views/insurance/users/index.blade.php --}}
 @extends('insurance.layouts.app')
 
 @section('title', t($company->translation_group . '.users_management'))
@@ -89,21 +88,13 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.search') }}</label>
                     <input type="text" name="search" value="{{ request('search') }}" 
                            placeholder="{{ t($company->translation_group . '.search_placeholder') }}"
-                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
-                </div>
-                <div class="lg:w-48">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.status') }}</label>
-                    <select name="status" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
-                        <option value="">{{ t($company->translation_group . '.all_statuses') }}</option>
-                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>{{ t($company->translation_group . '.active') }}</option>
-                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>{{ t($company->translation_group . '.inactive') }}</option>
-                    </select>
+                           class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
                 </div>
                 <div class="flex gap-2 lg:items-end">
                     <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
                         {{ t($company->translation_group . '.filter') }}
                     </button>
-                    @if(request()->hasAny(['status', 'search']))
+                    @if(request()->has('search'))
                         <a href="{{ route('insurance.users.index', $company->company_slug) }}" 
                            class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
                             {{ t($company->translation_group . '.clear') }}
@@ -125,7 +116,7 @@
                             <th class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ t($company->translation_group . '.phone') }}</th>
                             <th class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ t($company->translation_group . '.national_id') }}</th>
                             <th class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ t($company->translation_group . '.policy_number') }}</th>
-                            <th class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ t($company->translation_group . '.status') }}</th>
+                          
                             <th class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ t($company->translation_group . '.registration_date') }}</th>
                             <th class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ t($company->translation_group . '.actions') }}</th>
                         </tr>
@@ -147,17 +138,7 @@
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $user->phone }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $user->national_id }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $user->policy_number }}</td>
-                            <td class="px-6 py-4">
-                                @if($user->is_active)
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        {{ t($company->translation_group . '.active') }}
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                        {{ t($company->translation_group . '.inactive') }}
-                                    </span>
-                                @endif
-                            </td>
+                
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $user->created_at->format('Y-m-d') }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
@@ -182,9 +163,14 @@
                                             class="p-2 {{ $user->is_active ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg transition-colors"
                                             title="{{ $user->is_active ? t($company->translation_group . '.deactivate') : t($company->translation_group . '.activate') }}">
                                         @if($user->is_active)
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
-                                            </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 6h18" />
+  <path d="M8 6v12a2 2 0 002 2h4a2 2 0 002-2V6" />
+  <path d="M10 11v6" />
+  <path d="M14 11v6" />
+  <path d="M5 6l1-3h12l1 3" />
+</svg>
+
                                         @else
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>

@@ -16,45 +16,39 @@ class UsersController extends Controller
     /**
      * عرض قائمة المستخدمين
      */
-    public function index(Request $request)
-    {
-        $company = Auth::guard('insurance_company')->user();
-        
-        // بناء الاستعلام
-        $query = InsuranceUser::where('insurance_company_id', $company->id)
-            ->orderBy('created_at', 'desc');
+  public function index(Request $request)
+{
+    $company = Auth::guard('insurance_company')->user();
+    
+    $query = InsuranceUser::where('insurance_company_id', $company->id)
+        ->where('is_active', true) // عرض المستخدمين النشطين فقط
+        ->orderBy('created_at', 'desc');
 
-        // تطبيق الفلاتر
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('national_id', 'like', "%{$search}%")
-                  ->orWhere('policy_number', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('status')) {
-            $query->where('is_active', $request->status === 'active');
-        }
-
-        // الحصول على المستخدمين مع pagination
-        $users = $query->paginate(15);
-
-        // إحصائيات
-        $stats = [
-            'total' => InsuranceUser::where('insurance_company_id', $company->id)->count(),
-            'active' => InsuranceUser::where('insurance_company_id', $company->id)->where('is_active', true)->count(),
-            'inactive' => InsuranceUser::where('insurance_company_id', $company->id)->where('is_active', false)->count(),
-            'this_month' => InsuranceUser::where('insurance_company_id', $company->id)
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count(),
-        ];
-
-        return view('insurance.users.index', compact('users', 'stats', 'company'));
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('full_name', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhere('national_id', 'like', "%{$search}%")
+              ->orWhere('policy_number', 'like', "%{$search}%");
+        });
     }
+
+    $users = $query->paginate(15);
+
+    $stats = [
+        'total' => InsuranceUser::where('insurance_company_id', $company->id)->count(),
+        'active' => InsuranceUser::where('insurance_company_id', $company->id)->where('is_active', true)->count(),
+        'inactive' => InsuranceUser::where('insurance_company_id', $company->id)->where('is_active', false)->count(),
+        'this_month' => InsuranceUser::where('insurance_company_id', $company->id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count(),
+    ];
+
+    return view('insurance.users.index', compact('users', 'stats', 'company'));
+}
+
 
     /**
      * عرض صفحة إنشاء مستخدم جديد
@@ -284,28 +278,29 @@ public function show($companyRoute, $userId)
      * حذف المستخدم (تعطيل نهائي)
      */
     public function destroy($companyRoute, $userId)
-    {
-        $company = Auth::guard('insurance_company')->user();
-        
-        $user = InsuranceUser::where('insurance_company_id', $company->id)
-            ->where('id', $userId)
-            ->firstOrFail();
+{
+    $company = Auth::guard('insurance_company')->user();
+    
+    $user = InsuranceUser::where('insurance_company_id', $company->id)
+        ->where('id', $userId)
+        ->firstOrFail();
 
-        try {
-            $user->update(['is_active' => false]);
+    try {
+        $user->update(['is_active' => false]); // تعطيل المستخدم فقط
 
-            return response()->json([
-                'success' => true,
-                'message' => 'تم حذف المستخدم بنجاح'
-            ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تعطيل المستخدم بنجاح'
+        ]);
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء حذف المستخدم'
-            ], 500);
-        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'حدث خطأ أثناء تعطيل المستخدم'
+        ], 500);
     }
+}
+
 
     /**
      * إعادة تعيين كلمة المرور

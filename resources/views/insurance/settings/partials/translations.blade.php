@@ -23,15 +23,16 @@
             
             <div class="lg:w-48">
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.language') }}</label>
-                <select name="language_id" onchange="this.form.submit()" 
-                        class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                        style="focus:ring-color: {{ $company->primary_color }};">
-                    @foreach($languages as $language)
-                        <option value="{{ $language->id }}" {{ $currentLanguage->id == $language->id ? 'selected' : '' }}>
-                            {{ $language->name }}
-                        </option>
-                    @endforeach
-                </select>
+              <select name="language_id" 
+        class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
+        style="focus:ring-color: {{ $company->primary_color }};">
+    @foreach($languages as $language)
+        <option value="{{ $language->id }}" {{ $currentLanguage->id == $language->id ? 'selected' : '' }}>
+            {{ $language->name }}
+        </option>
+    @endforeach
+</select>
+
             </div>
             
             <div class="flex-1">
@@ -42,18 +43,20 @@
                            class="flex-1 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                            style="focus:ring-color: {{ $company->primary_color }};">
                     
-                    <button type="submit" 
-                            class="px-6 py-2.5 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                            style="background: {{ $company->primary_color }};">
-                        {{ t($company->translation_group . '.search') }}
-                    </button>
+               <button type="submit" 
+        class="px-6 py-2.5 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+        style="background: {{ $company->primary_color }};">
+    {{ t($company->translation_group . '.filter') }}
+</button>
+
                     
-                    @if(request('search'))
-                        <a href="{{ route('insurance.settings.index', [$company->company_slug, 'tab' => 'translations', 'language_id' => $currentLanguage->id]) }}" 
-                           class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
-                            {{ t($company->translation_group . '.clear') }}
-                        </a>
-                    @endif
+               @if(request('search') || request('language_id'))
+    <a href="{{ route('insurance.settings.index', [$company->company_slug, 'tab' => 'translations']) }}" 
+       class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
+        {{ t($company->translation_group . '.clear') }}
+    </a>
+@endif
+
                 </div>
             </div>
         </form>

@@ -26,7 +26,7 @@
                 </svg>
                 {{ t($company->translation_group . '.edit_data') }}
             </a>
-            <button onclick="toggleUserStatus({{ $user->id }})" 
+            <!-- <button onclick="toggleUserStatus({{ $user->id }})" 
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors {{ $user->is_active ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white' }}">
                 @if($user->is_active)
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
                     </svg>
                     {{ t($company->translation_group . '.activate_account') }}
                 @endif
-            </button>
+            </button> -->
         </div>
     </div>
 
