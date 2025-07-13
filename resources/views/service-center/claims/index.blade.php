@@ -16,12 +16,9 @@
                 <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.total') }}</div>
             </div>
+     
             <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-green-600">{{ $stats['approved'] }}</div>
-                <div class="text-xs text-gray-600">{{ t('service_center.awaiting_center_decision') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-blue-600">{{ $stats['accepted'] }}</div>
+                <div class="text-2xl font-bold text-blue-600">{{ $stats['approved'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.accepted_by_center') }}</div>
             </div>
             <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
@@ -57,8 +54,9 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.status') }}</label>
                     <select name="status" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
                         <option value="">{{ t('service_center.all_status') }}</option>
-                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>{{ t('service_center.new_claims') }}</option>
-                        <option value="service_center_accepted" {{ request('status') === 'service_center_accepted' ? 'selected' : '' }}>{{ t('service_center.accepted') }}</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>{{ t('service_center.pending') }}</option>
+                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>{{ t('service_center.approved') }}</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ t('service_center.rejected') }}</option>
                         <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>{{ t('service_center.in_progress') }}</option>
                         <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>{{ t('service_center.completed') }}</option>
                     </select>
@@ -96,28 +94,13 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
-                            
                             @if($claim->status === 'approved')
                                 <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                    {{ t('service_center.new_claim') }}
+                                    {{ t('service_center.approved') }}
                                 </span>
-                            @elseif($claim->status === 'service_center_accepted')
-                                @if($claim->shouldShowConfirmPartsButton())
-                                    <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                                        {{ t('service_center.awaiting_parts_delivery') }}
-                                    </span>
-                                @elseif($claim->isPartsReceived() && $claim->canStartWork())
-                                    <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                        {{ t('service_center.ready_to_start') }}
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                        {{ t('service_center.accepted') }}
-                                    </span>
-                                @endif
-                            @elseif($claim->status === 'service_center_rejected')
+                            @elseif($claim->status === 'rejected')
                                 <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                                    {{ t('service_center.rejected_by_center') }}
+                                    {{ t('service_center.rejected') }}
                                 </span>
                             @elseif($claim->status === 'in_progress')
                                 <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
@@ -130,7 +113,7 @@
                             @endif
 
                             <!-- Action Buttons -->
-                            @if($claim->status === 'approved')
+                            @if($claim->status === 'pending')
                                 <button onclick="openSCApproveModal({{ $claim->id }})"
                                     class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
                                     {{ t('service_center.approve_claim') }}
@@ -303,7 +286,7 @@
                     {{ t('service_center.confirm_rejection') }}
                 </button>
                 <button type="button" onclick="closeModal('scRejectModal')"
-                    class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-opacity">
                     {{ t('service_center.cancel') }}
                 </button>
             </div>
@@ -330,7 +313,7 @@
                     {{ t('service_center.confirm_received') }}
                 </button>
                 <button type="button" onclick="closeModal('confirmPartsModal')"
-                    class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                    class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-opacity">
                     {{ t('service_center.cancel') }}
                 </button>
             </div>

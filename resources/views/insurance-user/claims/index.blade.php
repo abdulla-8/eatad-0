@@ -97,6 +97,32 @@
                         @endif
                     </div>
 
+
+<!-- إضافة شرط عرض أزرار خدمة السحب -->
+@if($claim->status === 'approved' && !$claim->is_vehicle_working)
+    <div class="mt-4 flex gap-4">
+        <form method="POST" action="{{ route('insurance.user.claims.tow-service', [$company->company_slug, $claim->id]) }}">
+            @csrf
+            <input type="hidden" name="accepted" value="1">
+            <button type="submit" 
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                {{ t($company->translation_group . '.accept_tow_service') }}
+            </button>
+        </form>
+
+        <form method="POST" action="{{ route('insurance.user.claims.tow-service', [$company->company_slug, $claim->id]) }}">
+            @csrf
+            <input type="hidden" name="accepted" value="0">
+            <button type="submit" 
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                {{ t($company->translation_group . '.reject_tow_service') }}
+            </button>
+        </form>
+    </div>
+@endif
+
+
+
                     <!-- Actions -->
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div class="flex gap-3">

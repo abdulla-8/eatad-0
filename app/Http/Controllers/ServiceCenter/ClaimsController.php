@@ -54,7 +54,7 @@ class ClaimsController extends Controller
              ->count(),
 
             'rejected' => Claim::where('service_center_id', $serviceCenter->id)
-            ->where('status', 'service_center_rejected')
+            ->where('status', 'pending')
             ->count(),
 
             'awaiting_parts' => Claim::where('service_center_id', $serviceCenter->id)
@@ -382,58 +382,64 @@ public function confirmPartsReceived(Request $request, $id)
         }
     }
 
-    public function approveClaim(Request $request, $id)
-    {
-        $serviceCenter = Auth::guard('service_center')->user();
+public function approveClaim(Request $request, $id)
+{
+    $serviceCenter = Auth::guard('service_center')->user();
 
-        $claim = Claim::where('service_center_id', $serviceCenter->id)
-            ->where('id', $id)
-            ->where('status', 'approved')
-            ->firstOrFail();
+ 
+    $claim = Claim::where('service_center_id', $serviceCenter->id)
+        ->where('id', $id)
+        ->where('status', 'pending') // أو حسب منطقك، مثلا 'pending' لأن شركة التأمين وافقت فقط
+        ->firstOrFail();
 
-        $request->validate([
-            'approval_note' => 'nullable|string|max:1000'
-        ]);
+    $request->validate([
+        'approval_note' => 'nullable|string|max:1000'
+    ]);
 
-        $updateData = [
-            'status' => 'service_center_accepted',
-            'service_center_note' => $request->approval_note ?? '',
-        ];
+    $updateData = [
+        'status' => 'approved', // تغيير الحالة إلى approved عند موافقة مركز الصيانة
+        'service_center_note' => $request->approval_note ?? '',
+    ];
 
-        if ($claim->is_vehicle_working) {
-            $updateData['customer_delivery_code'] = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        }
-
-        $claim->update($updateData);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'تمت الموافقة بنجاح'
-        ]);
+    // إذا كانت السيارة لا تعمل، نضع علامة عرض خدمة السحب
+    if (!$claim->is_vehicle_working) {
+        $updateData['tow_service_offered'] = true;
     }
 
-    public function rejectClaim(Request $request, $id)
-    {
-        $serviceCenter = Auth::guard('service_center')->user();
+    $claim->update($updateData);
 
-        $claim = Claim::where('service_center_id', $serviceCenter->id)
-            ->where('id', $id)
-            ->where('status', 'approved')
-            ->firstOrFail();
+    return response()->json([
+        'success' => true,
+        'message' => 'تمت الموافقة بنجاح'
+    ]);
+}
 
-        $request->validate([
-            'rejection_reason' => 'required|string|max:1000'
-        ]);
+public function rejectClaim(Request $request, $id)
+{
+    $serviceCenter = Auth::guard('service_center')->user();
 
-        $claim->update([
-            'status' => 'service_center_rejected',
-            'service_center_note' => $request->rejection_reason,
-        ]);
+    // جلب المطالبة التي مركز الصيانة مسؤول عنها ويجب أن تكون في حالة "pending"
+    $claim = Claim::where('service_center_id', $serviceCenter->id)
+        ->where('id', $id)
+        ->where('status', 'pending')
+        ->firstOrFail();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'تم الرفض بنجاح'
-        ]);
-    }
+    $request->validate([
+        'rejection_reason' => 'required|string|max:1000'
+    ]);
+
+    // تحديث الحالة إلى رفض
+    $claim->update([
+        'status' => 'pending',
+        'service_center_note' => $request->rejection_reason,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'تم الرفض بنجاح'
+    ]);
+}
+
+
 
 }

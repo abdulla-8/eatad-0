@@ -130,36 +130,28 @@ class Claim extends Model
     /**
      * حالة تُعرَض للمستخدم التأميني فقط
      */
-    public function getUserStatusAttribute(): string
-    {
-        // لو مركز الصيانة لم يقبل بعد (الطلب معتمد من التأمين لكن لم يوافق المركز)
-        if ($this->status === 'approved') {
-            return 'pending';
-        }
+ public function getUserStatusAttribute(): string
+{
 
-        // في باقي الحالات نعيد الـ status الحقيقي
-        return $this->status;
-    }
+    return $this->status;
+}
+// user status badge 
 
-    /**
-     * بادج اللون للمستخدم التأميني
-     */
-    public function getUserStatusBadgeAttribute(): array
-    {
-        $status = $this->user_status;   // accessor السابق
-        
-        $badges = [
-            'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
-            'service_center_accepted' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Accepted'],
-            'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
-            'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
-            'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved'],
-            'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
-            'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
-        ];
+public function getUserStatusBadgeAttribute(): array
+{
+    $status = $this->user_status;   // accessor السابق
+    
+    $badges = [
+        'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
+        'approved' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Approved'],
+        'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
+        'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved'],
+        'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
+        'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
+    ];
 
-        return $badges[$status] ?? $badges['pending'];
-    }
+    return $badges[$status] ?? $badges['pending'];
+}
 
     public function getVehicleLocationUrlAttribute()
     {
@@ -299,7 +291,7 @@ class Claim extends Model
     public function canStartWork()
     {
         return $this->parts_received_at !== null && 
-               $this->status === 'service_center_accepted';
+               $this->status === 'approved';
     }
 
     /**

@@ -1,372 +1,255 @@
 <?php
+// Path: app/Services/ClaimService.php
 
-namespace App\Models;
+namespace App\Services;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\Claim;
+use App\Models\ClaimAttachment;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
-class Claim extends Model
+class ClaimService
 {
-    protected $fillable = [
-        'insurance_user_id',
-        'insurance_company_id',
-        'policy_number',
-        'vehicle_plate_number',
-        'chassis_number',
-        'vehicle_brand',
-        'vehicle_type',
-        'vehicle_model',
-        'vehicle_location',
-        'vehicle_location_lat',
-        'vehicle_location_lng',
-        'is_vehicle_working',
-        'repair_receipt_ready',
-        'status',
-        'rejection_reason',
-        'service_center_id',
-        'tow_request_id',
-        'tow_service_offered',
-        'tow_service_accepted',
-        'notes',
-        'customer_delivery_code',
-        'vehicle_arrived_at_center',
-        'inspection_status',
-        'service_center_note',
-        'parts_received_at',
-        'parts_received_notes'
-    ];
-
-    protected $casts = [
-        'is_vehicle_working' => 'boolean',
-        'repair_receipt_ready' => 'boolean',
-        'tow_service_offered' => 'boolean',
-        'tow_service_accepted' => 'boolean',
-        'vehicle_location_lat' => 'decimal:8',
-        'vehicle_location_lng' => 'decimal:8',
-        'vehicle_arrived_at_center' => 'datetime',
-        'parts_received_at' => 'datetime'
-    ];
-
-    // Relations
-    public function insuranceUser(): BelongsTo
+    /**
+     * Create a new claim with attachments
+     */
+    public function createClaim(array $claimData, array $files = []): Claim
     {
-        return $this->belongsTo(InsuranceUser::class);
-    }
-
-    public function insuranceCompany(): BelongsTo
-    {
-        return $this->belongsTo(InsuranceCompany::class);
-    }
-
-    public function serviceCenter(): BelongsTo
-    {
-        return $this->belongsTo(ServiceCenter::class);
-    }
-
-    public function attachments(): HasMany
-    {
-        return $this->hasMany(ClaimAttachment::class);
-    }
-
-    public function towRequest(): HasOne
-    {
-        return $this->hasOne(TowRequest::class);
-    }
-
-    public function inspection(): HasOne
-    {
-        return $this->hasOne(ClaimInspection::class);
-    }
-
-    // Scopes
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status', 'approved');
-    }
-
-    public function scopeRejected($query)
-    {
-        return $query->where('status', 'rejected');
-    }
-
-    public function scopeForCompany($query, $companyId)
-    {
-        return $query->where('insurance_company_id', $companyId);
-    }
-
-    public function scopeForUser($query, $userId)
-    {
-        return $query->where('insurance_user_id', $userId);
-    }
-
-    // Accessors
-    public function getStatusBadgeAttribute()
-    {
-        $badges = [
-            'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
-            'approved' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Approved'],
-            'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
-            'service_center_accepted' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'Accepted by Service Center'],
-            'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected by Service Center'],
-            'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved - Awaiting Delivery'],
-            'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
-            'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
-        ];
-
-        return $badges[$this->status] ?? $badges['pending'];
+        return DB::transaction(function() use ($claimData, $files) {
+            $claim = Claim::create($claimData);
+            
+            // Handle file uploads
+            $this->processAttachments($claim, $files);
+            
+            return $claim->load('attachments');
+        });
     }
 
     /**
-     * حالة تُعرَض للمستخدم التأميني فقط
+     * Update an existing claim with new attachments
      */
-    public function getUserStatusAttribute(): string
+    public function updateClaim(Claim $claim, array $claimData, array $files = []): Claim
     {
-        // لو مركز الصيانة لم يقبل بعد (الطلب معتمد من التأمين لكن لم يوافق المركز)
-        if ($this->status === 'approved') {
-            return 'pending';
-        }
-
-        // في باقي الحالات نعيد الـ status الحقيقي
-        return $this->status;
+        return DB::transaction(function() use ($claim, $claimData, $files) {
+            $claim->update($claimData);
+            
+            // Handle new file uploads
+            $this->processAttachments($claim, $files);
+            
+            return $claim->load('attachments');
+        });
     }
 
     /**
-     * بادج اللون للمستخدم التأميني
+     * Process file attachments for a claim
      */
-    public function getUserStatusBadgeAttribute(): array
+    public function processAttachments(Claim $claim, array $files): void
     {
-        $status = $this->user_status;   // accessor السابق
+        $allowedTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
         
-        $badges = [
-            'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
-            'service_center_accepted' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Accepted'],
-            'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
-            'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
-            'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved'],
-            'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
-            'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
-        ];
-
-        return $badges[$status] ?? $badges['pending'];
-    }
-
-    public function getVehicleLocationUrlAttribute()
-    {
-        if ($this->vehicle_location_lat && $this->vehicle_location_lng) {
-            return "https://maps.google.com/?q={$this->vehicle_location_lat},{$this->vehicle_location_lng}";
-        }
-        return null;
-    }
-
-    public function getClaimNumberAttribute()
-    {
-        return 'CLM-' . str_pad($this->id, 6, '0', STR_PAD_LEFT);
-    }
-
-    // Methods
-    public function hasRequiredAttachments(): bool
-    {
-        $required = ['damage_report', 'estimation_report'];
-        $hasVehicleInfo = $this->vehicle_plate_number || $this->chassis_number;
-        
-        if (!$hasVehicleInfo) {
-            $required[] = 'registration_form';
-        }
-
-        foreach ($required as $type) {
-            if (!$this->attachments()->where('type', $type)->exists()) {
-                return false;
+        foreach ($allowedTypes as $type) {
+            if (isset($files[$type])) {
+                $uploadedFiles = $files[$type];
+                
+                // Handle both single files and arrays
+                if (!is_array($uploadedFiles)) {
+                    $uploadedFiles = [$uploadedFiles];
+                }
+                
+                foreach ($uploadedFiles as $file) {
+                    if ($file instanceof UploadedFile && $file->isValid()) {
+                        $this->storeAttachment($claim, $file, $type);
+                    }
+                }
             }
         }
-
-        return true;
     }
 
-    public function getAttachmentsByType(string $type)
+    /**
+     * Store a single attachment
+     */
+    public function storeAttachment(Claim $claim, UploadedFile $file, string $type): ClaimAttachment
     {
-        return $this->attachments()->where('type', $type)->get();
-    }
-
-    public function canBeApproved(): bool
-    {
-        return $this->status === 'pending' && $this->hasRequiredAttachments();
-    }
-
-    public function canBeRejected(): bool
-    {
-        return $this->status === 'pending';
-    }
-
-    public function approve($serviceCenterId = null): bool
-    {
-        if (!$this->canBeApproved()) {
-            return false;
-        }
-
-        $this->update([
-            'status' => 'approved',
-            'service_center_id' => $serviceCenterId,
-            'tow_service_offered' => !$this->is_vehicle_working ? true : null,
-            'inspection_status' => 'pending' // إضافة حالة الفحص
+        $originalName = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $size = $file->getSize();
+        $mimeType = $file->getMimeType();
+        
+        // Generate unique filename
+        $filename = sprintf(
+            '%d_%s_%d_%s.%s',
+            $claim->id,
+            $type,
+            time(),
+            uniqid(),
+            $extension
+        );
+        
+        // Store file
+        $path = $file->storeAs(
+            "claims/{$claim->id}/{$type}",
+            $filename,
+            'public'
+        );
+        
+        // Create attachment record
+        return ClaimAttachment::create([
+            'claim_id' => $claim->id,
+            'type' => $type,
+            'file_path' => $path,
+            'file_name' => $originalName,
+            'file_size' => $size,
+            'mime_type' => $mimeType
         ]);
-
-        return true;
     }
 
-    public function reject(string $reason): bool
+    /**
+     * Delete an attachment and its file
+     */
+    public function deleteAttachment(ClaimAttachment $attachment): bool
     {
-        if (!$this->canBeRejected()) {
+        // Delete the file from storage
+        if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
+        
+        // Delete the record
+        return $attachment->delete();
+    }
+
+    /**
+     * Approve a claim and assign service center
+     */
+public function approveClaim(Claim $claim, int $serviceCenterId, string $notes = null): bool
+{
+    if (!$claim->canBeApproved()) {
+        return false;
+    }
+
+    return DB::transaction(function() use ($claim, $serviceCenterId, $notes) {
+        $updateData = [
+            // لا تغير الحالة هنا، اتركها كما هي (غالبًا 'pending')
+            'service_center_id' => $serviceCenterId,
+        ];
+
+        // لاحظ أننا لم نعد نعتمد على service_center_accepted هنا
+        // شرط عرض خدمة السحب يعتمد على أن الحالة 'approved' والسيارة لا تعمل
+        if (!$claim->is_vehicle_working && $claim->status === 'approved') {
+            $updateData['tow_service_offered'] = true;
+        }
+
+        if ($notes) {
+            $updateData['notes'] = $notes;
+        }
+
+        return $claim->update($updateData);
+    });
+}
+
+
+
+    /**
+     * Reject a claim with reason
+     */
+    public function rejectClaim(Claim $claim, string $reason): bool
+    {
+        if (!$claim->canBeRejected()) {
             return false;
         }
 
-        $this->update([
+        return $claim->update([
             'status' => 'rejected',
             'rejection_reason' => $reason
         ]);
-
-        return true;
     }
 
-    public function resubmit(): bool
+    /**
+     * Resubmit a rejected claim
+     */
+    public function resubmitClaim(Claim $claim): bool
     {
-        if ($this->status !== 'rejected') {
+        if ($claim->status !== 'rejected') {
             return false;
         }
 
-        $this->update([
+        return $claim->update([
             'status' => 'pending',
             'rejection_reason' => null
         ]);
-
-        return true;
     }
 
     /**
-     * إنتاج كود التسليم للعميل
+     * Update tow service response
      */
-    public function generateCustomerDeliveryCode()
+    public function updateTowServiceResponse(Claim $claim, bool $accepted): bool
     {
-        $this->customer_delivery_code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $this->save();
-        return $this->customer_delivery_code;
-    }
-
-    /**
-     * تأكيد وصول السيارة لمركز الصيانة
-     */
-    public function markVehicleArrived()
-    {
-        $this->vehicle_arrived_at_center = now();
-        $this->save();
-        return true;
-    }
-
-    /**
-     * فحص إمكانية بدء الفحص
-     */
-    public function canStartInspection()
-    {
-        return $this->vehicle_arrived_at_center !== null && 
-               $this->status === 'approved' && 
-               $this->inspection_status === 'pending';
-    }
-
-    /**
-     * فحص إمكانية تأكيد استلام القطع
-     */
-    public function canConfirmPartsReceived()
-    {
-        return $this->inspection && 
-               $this->inspection->insurance_response === 'approved' && 
-               !$this->parts_received_at;
-    }
-
-    /**
-     * فحص إمكانية بدء العمل (بعد استلام القطع)
-     */
-    public function canStartWork()
-    {
-        return $this->parts_received_at !== null && 
-               $this->status === 'service_center_accepted';
-    }
-
-    /**
-     * تأكيد استلام القطع
-     */
-    public function confirmPartsReceived($notes = null)
-    {
-        if (!$this->canConfirmPartsReceived()) {
+        if ($claim->status !== 'approved' || $claim->tow_service_offered !== true) {
             return false;
         }
 
-        $this->update([
-            'parts_received_at' => now(),
-            'parts_received_notes' => $notes
+        return $claim->update([
+            'tow_service_accepted' => $accepted
         ]);
-
-        return true;
     }
 
     /**
-     * فحص إذا كان العميل يحتاج لإظهار كود التسليم
+     * Get claim statistics for a company
      */
-    public function shouldShowCustomerDeliveryCode()
+    public function getCompanyStats(int $companyId): array
     {
-        return $this->status === 'approved' && 
-               $this->tow_service_accepted === false && 
-               $this->customer_delivery_code;
+        return [
+            'total' => Claim::forCompany($companyId)->count(),
+            'pending' => Claim::forCompany($companyId)->pending()->count(),
+            'approved' => Claim::forCompany($companyId)->approved()->count(),
+            'rejected' => Claim::forCompany($companyId)->rejected()->count(),
+            'this_month' => Claim::forCompany($companyId)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count(),
+            'today' => Claim::forCompany($companyId)
+                ->whereDate('created_at', today())
+                ->count()
+        ];
     }
 
     /**
-     * فحص إذا كان مركز الصيانة يحتاج لزر التحقق من التسليم
+     * Get user claim statistics
      */
-    public function shouldShowDeliveryVerificationButton()
+    public function getUserStats(int $userId): array
     {
-        return $this->status === 'approved' && 
-               !$this->vehicle_arrived_at_center && 
-               (
-                   // السيارة لا تعمل والعميل رفض السطحة
-                   (!$this->is_vehicle_working && $this->tow_service_accepted === false) ||
-                   // السيارة تعمل وظهر للعميل كود التسليم
-                   ($this->is_vehicle_working && $this->customer_delivery_code)
-               );
+        return [
+            'total' => Claim::forUser($userId)->count(),
+            'pending' => Claim::forUser($userId)->pending()->count(),
+            'approved' => Claim::forUser($userId)->approved()->count(),
+            'rejected' => Claim::forUser($userId)->rejected()->count(),
+        ];
     }
 
     /**
-     * فحص إذا كان مركز الصيانة يحتاج لزر تأكيد الوصول العادي
+     * Validate file before upload
      */
-    public function shouldShowMarkArrivedButton()
+    public function validateFile(UploadedFile $file, string $type): array
     {
-        return $this->status === 'approved' && 
-               !$this->vehicle_arrived_at_center && 
-               (
-                   // السيارة تعمل ولم يتم إنتاج كود تسليم
-                   ($this->is_vehicle_working && !$this->customer_delivery_code) ||
-                   // تم قبول خدمة السطحة
-                   ($this->tow_service_accepted === true)
-               );
-    }
-
-    /**
-     * فحص إذا كان يجب إظهار زرار تأكيد استلام القطع
-     */
-    public function shouldShowConfirmPartsButton()
-    {
-        return $this->canConfirmPartsReceived();
-    }
-
-    /**
-     * فحص إذا كان تم استلام القطع
-     */
-    public function isPartsReceived()
-    {
-        return $this->parts_received_at !== null;
+        $errors = [];
+        
+        // Check file size (5MB max)
+        if ($file->getSize() > 5242880) {
+            $errors[] = 'File size must not exceed 5MB';
+        }
+        
+        // Check mime type
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        if (!in_array($file->getMimeType(), $allowedMimes)) {
+            $errors[] = 'File must be an image (JPEG, PNG, JPG) or PDF';
+        }
+        
+        // Check file extension
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+        if (!in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions)) {
+            $errors[] = 'Invalid file extension';
+        }
+        
+        return $errors;
     }
 }

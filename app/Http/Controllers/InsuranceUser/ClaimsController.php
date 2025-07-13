@@ -315,8 +315,16 @@ class ClaimsController extends Controller
             'claim' => $claim->id
         ])->with('success', 'Claim updated and resubmitted successfully.');
 
-    } catch (\Exception $e) {
-        \Log::error('Error in update: '.$e->getMessage());
+    }
+     catch (\Exception $e) {
+        \Log::error('Error in update claim', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'request_data' => $request->all(),
+            'claim_id' => $claim->id,
+            'user_id' => $user->id ?? null,
+        ]);
+
         return back()->with('error', 'حدث خطأ أثناء التعديل: ' . $e->getMessage())->withInput();
     }
 }

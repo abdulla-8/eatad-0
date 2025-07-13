@@ -149,7 +149,9 @@
                                 @endif
                             </div>
                         </div>
+
                     </div>
+
 
                     <!-- Action -->
                     <div class="flex justify-end">
@@ -162,6 +164,21 @@
                             </svg>
                         </a>
                     </div>
+       <!-- Service Center Response -->
+@if($claim->status === 'approved' && !empty($claim->service_center_note))
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4 my-4">
+        <div class="font-bold text-green-800 mb-2">{{ t('insurance.service_center_accepted') }}</div>
+        <div class="text-green-700">{{ $claim->service_center_note }}</div>
+    </div>
+@elseif($claim->status === 'pending' && !empty($claim->service_center_note))
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 my-4">
+        <div class="font-bold text-red-800 mb-2">{{ t('insurance.service_center_rejected') }}</div>
+        <div class="text-red-700">{{ $claim->service_center_note }}</div>
+    </div>
+@endif
+
+
+
                 </div>
             </div>
             @endforeach

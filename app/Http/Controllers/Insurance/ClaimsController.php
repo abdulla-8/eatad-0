@@ -46,7 +46,7 @@ class ClaimsController extends Controller
             'approved' => Claim::forCompany($company->id)->approved()->count(),
             'rejected' => Claim::forCompany($company->id)->rejected()->count(),
             'accepted_by_center' => Claim::forCompany($company->id)
-            ->where('status', 'service_center_accepted')
+            ->where('status', 'approved')
             ->count(),
         ];
 
@@ -98,15 +98,15 @@ public function approve(Request $request, $companyRoute, $claim)
 
     try {
         $approvalData = [
-            'status' => 'approved',
+            'status' => 'pending',
             'service_center_id' => $serviceCenter->id,
             'notes' => $request->notes,
             // لا تولد كود التوصيل هنا ولا ترسل إشعار للمستخدم
         ];
 
-        if (!$claim->is_vehicle_working) {
-            $approvalData['tow_service_offered'] = true;
-        }
+        // if (!$claim->is_vehicle_working) {
+        //     $approvalData['tow_service_offered'] = true;
+        // }
 
         $claim->update($approvalData);
 
@@ -152,75 +152,8 @@ public function approve(Request $request, $companyRoute, $claim)
             return back()->with('error', 'Failed to reject claim. Please try again.');
         }
     }
-// public function getServiceCenters(Request $request)
-// {
-//     $company = Auth::guard('insurance_company')->user();
-    
-//     $serviceCenters = ServiceCenter::where('is_active', true)
-//         ->where('is_approved', true)
-//         ->with('industrialArea')
-//         ->get()
-//         ->map(function ($center) use ($company) {
-         
-//             $newClaimsCount = Claim::where('service_center_id', $center->id)
-//                 ->where('insurance_company_id', $company->id)
-//                 ->where('status', 'approved')
-//                 ->where(function($q) {
-//                     $q->whereNull('inspection_status')
-//                       ->orWhere('inspection_status', '')
-//                       ->orWhere('inspection_status', 'pending')
-//                       ->orWhere('inspection_status', 'not_started');
-//                 })
-//                 ->count();
-            
-//             return [
-//                 'id' => $center->id,
-//                 'name' => $center->legal_name,
-//                 'area' => $center->industrialArea ? $center->industrialArea->display_name : null,
-//                 'address' => $center->center_address,
-//                 'phone' => $center->formatted_phone,
-//                 'new_claims_count' => $newClaimsCount,
-//                 'location' => [
-//                     'lat' => $center->center_location_lat,
-//                     'lng' => $center->center_location_lng
-//                 ]
-//             ];
-//         });
 
-//     return response()->json($serviceCenters);
-// }
 
-// public function getServiceCenters(Request $request)
-// {
-//     $company = Auth::guard('insurance_company')->user();
-    
-//     $serviceCenters = ServiceCenter::where('is_active', true)
-//         ->where('is_approved', true)
-//         ->with('industrialArea')
-//         ->withCount(['claims as approved_claims_count' => function($query) use ($company) {
-        
-//             $query->where('insurance_company_id', $company->id)
-//                   ->where('status', 'approved');
-//         }])
-//         ->orderBy('legal_name')
-//         ->get()
-//         ->map(function ($center) {
-//             return [
-//                 'id' => $center->id,
-//                 'name' => $center->legal_name,
-//                 'area' => $center->industrialArea ? $center->industrialArea->display_name : null,
-//                 'address' => $center->center_address,
-//                 'phone' => $center->formatted_phone,
-//                 'approved_claims_count' => $center->approved_claims_count ?? 0,
-//                 'location' => [
-//                     'lat' => $center->center_location_lat,
-//                     'lng' => $center->center_location_lng
-//                 ]
-//             ];
-//         });
-
-//     return response()->json($serviceCenters);
-// }
 
 public function getServiceCenters(Request $request)
 {
@@ -232,7 +165,7 @@ public function getServiceCenters(Request $request)
         ->withCount(['claims as accepted_claims_count' => function($query) use ($company) {
             // عدّ الطلبات المقبولة من مركز الصيانة فقط
             $query->where('insurance_company_id', $company->id)
-                  ->where('status', 'service_center_accepted');
+                  ->where('status', 'approved');
         }])
         ->orderBy('legal_name')
         ->get()

@@ -508,7 +508,7 @@
         </div>
 
         <div class="space-y-6">
-            @if($claim->service_center_id)
+            @if($claim->service_center_id && $claim->status === 'approved')
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
                     <h3 class="text-lg font-bold flex items-center gap-2">

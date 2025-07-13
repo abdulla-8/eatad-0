@@ -3,8 +3,11 @@
 @section('title', t($company->translation_group . '.edit_claim'))
 
 @push('styles')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+@endpush
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 @endpush
 
 @section('content')
@@ -24,6 +27,7 @@
     </div>
     
     <!-- Rejection Reason Alert -->
+    @if($claim->rejection_reason)
     <div class="bg-red-50 border border-red-200 rounded-xl p-6">
         <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
@@ -37,6 +41,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Error Messages -->
     @if($errors->any())
@@ -111,15 +116,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.policy_number') }} *</label>
                         <input type="text" name="policy_number" value="{{ old('policy_number', $claim->policy_number) }}" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('policy_number') border-red-500 @enderror" 
-                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('policy_number') border-red-500 @enderror" 
+                               required>
                         @error('policy_number')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_working') }} *</label>
-                        <select name="is_vehicle_working" id="is_vehicle_working" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                                style="focus:ring-color: {{ $company->primary_color }};" required>
+                        <select name="is_vehicle_working" id="is_vehicle_working" class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5" required>
                             <option value="1" {{ old('is_vehicle_working', $claim->is_vehicle_working) == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.yes') }}</option>
                             <option value="0" {{ old('is_vehicle_working', $claim->is_vehicle_working) == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.no') }}</option>
                         </select>
@@ -128,46 +132,43 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_plate_number') }}</label>
                         <input type="text" name="vehicle_plate_number" value="{{ old('vehicle_plate_number', $claim->vehicle_plate_number) }}" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                               style="focus:ring-color: {{ $company->primary_color }};">
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.chassis_number') }}</label>
                         <input type="text" name="chassis_number" value="{{ old('chassis_number', $claim->chassis_number) }}" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                               style="focus:ring-color: {{ $company->primary_color }};">
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_brand') }} *</label>
                         <input type="text" name="vehicle_brand" value="{{ old('vehicle_brand', $claim->vehicle_brand) }}" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_brand') border-red-500 @enderror" 
-                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_brand') border-red-500 @enderror" 
+                               required>
                         @error('vehicle_brand')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_type') }} *</label>
                         <input type="text" name="vehicle_type" value="{{ old('vehicle_type', $claim->vehicle_type) }}" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_type') border-red-500 @enderror" 
-                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_type') border-red-500 @enderror" 
+                               required>
                         @error('vehicle_type')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.vehicle_model') }} *</label>
                         <input type="text" name="vehicle_model" value="{{ old('vehicle_model', $claim->vehicle_model) }}" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_model') border-red-500 @enderror" 
-                               style="focus:ring-color: {{ $company->primary_color }};" required>
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5 @error('vehicle_model') border-red-500 @enderror" 
+                               required>
                         @error('vehicle_model')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.repair_receipt_ready') }} *</label>
-                    <select name="repair_receipt_ready" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                            style="focus:ring-color: {{ $company->primary_color }};" required>
+                    <select name="repair_receipt_ready" class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5" required>
                         <option value="1" {{ old('repair_receipt_ready', $claim->repair_receipt_ready) == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.ready_now') }}</option>
                         <option value="0" {{ old('repair_receipt_ready', $claim->repair_receipt_ready) == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.will_add_later') }}</option>
                     </select>
@@ -175,8 +176,8 @@
             </div>
         </div>
 
-        <!-- Vehicle Location -->
-        <div class="bg-white rounded-xl shadow-sm border" id="vehicle-location-section">
+        <!-- Vehicle Location (Only shown when vehicle is not working) -->
+        <div class="bg-white rounded-xl shadow-sm border" id="vehicle-location-section" style="display: none;">
             <div class="p-6 border-b">
                 <h2 class="text-lg font-bold flex items-center gap-2">
                     <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,9 +194,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.location_description') }} *</label>
                     <textarea name="vehicle_location" rows="3" 
-                              class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5" 
-                              style="focus:ring-color: {{ $company->primary_color }};" 
-                              placeholder="{{ t($company->translation_group . '.location_description_placeholder') }}" required>{{ old('vehicle_location', $claim->vehicle_location) }}</textarea>
+                              class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5" 
+                              placeholder="{{ t($company->translation_group . '.location_description_placeholder') }}">{{ old('vehicle_location', $claim->vehicle_location) }}</textarea>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-4">
@@ -312,32 +312,28 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.policy_image') }}</label>
                         <input type="file" name="policy_image[]" multiple accept="image/*,.pdf" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                               style="focus:ring-color: {{ $company->primary_color }};">
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                         <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.registration_form') }}</label>
                         <input type="file" name="registration_form[]" multiple accept="image/*,.pdf" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                               style="focus:ring-color: {{ $company->primary_color }};">
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                         <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.damage_report') }}</label>
                         <input type="file" name="damage_report[]" multiple accept="image/*,.pdf" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                               style="focus:ring-color: {{ $company->primary_color }};">
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                         <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.estimation_report') }}</label>
                         <input type="file" name="estimation_report[]" multiple accept="image/*,.pdf" 
-                               class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                               style="focus:ring-color: {{ $company->primary_color }};">
+                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                         <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                     </div>
                 </div>
@@ -345,8 +341,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($company->translation_group . '.repair_receipt') }}</label>
                     <input type="file" name="repair_receipt[]" multiple accept="image/*,.pdf" 
-                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                           style="focus:ring-color: {{ $company->primary_color }};">
+                           class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5">
                     <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_allowed') }}</p>
                 </div>
             </div>
@@ -365,8 +360,7 @@
             </div>
             <div class="p-6">
                 <textarea name="notes" rows="4" 
-                          class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
-                          style="focus:ring-color: {{ $company->primary_color }};"
+                          class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                           placeholder="{{ t($company->translation_group . '.additional_notes_placeholder') }}">{{ old('notes', $claim->notes) }}</textarea>
             </div>
         </div>
@@ -391,6 +385,7 @@
 </div>
 
 <script>
+console.log('Script loaded');
 let map, marker;
 
 function getLocation() {
@@ -446,18 +441,30 @@ function updateLocationStatus() {
 }
 
 function toggleLocationSection() {
-    var working = document.getElementById('is_vehicle_working').value;
-    var locationSection = document.getElementById('vehicle-location-section');
-    var warningDiv = document.getElementById('location-warning');
+    const working = document.getElementById('is_vehicle_working').value;
+    const locationSection = document.getElementById('vehicle-location-section');
+    const warningDiv = document.getElementById('location-warning');
+    const locationTextarea = document.querySelector('[name="vehicle_location"]');
     
     if (working === '0') {
-        locationSection.style.display = '';
+        // السيارة لا تعمل - إظهار قسم الموقع وجعله مطلوب
+        locationSection.style.display = 'block';
+        if (locationTextarea) {
+            locationTextarea.setAttribute('required', 'required');
+        }
         warningDiv.classList.add('hidden');
     } else {
+        // السيارة تعمل - إخفاء قسم الموقع وإزالة المطلوب
         locationSection.style.display = 'none';
+        if (locationTextarea) {
+            locationTextarea.removeAttribute('required');
+        }
         warningDiv.classList.add('hidden');
-        // Clear location data when vehicle is working
-        document.querySelector('[name="vehicle_location"]').value = '';
+        
+        // مسح بيانات الموقع عندما تكون السيارة تعمل
+        if (locationTextarea) {
+            locationTextarea.value = '';
+        }
         document.getElementById('lat').value = '';
         document.getElementById('lng').value = '';
         document.getElementById('location-status').classList.add('hidden');
@@ -465,34 +472,66 @@ function toggleLocationSection() {
 }
 
 function validateForm() {
-    var working = document.getElementById('is_vehicle_working').value;
-    var locationDescription = document.querySelector('[name="vehicle_location"]').value.trim();
-    var lat = document.getElementById('lat').value;
-    var lng = document.getElementById('lng').value;
-    var warningDiv = document.getElementById('location-warning');
-    
+    console.log('validateForm called');
+    const working = document.getElementById('is_vehicle_working').value;
+    const locationDescription = document.querySelector('[name="vehicle_location"]').value.trim();
+    const lat = document.getElementById('lat').value.trim();
+    const lng = document.getElementById('lng').value.trim();
+    const warningDiv = document.getElementById('location-warning');
+
+    console.log('validateForm called, working:', working);
+    console.log('locationDescription:', locationDescription);
+    console.log('lat:', lat, 'lng:', lng);
+
+    // إذا كانت السيارة تعمل، لا نحتاج للموقع
+    if (working === '1') {
+        warningDiv.classList.add('hidden');
+        return true;
+    }
+
+    // إذا كانت السيارة لا تعمل، نحتاج للموقع
     if (working === '0') {
-        if (!locationDescription || (!lat || !lng)) {
+        if (!locationDescription || !lat || !lng) {
             warningDiv.classList.remove('hidden');
             document.getElementById('vehicle-location-section').scrollIntoView({ behavior: 'smooth' });
+
+            if (!locationDescription) {
+                alert('يرجى إدخال وصف موقع السيارة.');
+            } else if (!lat || !lng) {
+                alert('يرجى تحديد موقع السيارة على الخريطة أو استخدام الموقع الحالي.');
+            }
             return false;
         }
     }
-    
+
     warningDiv.classList.add('hidden');
     return true;
 }
 
-// Event listeners
-document.getElementById('is_vehicle_working').addEventListener('change', toggleLocationSection);
-document.getElementById('claim-form').addEventListener('submit', function(e) {
-    if (!validateForm()) {
-        e.preventDefault();
+// تهيئة الصفحة عند التحميل
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    
+    // إضافة event listener للفورم
+    const form = document.getElementById('claim-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submit event fired');
+            if (!validateForm()) {
+                e.preventDefault();
+                console.log('Form submission prevented');
+                return false;
+            }
+        });
     }
-});
-
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', function() {
+    
+    // إضافة event listener لتغيير حالة السيارة
+    const vehicleWorkingSelect = document.getElementById('is_vehicle_working');
+    if (vehicleWorkingSelect) {
+        vehicleWorkingSelect.addEventListener('change', toggleLocationSection);
+    }
+    
+    // تهيئة الصفحة
     toggleLocationSection();
     updateLocationStatus();
 });
