@@ -369,7 +369,7 @@
 
                 <div class="input-group mt-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        {{ t($company->translation_group . '.repair_receipt_ready') }} 
+                        {{ t($company->translation_group . '.repair_receipt') }} 
                         <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -513,7 +513,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.94-.833-2.664 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                 </svg>
                                 <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.najm_report_required') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.report_required') }}</p>
                             </div>
                             <input type="file" id="damage_report" name="damage_report[]" multiple accept="image/*,.pdf" 
                                    class="file-input-hidden @error('damage_report.*') border-red-500 @enderror" 

@@ -32,140 +32,179 @@
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white rounded-xl shadow-sm border">
-        <div class="p-6">
-            <form method="GET" class="flex flex-col lg:flex-row gap-4">
-                <div class="lg:w-48">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('tow.status') }}</label>
-                    <select name="status" class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent px-4 py-2.5">
-                        <option value="">{{ t('tow.all_status') }}</option>
-                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>{{ t('tow.pending') }}</option>
-                        <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>{{ t('tow.accepted') }}</option>
-                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ t('tow.rejected') }}</option>
-                        <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>{{ t('tow.expired') }}</option>
-                    </select>
-                </div>
+<!-- Filters -->
+<div class="bg-white rounded-xl shadow-sm border">
+    <div class="p-6">
+        <form method="GET" class="flex flex-col lg:flex-row gap-4 items-end">
+            <div class="lg:w-48 w-full">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('tow.status') }}</label>
+                <select name="status" 
+                        class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 px-4 py-2.5 transition-colors">
+                    <option value="">{{ t('tow.all_status') }}</option>
+                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>{{ t('tow.pending') }}</option>
+                    <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>{{ t('tow.accepted') }}</option>
+                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>{{ t('tow.rejected') }}</option>
+                    <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>{{ t('tow.expired') }}</option>
+                </select>
+            </div>
+            
+            <div class="flex gap-2">
+                <button type="submit" class="px-6 py-2.5 bg-gold-600 text-dark-900 rounded-lg font-medium hover:bg-gold-500 transition-colors whitespace-nowrap">
+                    {{ t('tow.filter') }}
+                </button>
                 
-                <div class="flex gap-2 lg:items-end">
-                    <button type="submit" class="px-6 py-2.5 bg-gold-600 text-dark-900 rounded-lg font-medium hover:bg-gold-500 transition-colors">
-                        {{ t('tow.filter') }}
-                    </button>
-                    
-                    @if(request('status'))
-                        <a href="{{ route('tow-service.individual.offers.index') }}" 
-                           class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
-                            {{ t('tow.clear') }}
-                        </a>
-                    @endif
-                </div>
-            </form>
-        </div>
+                @if(request('status'))
+                    <a href="{{ route('tow-service.individual.offers.index') }}" 
+                       class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors whitespace-nowrap">
+                        {{ t('tow.clear') }}
+                    </a>
+                @endif
+            </div>
+        </form>
     </div>
+</div>
+
 
     <!-- Offers List -->
     @if($offers->count())
         <div class="space-y-4">
             @foreach($offers as $offer)
-            <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-                <div class="p-6">
-                    <!-- Header -->
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gold-600 rounded-lg flex items-center justify-center text-dark-900 font-bold">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-lg">{{ t('tow.tow_request') }} #{{ $offer->towRequest->request_code }}</h3>
-                                <p class="text-gray-600 text-sm">{{ t('tow.claim') }}: {{ $offer->towRequest->claim->claim_number }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center gap-3">
-                            <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $offer->status_badge['class'] }}">
-                                {{ t('tow.' . $offer->status) }}
-                            </span>
-                            
-                            @if($offer->status === 'pending')
-                                <div class="flex gap-2">
-                                    <button onclick="acceptOffer({{ $offer->id }})" 
-                                            class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
-                                        {{ t('tow.accept') }}
-                                    </button>
-                                    <button onclick="rejectOffer({{ $offer->id }})" 
-                                            class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors">
-                                        {{ t('tow.reject') }}
-                                    </button>
-                                </div>
-                            @elseif($offer->status === 'accepted' && $offer->towRequest->driver_tracking_token)
-                                <button onclick="showDriverLink('{{ $offer->towRequest->driver_tracking_token }}')" 
-                                        class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
-                                    📱 {{ t('tow.driver_link') }}
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Content Grid -->
-                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-                        <div class="space-y-2">
-                            <h4 class="font-medium text-gray-900">{{ t('tow.customer_info') }}</h4>
-                            <div class="space-y-1 text-sm text-gray-600">
-                                <div>{{ $offer->towRequest->claim->insuranceUser->full_name }}</div>
-                                <div>{{ $offer->towRequest->claim->insuranceUser->formatted_phone }}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <h4 class="font-medium text-gray-900">{{ t('tow.pickup_location') }}</h4>
-                            <div class="text-sm text-gray-600">
-                                {{ Str::limit($offer->towRequest->pickup_location_address, 40) }}
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <h4 class="font-medium text-gray-900">{{ t('tow.delivery_location') }}</h4>
-                            <div class="text-sm text-gray-600">
-                                {{ Str::limit($offer->towRequest->dropoff_location_address, 40) }}
-                            </div>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            <h4 class="font-medium text-gray-900">{{ t('tow.offer_time') }}</h4>
-                            <div class="text-sm text-gray-600">
-                                {{ $offer->offer_time->format('M d, Y H:i') }}
-                                @if($offer->status === 'pending' && $offer->expires_at)
-                                    <div class="text-red-600 font-medium">
-                                        {{ t('tow.expires') }}: {{ $offer->expires_at->format('H:i') }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-                        <div class="text-sm text-gray-500">
-                            {{ t('tow.stage') }}: {{ t('tow.' . $offer->stage) }}
-                        </div>
-                        <div class="flex gap-2">
-                            @if($offer->towRequest->pickup_location_lat)
-                                <a href="https://maps.google.com/?q={{ $offer->towRequest->pickup_location_lat }},{{ $offer->towRequest->pickup_location_lng }}" 
-                                   target="_blank"
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    {{ t('tow.view_location') }}
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-                </div>
+      <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+    <div class="p-6 border-b bg-gradient-to-r from-yellow-50 to-white flex items-start justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center text-yellow-900 font-bold">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
             </div>
+            <div>
+                <h3 class="font-bold text-lg">{{ t('tow.tow_request') }} #{{ $offer->towRequest->request_code }}</h3>
+                <p class="text-gray-600 text-sm flex items-center gap-1">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    {{ t('tow.claim') }}: {{ $offer->towRequest->claim->claim_number }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $offer->status_badge['class'] }}">
+                {{ t('tow.' . $offer->status) }}
+            </span>
+
+            @if($offer->status === 'pending')
+                <div class="flex gap-2">
+                    <button onclick="acceptOffer({{ $offer->id }})" 
+                            class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {{ t('tow.accept') }}
+                    </button>
+                    <button onclick="rejectOffer({{ $offer->id }})" 
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        {{ t('tow.reject') }}
+                    </button>
+                </div>
+            @elseif($offer->status === 'accepted' && $offer->towRequest->driver_tracking_token)
+                <button onclick="showDriverLink('{{ $offer->towRequest->driver_tracking_token }}')" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 5a2 2 0 012-2h3l3 7-3 7H5a2 2 0 01-2-2v-4z"></path>
+                        <path d="M13 7h8"></path>
+                    </svg>
+                    {{ t('tow.driver_link') }}
+                </button>
+            @endif
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 p-6 mb-4">
+        <div class="space-y-2">
+            <h4 class="font-semibold text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 13l4 4L19 7"></path>
+                </svg>
+                {{ t('tow.customer_info') }}
+            </h4>
+            <div class="text-sm text-gray-600">
+                <div>{{ $offer->towRequest->claim->insuranceUser->full_name }}</div>
+                <div>{{ $offer->towRequest->claim->insuranceUser->formatted_phone }}</div>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <h4 class="font-semibold text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                {{ t('tow.pickup_location') }}
+            </h4>
+            <div class="text-sm text-gray-600">
+                {{ Str::limit($offer->towRequest->pickup_location_address, 40) }}
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <h4 class="font-semibold text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                {{ t('tow.delivery_location') }}
+            </h4>
+            <div class="text-sm text-gray-600">
+                {{ Str::limit($offer->towRequest->dropoff_location_address, 40) }}
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <h4 class="font-semibold text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 7v6h8v-6"></path>
+                    <path d="M12 12v9"></path>
+                </svg>
+                {{ t('tow.offer_time') }}
+            </h4>
+            <div class="text-sm text-gray-600">
+                {{ $offer->offer_time->format('M d, Y H:i') }}
+                @if($offer->status === 'pending' && $offer->expires_at)
+                    <div class="text-red-600 font-medium">
+                        {{ t('tow.expires') }}: {{ $offer->expires_at->format('H:i') }}
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center p-6 pt-0 border-t border-gray-100">
+        <div class="text-sm text-gray-500 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            {{ t('tow.stage') }}: {{ t('tow.' . $offer->stage) }}
+        </div>
+        <div class="flex gap-2">
+            @if($offer->towRequest->pickup_location_lat)
+                <a href="https://maps.google.com/?q={{ $offer->towRequest->pickup_location_lat }},{{ $offer->towRequest->pickup_location_lng }}" 
+                   target="_blank"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {{ t('tow.view_location') }}
+                </a>
+            @endif
+        </div>
+    </div>
+</div>
+
             @endforeach
         </div>
 
