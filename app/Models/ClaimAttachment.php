@@ -100,4 +100,8 @@ class ClaimAttachment extends Model
             $attachment->deleteFile();
         });
     }
+
+    // في موديل ClaimAttachment
+
+
 }

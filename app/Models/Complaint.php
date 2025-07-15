@@ -92,4 +92,11 @@ class Complaint extends Model
         ];
         return $badges[$this->complainant_type] ?? ['class' => 'bg-gray-100 text-gray-800', 'text' => 'غير محدد'];
     }
+
+    public function scopeForUser($query, $userType, $userId)
+{
+    return $query->where('complainant_type', $userType)
+                 ->where('complainant_id', $userId);
+}
+
 }

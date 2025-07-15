@@ -40,144 +40,217 @@
 
     <!-- Progress Tracker -->
     @if($claim->status !== 'rejected')
-    <div class="bg-white rounded-xl shadow-sm border p-6">
-        <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-            <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            {{ t($company->translation_group . '.claim_progress') }}
-        </h3>
+ <div class="bg-white rounded-xl shadow-sm border p-6">
+    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        {{ t($company->translation_group . '.claim_progress') }}
+    </h3>
+    
+    <!-- Mobile: Vertical Timeline -->
+    <div class="space-y-6 md:hidden">
+        @php
+            $steps = [
+                [
+                    'title' => t($company->translation_group . '.submitted'),
+                    'date' => $claim->created_at->format('M d'),
+                    'icon' => 'check',
+                    'color' => $company->primary_color,
+                    'active' => true
+                ],
+                [
+                    'title' => t($company->translation_group . '.approved'),
+                    'date' => $claim->status !== 'pending' ? t($company->translation_group . '.done') : t($company->translation_group . '.pending'),
+                    'icon' => in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'check' : '2',
+                    'color' => in_array($claim->status, ['approved', 'in_progress', 'completed']) ? $company->primary_color : '#e5e7eb',
+                    'active' => in_array($claim->status, ['approved', 'in_progress', 'completed'])
+                ],
+                [
+                    'title' => t($company->translation_group . '.vehicle_received'),
+                    'date' => $claim->vehicle_arrived_at_center 
+                              ? $claim->vehicle_arrived_at_center->format('M d') 
+                              : ($claim->status === 'approved' ? t($company->translation_group . '.pending') : t($company->translation_group . '.waiting')),
+                    'icon' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) ? 'check' : '3',
+                    'color' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) ? $company->primary_color : '#e5e7eb',
+                    'active' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']))
+                ],
+                [
+                    'title' => t($company->translation_group . '.repair_in_progress'),
+                    'date' => $claim->status === 'completed' 
+                              ? t($company->translation_group . '.completed') 
+                              : ($claim->status === 'in_progress' ? t($company->translation_group . '.in_progress') : t($company->translation_group . '.waiting')),
+                    'icon' => in_array($claim->status, ['in_progress', 'completed']) ? ($claim->status === 'completed' ? 'check' : 'gear') : '4',
+                    'color' => in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb',
+                    'active' => in_array($claim->status, ['in_progress', 'completed'])
+                ],
+                [
+                    'title' => t($company->translation_group . '.ready_for_pickup'),
+                    'date' => $claim->status === 'completed' ? t($company->translation_group . '.ready') : t($company->translation_group . '.waiting'),
+                    'icon' => $claim->status === 'completed' ? 'check' : '5',
+                    'color' => $claim->status === 'completed' ? $company->primary_color : '#e5e7eb',
+                    'active' => $claim->status === 'completed'
+                ]
+            ];
+        @endphp
+
+        @foreach($steps as $step)
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mt-1 flex-shrink-0
+                          {{ $step['active'] ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
+                     style="{{ $step['active'] ? 'background: ' . $step['color'] : '' }}">
+                    @if($step['icon'] === 'check')
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    @elseif($step['icon'] === 'gear')
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826 2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        </svg>
+                    @else
+                        {{ $step['icon'] }}
+                    @endif
+                </div>
+                <div>
+                    <div class="font-medium">{{ $step['title'] }}</div>
+                    <div class="text-xs text-gray-500">{{ $step['date'] }}</div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Desktop: Horizontal Timeline -->
+    <div class="hidden md:flex items-center justify-between mb-4">
+        <!-- Step 1: Submitted -->
+        <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mb-2" 
+                 style="background: {{ $company->primary_color }};">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.submitted') }}</span>
+            <span class="text-xs text-gray-500">{{ $claim->created_at->format('M d') }}</span>
+        </div>
         
-        <div class="flex items-center justify-between mb-4">
-            <!-- Step 1: Submitted -->
-            <div class="flex flex-col items-center flex-1">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mb-2" 
-                     style="background: {{ $company->primary_color }};">
+        <!-- Connector -->
+        <div class="flex-1 h-0.5 mx-2" 
+             style="background: {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) || $claim->vehicle_arrived_at_center ? $company->primary_color : '#e5e7eb' }};"></div>
+        
+        <!-- Step 2: Approved -->
+        <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
+                        {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
+                 style="{{ in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
+                @if(in_array($claim->status, ['approved', 'in_progress', 'completed']))
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                </div>
-                <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.submitted') }}</span>
-                <span class="text-xs text-gray-500">{{ $claim->created_at->format('M d') }}</span>
+                @else
+                    2
+                @endif
             </div>
-            
-            <!-- Connector -->
-            <div class="flex-1 h-0.5 mx-2" 
-                 style="background: {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) || $claim->vehicle_arrived_at_center ? $company->primary_color : '#e5e7eb' }};"></div>
-            
-            <!-- Step 2: Approved -->
-            <div class="flex flex-col items-center flex-1">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                            {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                     style="{{ in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
-                    @if(in_array($claim->status, ['approved', 'in_progress', 'completed']))
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.approved') }}</span>
+            <span class="text-xs text-gray-500">
+                @if($claim->status !== 'pending')
+                    {{ t($company->translation_group . '.done') }}
+                @else
+                    {{ t($company->translation_group . '.pending') }}
+                @endif
+            </span>
+        </div>
+        
+        <!-- Connector -->
+        <div class="flex-1 h-0.5 mx-2" 
+             style="background: {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></div>
+        
+        <!-- Step 3: Vehicle Received -->
+        <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
+                        {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
+                 style="{{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
+                @if($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']))
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                @else
+                    3
+                @endif
+            </div>
+            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.vehicle_received') }}</span>
+            <span class="text-xs text-gray-500">
+                @if($claim->vehicle_arrived_at_center)
+                    {{ $claim->vehicle_arrived_at_center->format('M d') }}
+                @elseif($claim->status === 'approved')
+                    {{ t($company->translation_group . '.pending') }}
+                @else
+                    {{ t($company->translation_group . '.waiting') }}
+                @endif
+            </span>
+        </div>
+        
+        <!-- Connector -->
+        <div class="flex-1 h-0.5 mx-2" 
+             style="background: {{ in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></div>
+        
+        <!-- Step 4: Repair In Progress -->
+        <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
+                        {{ in_array($claim->status, ['in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
+                 style="{{ in_array($claim->status, ['in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
+                @if(in_array($claim->status, ['in_progress', 'completed']))
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        @if($claim->status === 'completed')
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    @else
-                        2
-                    @endif
-                </div>
-                <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.approved') }}</span>
-                <span class="text-xs text-gray-500">
-                    @if($claim->status !== 'pending')
-                        {{ t($company->translation_group . '.done') }}
-                    @else
-                        {{ t($company->translation_group . '.pending') }}
-                    @endif
-                </span>
+                        @else
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826 2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        @endif
+                    </svg>
+                @else
+                    4
+                @endif
             </div>
-            
-            <!-- Connector -->
-            <div class="flex-1 h-0.5 mx-2" 
-                 style="background: {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></div>
-            
-            <!-- Step 3: Vehicle Received -->
-            <div class="flex flex-col items-center flex-1">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                            {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                     style="{{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
-                    @if($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']))
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    @else
-                        3
-                    @endif
-                </div>
-                <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.vehicle_received') }}</span>
-                <span class="text-xs text-gray-500">
-                    @if($claim->vehicle_arrived_at_center)
-                        {{ $claim->vehicle_arrived_at_center->format('M d') }}
-                    @elseif($claim->status === 'approved')
-                        {{ t($company->translation_group . '.pending') }}
-                    @else
-                        {{ t($company->translation_group . '.waiting') }}
-                    @endif
-                </span>
+            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.repair_in_progress') }}</span>
+            <span class="text-xs text-gray-500">
+                @if($claim->status === 'completed')
+                    {{ t($company->translation_group . '.completed') }}
+                @elseif($claim->status === 'in_progress')
+                    {{ t($company->translation_group . '.in_progress') }}
+                @else
+                    {{ t($company->translation_group . '.waiting') }}
+                @endif
+            </span>
+        </div>
+        
+        <!-- Connector -->
+        <div class="flex-1 h-0.5 mx-2" 
+             style="background: {{ $claim->status === 'completed' ? $company->primary_color : '#e5e7eb' }};"></div>
+        
+        <!-- Step 5: Ready for Pickup -->
+        <div class="flex flex-col items-center flex-1">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
+                        {{ $claim->status === 'completed' ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
+                 style="{{ $claim->status === 'completed' ? 'background: ' . $company->primary_color : '' }}">
+                @if($claim->status === 'completed')
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                @else
+                    5
+                @endif
             </div>
-            
-            <!-- Connector -->
-            <div class="flex-1 h-0.5 mx-2" 
-                 style="background: {{ in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></div>
-            
-            <!-- Step 4: Repair In Progress -->
-            <div class="flex flex-col items-center flex-1">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                            {{ in_array($claim->status, ['in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                     style="{{ in_array($claim->status, ['in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
-                    @if(in_array($claim->status, ['in_progress', 'completed']))
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            @if($claim->status === 'completed')
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            @else
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                            @endif
-                        </svg>
-                    @else
-                        4
-                    @endif
-                </div>
-                <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.repair_in_progress') }}</span>
-                <span class="text-xs text-gray-500">
-                    @if($claim->status === 'completed')
-                        {{ t($company->translation_group . '.completed') }}
-                    @elseif($claim->status === 'in_progress')
-                        {{ t($company->translation_group . '.in_progress') }}
-                    @else
-                        {{ t($company->translation_group . '.waiting') }}
-                    @endif
-                </span>
-            </div>
-            
-            <!-- Connector -->
-            <div class="flex-1 h-0.5 mx-2" 
-                 style="background: {{ $claim->status === 'completed' ? $company->primary_color : '#e5e7eb' }};"></div>
-            
-            <!-- Step 5: Ready for Pickup -->
-            <div class="flex flex-col items-center flex-1">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                            {{ $claim->status === 'completed' ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                     style="{{ $claim->status === 'completed' ? 'background: ' . $company->primary_color : '' }}">
-                    @if($claim->status === 'completed')
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    @else
-                        5
-                    @endif
-                </div>
-                <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.ready_for_pickup') }}</span>
-                <span class="text-xs text-gray-500">
-                    @if($claim->status === 'completed')
-                        {{ t($company->translation_group . '.ready') }}
-                    @else
-                        {{ t($company->translation_group . '.waiting') }}
-                    @endif
-                </span>
-            </div>
+            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.ready_for_pickup') }}</span>
+            <span class="text-xs text-gray-500">
+                @if($claim->status === 'completed')
+                    {{ t($company->translation_group . '.ready') }}
+                @else
+                    {{ t($company->translation_group . '.waiting') }}
+                @endif
+            </span>
         </div>
     </div>
+</div>
+
     @endif
 
     {{-- Main Status Alert --}}
@@ -298,7 +371,7 @@
                             </button>
                             <button type="submit" name="tow_service_accepted" value="0" 
                                     class="px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors">
-                                {{ t($company->translation_group . '.decline_go_myself') }}
+                                {{ t($company->translation_group . '.decline_my_self') }}
                             </button>
                         </form>
                     </div>
@@ -689,391 +762,350 @@
                 </div>
             </div>
             @endif
+
+              {{-- Help & Support Section --}}
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                <div class="p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-blue-900 mb-2">{{ t($company->translation_group . '.need_help') }}</h3>
+                            <p class="text-blue-700 mb-4">{{ t($company->translation_group . '.support_description') }}</p>
+                            
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <div class="bg-white rounded-lg p-3 border border-blue-200">
+                                    <div class="flex items-center gap-2 text-blue-800">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                        </svg>
+                                        <span class="font-medium">{{ t($company->translation_group . '.call_support') }}</span>
+                                    </div>
+                                    <p class="text-sm text-blue-600 mt-1">{{ $company->formatted_phone }}</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg p-3 border border-blue-200">
+                                    <div class="flex items-center gap-2 text-blue-800">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                        </svg>
+                                        <span class="font-medium">{{ t($company->translation_group . '.submit_complaint') }}</span>
+                                    </div>
+                                    <a href="{{ route('insurance.complaints.index', $company->company_slug) }}" 
+                                       class="text-sm text-blue-600 hover:text-blue-800 mt-1 inline-block">
+                                        {{ t($company->translation_group . '.file_complaint_here') }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
         </div>
+
+        
 
 <div class="space-y-6">
             @if($claim->service_center_id)
-            <div class="bg-white rounded-xl shadow-sm border">
-                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
-                    <h3 class="text-lg font-bold flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
-                            <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <div class="bg-white rounded-xl shadow-sm border">
+    <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+            {{-- أيقونة الـ header --}}
+            <div class="w-12 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+            </div>
+            {{ t($company->translation_group . '.assigned_service_center') }}
+        </h3>
+    </div>
+    
+    <div class="p-6">
+        <div class="flex items-start gap-4">
+        {{-- أيقونة المركز (لوجو أو حروف) --}}
+@if($claim->serviceCenter->center_logo)
+    <img src="{{ $claim->serviceCenter->logo_url }}" 
+         alt="{{ $claim->serviceCenter->legal_name }}" 
+         class="w-16 h-16 rounded-full object-cover border-2"
+         style="border-color: {{ $company->primary_color }}20;">
+@else
+    <div class="w-16 h-5 rounded-full flex items-center justify-center text-white font-bold text-lg self-start"
+         style="background: {{ $company->primary_color }};">
+        {{ substr($claim->serviceCenter->legal_name, 0, 2) }}
+    </div>
+@endif
+
+            
+            <div class="flex-1">
+                <h4 class="text-xl font-bold text-gray-900 mb-2">{{ $claim->serviceCenter->legal_name }}</h4>
+                
+                <div class="space-y-3">
+                    {{-- أيقونات التواصل الصغيرة --}}
+                    @if($claim->serviceCenter->phone)
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                            <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                        </div>
+                        <span>{{ $claim->serviceCenter->formatted_phone }}</span>
+                    </div>
+                    @endif
+                    
+                    @if($claim->serviceCenter->center_address)
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                            <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <span>{{ $claim->serviceCenter->center_address }}</span>
+                    </div>
+                    @endif
+                    
+                    @if($claim->serviceCenter->industrialArea)
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                            <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                             </svg>
                         </div>
-                        {{ t($company->translation_group . '.assigned_service_center') }}
-                    </h3>
+                        <span>{{ $claim->serviceCenter->industrialArea->display_name }}</span>
+                    </div>
+                    @endif
                 </div>
                 
-                <div class="p-6">
-                    <div class="flex items-start gap-4">
-                        @if($claim->serviceCenter->center_logo)
-                            <img src="{{ $claim->serviceCenter->logo_url }}" 
-                                 alt="{{ $claim->serviceCenter->legal_name }}" 
-                                 class="w-16 h-16 rounded-lg object-cover border-2"
-                                 style="border-color: {{ $company->primary_color }}20;">
-                        @else
-                            <div class="w-16 h-16 rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                                 style="background: {{ $company->primary_color }};">
-                                {{ substr($claim->serviceCenter->legal_name, 0, 2) }}
-                            </div>
-                        @endif
-                        
-                        <div class="flex-1">
-                            <h4 class="text-xl font-bold text-gray-900 mb-2">{{ $claim->serviceCenter->legal_name }}</h4>
-                            
-                            <div class="space-y-3">
-                                @if($claim->serviceCenter->phone)
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                    <span>{{ $claim->serviceCenter->formatted_phone }}</span>
-                                </div>
-                                @endif
-                                
-                                @if($claim->serviceCenter->center_address)
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    <span>{{ $claim->serviceCenter->center_address }}</span>
-                                </div>
-                                @endif
-                                
-                                @if($claim->serviceCenter->industrialArea)
-                                <div class="flex items-center gap-2 text-gray-600">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                    </svg>
-                                    <span>{{ $claim->serviceCenter->industrialArea->display_name }}</span>
-                                </div>
-                                @endif
-                            </div>
-                            
-                            <div class="flex gap-3 mt-4">
-                                <a href="tel:{{ $claim->serviceCenter->phone }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                    {{ t($company->translation_group . '.call') }}
-                                </a>
-                                
-                                @if($claim->serviceCenter->center_location_lat)
-                                    <a href="{{ $claim->serviceCenter->location_url }}" target="_blank" 
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-                                       style="background: {{ $company->primary_color }};">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        </svg>
-                                        {{ t($company->translation_group . '.directions') }}
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                {{-- أزرار التواصل --}}
+                <div class="flex gap-3 mt-4">
+                    <a href="tel:{{ $claim->serviceCenter->phone }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                        </svg>
+                        {{ t($company->translation_group . '.call') }}
+                    </a>
+                    
+                    @if($claim->serviceCenter->center_location_lat)
+                        <a href="{{ $claim->serviceCenter->location_url }}" target="_blank" 
+                           class="inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+                           style="background: {{ $company->primary_color }};">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            </svg>
+                            {{ t($company->translation_group . '.location') }}
+                        </a>
+                    @endif
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
             @endif
 
-            {{-- Claim Attachments Section --}}
-            @if($claim->attachments->count())
-            <div class="bg-white rounded-xl shadow-sm border">
-                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
-                    <h3 class="text-lg font-bold flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
-                            <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                            </svg>
-                        </div>
-                        {{ t($company->translation_group . '.uploaded_documents') }}
-                    </h3>
-                </div>
-                
-                <div class="p-6">
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($claim->attachments->groupBy('type') as $type => $attachments)
-                        <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
-                            <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                                <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+         
+{{-- Claim Timeline Section --}}
+<div class="bg-white rounded-xl shadow-sm border">
+    <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            {{ t($company->translation_group . '.claim_timeline') }}
+        </h3>
+    </div>
+    
+    <div class="p-6">
+        <div class="flow-root">
+            <ul class="space-y-6 md:space-y-8">
+                {{-- Claim Submitted --}}
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: {{ $company->primary_color }};">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
-                                {{ t($company->translation_group . '.' . $type) }}
-                            </h4>
-                            <div class="space-y-2">
-                                @foreach($attachments as $attachment)
-                                <div class="flex items-center justify-between bg-white rounded p-2 border">
-                                    <div class="flex items-center gap-2 flex-1 min-w-0">
-                                        <div class="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
-                                             style="background: {{ $company->primary_color }}20;">
-                                            @if($attachment->isImage())
-                                                <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                </svg>
-                                            @else
-                                                <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                            @endif
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <p class="text-sm font-medium text-gray-900 truncate">{{ $attachment->file_name }}</p>
-                                            <p class="text-xs text-gray-500">{{ $attachment->file_size_formatted }}</p>
-                                        </div>
-                                    </div>
-                                    <a href="{{ $attachment->file_url }}" target="_blank" 
-                                       class="flex-shrink-0 w-8 h-8 rounded flex items-center justify-center hover:bg-gray-100 transition-colors">
-                                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                        </svg>
-                                    </a>
-                                </div>
-                                @endforeach
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ t($company->translation_group . '.claim_submitted') }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ $claim->created_at->format('M d, Y \a\t H:i') }}</p>
                             </div>
+                            <p class="mt-2 text-sm text-gray-700">{{ t($company->translation_group . '.claim_submitted_for_review') }}</p>
                         </div>
-                        @endforeach
                     </div>
-                </div>
-            </div>
-            @endif
+                </li>
 
-            {{-- Claim Timeline Section --}}
-            <div class="bg-white rounded-xl shadow-sm border">
-                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
-                    <h3 class="text-lg font-bold flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
-                            <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
+                {{-- Service Center Assigned --}}
+                @if($claim->service_center_id && $claim->status !== 'rejected')
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: {{ $company->primary_color }};">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </span>
                         </div>
-                        {{ t($company->translation_group . '.claim_timeline') }}
-                    </h3>
-                </div>
-                
-                <div class="p-6">
-                    <div class="flow-root">
-                        <ul class="-mb-8">
-                            {{-- Claim Submitted --}}
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5" style="background: {{ $company->primary_color }};"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white text-white"
-                                                  style="background: {{ $company->primary_color }};">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">{{ t($company->translation_group . '.claim_submitted') }}</p>
-                                                </div>
-                                                <p class="mt-0.5 text-sm text-gray-500">{{ $claim->created_at->format('M d, Y \a\t H:i') }}</p>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                <p>{{ t($company->translation_group . '.claim_submitted_for_review') }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-
-                            {{-- Service Center Assigned --}}
-                            @if($claim->service_center_id && $claim->status !== 'rejected')
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5" style="background: {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) || $claim->vehicle_arrived_at_center ? $company->primary_color : '#e5e7eb' }};"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) || $claim->service_center_id ? 'text-white' : 'bg-gray-100 text-gray-400' }}"
-                                                  style="{{ in_array($claim->status, ['approved', 'in_progress', 'completed']) || $claim->service_center_id ? 'background: ' . $company->primary_color : '' }}">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">{{ t($company->translation_group . '.assigned_to_service_center') }}</p>
-                                                </div>
-                                                @if($claim->service_center_approved_at)
-                                                    <p class="mt-0.5 text-sm text-gray-500">{{ $claim->service_center_approved_at->format('M d, Y \a\t H:i') }}</p>
-                                                @endif
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                <p>{{ t($company->translation_group . '.claim_sent_to') }} {{ $claim->serviceCenter->legal_name }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            @endif
-
-                            {{-- Tow Service Decision --}}
-                            @if($claim->tow_service_offered && !is_null($claim->tow_service_accepted))
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5" style="background: {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white text-white"
-                                                  style="background: {{ $claim->tow_service_accepted ? '#10b981' : '#f59e0b' }};">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    @if($claim->tow_service_accepted)
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
-                                                    @else
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                                    @endif
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">
-                                                        {{ $claim->tow_service_accepted ? t($company->translation_group . '.tow_service_accepted') : t($company->translation_group . '.tow_service_declined') }}
-                                                    </p>
-                                                </div>
-                                                <p class="mt-0.5 text-sm text-gray-500">{{ $claim->updated_at->format('M d, Y \a\t H:i') }}</p>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                @if($claim->tow_service_accepted)
-                                                    <p>{{ t($company->translation_group . '.tow_service_requested') }}</p>
-                                                @else
-                                                    <p>{{ t($company->translation_group . '.customer_will_deliver_vehicle') }}</p>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            @endif
-
-                            {{-- Vehicle Arrived at Service Center --}}
-                            @if($claim->vehicle_arrived_at_center)
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5" style="background: {{ in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white text-white">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">{{ t($company->translation_group . '.vehicle_received_by_service_center') }}</p>
-                                                </div>
-                                                <p class="mt-0.5 text-sm text-gray-500">{{ $claim->vehicle_arrived_at_center->format('M d, Y \a\t H:i') }}</p>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                <p>{{ t($company->translation_group . '.vehicle_inspection_started') }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            @endif
-
-                            {{-- Parts Received/Repair Started --}}
-                            @if($claim->status === 'in_progress')
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5" style="background: {{ $claim->status === 'completed' ? $company->primary_color : '#e5e7eb' }};"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white text-white"
-                                                  style="background: {{ $company->primary_color }};">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">{{ t($company->translation_group . '.repair_work_started') }}</p>
-                                                </div>
-                                                <p class="mt-0.5 text-sm text-gray-500">{{ t($company->translation_group . '.in_progress') }}</p>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                <p>{{ t($company->translation_group . '.vehicle_being_repaired_by_technicians') }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            @endif
-
-                            {{-- Repair Completed --}}
-                            @if($claim->status === 'completed')
-                            <li>
-                                <div class="relative">
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white text-white">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">{{ t($company->translation_group . '.repair_completed') }}</p>
-                                                </div>
-                                                <p class="mt-0.5 text-sm text-gray-500">{{ t($company->translation_group . '.ready_for_pickup') }}</p>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                <p>{{ t($company->translation_group . '.vehicle_repaired_ready_collection') }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    </div>
-                            </li>
-                            @endif
-
-                            {{-- Rejection Timeline (if rejected) --}}
-                            @if($claim->status === 'rejected')
-                            <li>
-                                <div class="relative">
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white text-white">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <div>
-                                                <div class="text-sm">
-                                                    <p class="font-medium text-gray-900">{{ t($company->translation_group . '.claim_rejected') }}</p>
-                                                </div>
-                                                <p class="mt-0.5 text-sm text-gray-500">{{ $claim->updated_at->format('M d, Y \a\t H:i') }}</p>
-                                            </div>
-                                            <div class="mt-2 text-sm text-gray-700">
-                                                <p class="text-red-600">{{ $claim->rejection_reason }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            @endif
-                        </ul>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ t($company->translation_group . '.assigned_to_service_center') }}</p>
+                                @if($claim->service_center_approved_at)
+                                    <p class="mt-1 text-sm text-gray-500">{{ $claim->service_center_approved_at->format('M d, Y \a\t H:i') }}</p>
+                                @endif
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">{{ t($company->translation_group . '.claim_sent_to') }} {{ $claim->serviceCenter->legal_name }}</p>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </li>
+                @endif
+
+                {{-- Tow Service Decision --}}
+                @if($claim->tow_service_offered && !is_null($claim->tow_service_accepted))
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: {{ $claim->tow_service_accepted ? '#10b981' : '#f59e0b' }};">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    @if($claim->tow_service_accepted)
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    @else
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    @endif
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ $claim->tow_service_accepted ? t($company->translation_group . '.tow_service_accepted') : t($company->translation_group . '.tow_service_declined') }}
+                                </p>
+                                <p class="mt-1 text-sm text-gray-500">{{ $claim->updated_at->format('M d, Y \a\t H:i') }}</p>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">
+                                @if($claim->tow_service_accepted)
+                                    {{ t($company->translation_group . '.tow_service_requested') }}
+                                @else
+                                    {{ t($company->translation_group . '.customer_will_deliver_vehicle') }}
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </li>
+                @endif
+
+                {{-- Vehicle Arrived at Service Center --}}
+                @if($claim->vehicle_arrived_at_center)
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: #10b981;">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ t($company->translation_group . '.vehicle_received_by_service_center') }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ $claim->vehicle_arrived_at_center->format('M d, Y \a\t H:i') }}</p>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">{{ t($company->translation_group . '.vehicle_inspection_started') }}</p>
+                        </div>
+                    </div>
+                </li>
+                @endif
+
+                {{-- Parts Received/Repair Started --}}
+                @if($claim->status === 'in_progress')
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: {{ $company->primary_color }};">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826 2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ t($company->translation_group . '.repair_work_started') }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ t($company->translation_group . '.in_progress') }}</p>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">{{ t($company->translation_group . '.vehicle_being_repaired_by_technicians') }}</p>
+                        </div>
+                    </div>
+                </li>
+                @endif
+
+                {{-- Repair Completed --}}
+                @if($claim->status === 'completed')
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: #10b981;">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ t($company->translation_group . '.repair_completed') }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ t($company->translation_group . '.ready_for_pickup') }}</p>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700">{{ t($company->translation_group . '.vehicle_repaired_ready_collection') }}</p>
+                        </div>
+                    </div>
+                </li>
+                @endif
+
+                {{-- Rejection Timeline (if rejected) --}}
+                @if($claim->status === 'rejected')
+                <li>
+                    <div class="flex gap-4 md:gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="h-10 w-10 rounded-full flex items-center justify-center ring-8 ring-white"
+                                  style="background: #ef4444;">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ t($company->translation_group . '.claim_rejected') }}</p>
+                                <p class="mt-1 text-sm text-gray-500">{{ $claim->updated_at->format('M d, Y \a\t H:i') }}</p>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-700 text-red-600">{{ $claim->rejection_reason }}</p>
+                        </div>
+                    </div>
+                </li>
+                @endif
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
 
             {{-- Action Buttons Section --}}
             <div class="bg-white rounded-xl shadow-sm border hidden">
@@ -1138,51 +1170,70 @@
                 </div>
             </div>
 
-            {{-- Help & Support Section --}}
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                <div class="p-6">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-blue-900 mb-2">{{ t($company->translation_group . '.need_help') }}</h3>
-                            <p class="text-blue-700 mb-4">{{ t($company->translation_group . '.support_description') }}</p>
-                            
-                            <div class="grid sm:grid-cols-2 gap-3">
-                                <div class="bg-white rounded-lg p-3 border border-blue-200">
-                                    <div class="flex items-center gap-2 text-blue-800">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                        </svg>
-                                        <span class="font-medium">{{ t($company->translation_group . '.call_support') }}</span>
-                                    </div>
-                                    <p class="text-sm text-blue-600 mt-1">{{ $company->formatted_phone }}</p>
-                                </div>
-                                
-                                <div class="bg-white rounded-lg p-3 border border-blue-200">
-                                    <div class="flex items-center gap-2 text-blue-800">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                                        </svg>
-                                        <span class="font-medium">{{ t($company->translation_group . '.submit_complaint') }}</span>
-                                    </div>
-                                    <a href="{{ route('insurance.complaints.index', $company->company_slug) }}" 
-                                       class="text-sm text-blue-600 hover:text-blue-800 mt-1 inline-block">
-                                        {{ t($company->translation_group . '.file_complaint_here') }}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          
         </div>
     </div>
 </div>
-
+   {{-- Claim Attachments Section --}}
+            @if($claim->attachments->count())
+            <div class="bg-white rounded-xl shadow-sm border mt-8">
+                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
+                            <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                            </svg>
+                        </div>
+                        {{ t($company->translation_group . '.uploaded_documents') }}
+                    </h3>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($claim->attachments->groupBy('type') as $type => $attachments)
+                        <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                            <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                {{ t($company->translation_group . '.' . $type) }}
+                            </h4>
+                            <div class="space-y-2">
+                                @foreach($attachments as $attachment)
+                                <div class="flex items-center justify-between bg-white rounded p-2 border">
+                                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                                        <div class="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
+                                             style="background: {{ $company->primary_color }}20;">
+                                            @if($attachment->isImage())
+                                                <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            @else
+                                                <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            @endif
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-medium text-gray-900 truncate">{{ $attachment->file_name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $attachment->file_size_formatted }}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ $attachment->file_url }}" target="_blank" 
+                                       class="flex-shrink-0 w-8 h-8 rounded flex items-center justify-center hover:bg-gray-100 transition-colors">
+                                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
 {{-- Custom Scripts --}}
 <script>
 function shareClaimDetails() {
@@ -1309,4 +1360,44 @@ document.head.insertAdjacentHTML('beforeend', printStyles);
     }
 }
 </style>
+
+  <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const isRtl = document.documentElement.dir === 'rtl';
+
+        function toggleMobileMenu() {
+            if (sidebar.classList.contains(isRtl ? 'translate-x-full' : '-translate-x-full')) {
+                sidebar.classList.remove(isRtl ? 'translate-x-full' : '-translate-x-full');
+                mobileOverlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add(isRtl ? 'translate-x-full' : '-translate-x-full');
+                mobileOverlay.classList.add('hidden');
+            }
+        }
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        }
+
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', toggleMobileMenu);
+        }
+
+        document.querySelectorAll('#sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 1024) {
+                    sidebar.classList.add(isRtl ? 'translate-x-full' : '-translate-x-full');
+                    mobileOverlay.classList.add('hidden');
+                }
+            });
+        });
+
+        // Language change function
+        function changeLanguage(code) {
+            window.location.href = '/language/' + code;
+        }
+    </script>
 @endsection

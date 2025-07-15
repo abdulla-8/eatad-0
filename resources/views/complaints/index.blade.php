@@ -19,7 +19,7 @@
         </button>
     </div>
 
-    <!-- Quick Stats - إزالة الإحصائيات غير الموجودة -->
+    <!-- Quick Stats -->
     <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
             <div class="text-2xl font-bold" style="color: {{ $primaryColor }};">{{ $stats['total'] }}</div>
@@ -108,62 +108,78 @@
     @if($complaints->count())
         <div class="space-y-4">
             @foreach($complaints as $complaint)
-            <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow {{ !$complaint->is_read ? 'ring-2 ring-red-100' : '' }}">
-                <div class="p-6">
-                    <!-- Header -->
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold {{ !$complaint->is_read ? 'bg-red-500' : 'bg-blue-500' }}"
-                                 style="{{ !$complaint->is_read ? '' : 'background: ' . $primaryColor . ';' }}">
-                                {{ str_pad($complaint->id, 2, '0', STR_PAD_LEFT) }}
+                {{-- تحقق مشدد من أن الشكوى تخص المستخدم الحالي --}}
+                @if($complaint->complainant_type === $userType && $complaint->complainant_id === $user->id)
+                    <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow {{ !$complaint->is_read ? 'ring-2 ring-red-100' : '' }}">
+                        <div class="p-6">
+                            <!-- Header -->
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold {{ !$complaint->is_read ? 'bg-red-500' : 'bg-blue-500' }}"
+                                         style="{{ !$complaint->is_read ? '' : 'background: ' . $primaryColor . ';' }}">
+                                        {{ str_pad($complaint->id, 2, '0', STR_PAD_LEFT) }}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg {{ !$complaint->is_read ? 'text-red-900' : 'text-gray-900' }}">{{ $complaint->subject }}</h3>
+                                        <p class="text-gray-500 text-xs">{{ $complaint->created_at->format('d/m/Y H:i') }}</p>
+                                        {{-- Debug info - احذف هذا السطر بعد التأكد من الحل --}}
+                                        <p class="text-xs text-gray-400">Type: {{ $complaint->complainant_type }} | ID: {{ $complaint->complainant_id }}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center gap-3">
+                                    <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $complaint->type_badge['class'] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ t($translationGroup . '.' . $complaint->type) }}
+                                    </span>
+                                    <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $complaint->is_read ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ $complaint->is_read ? t($translationGroup . '.read') : t($translationGroup . '.unread') }}
+                                    </span>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-bold text-lg {{ !$complaint->is_read ? 'text-red-900' : 'text-gray-900' }}">{{ $complaint->subject }}</h3>
-                                <p class="text-gray-500 text-xs">{{ $complaint->created_at->format('d/m/Y H:i') }}</p>
+
+                            <!-- Content -->
+                            <div class="mb-4">
+                                <p class="text-gray-600 text-sm">
+                                    {{ Str::limit($complaint->description, 150) }}
+                                </p>
+                            </div>
+
+                            <!-- Action -->
+                            <div class="flex justify-end">
+                                @if($userType === 'insurance_company')
+                                    <a href="{{ route('insurance.complaints.show', ['companyRoute' => $user->company_slug, 'id' => $complaint->id]) }}" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                                       style="background: {{ $primaryColor }}20; color: {{ $primaryColor }};">
+                                        {{ t($translationGroup . '.read_more') }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <a href="{{ route('service-center.complaints.show', $complaint->id) }}" 
+                                       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+                                       style="background: {{ $primaryColor }}20; color: {{ $primaryColor }};">
+                                        {{ t($translationGroup . '.read_more') }}
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                @endif
                             </div>
                         </div>
-                        
-                        <div class="flex items-center gap-3">
-                            <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $complaint->type_badge['class'] }}">
-                                {{ t($translationGroup . '.' . $complaint->type) }}
-                            </span>
-                            <span class="px-3 py-1.5 rounded-full text-sm font-medium {{ $complaint->is_read ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                {{ $complaint->is_read ? t($translationGroup . '.read') : t($translationGroup . '.unread') }}
-                            </span>
-                        </div>
                     </div>
-
-                    <!-- Content -->
-                    <div class="mb-4">
-                        <p class="text-gray-600 text-sm">
-                            {{ Str::limit($complaint->description, 150) }}
-                        </p>
-                    </div>
-
-                    <!-- Action -->
-                    <div class="flex justify-end">
-                        @if($userType === 'insurance_company')
-                            <a href="{{ route('insurance.complaints.show', ['companyRoute' => $user->company_slug, 'id' => $complaint->id]) }}" 
-                               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                               style="background: {{ $primaryColor }}20; color: {{ $primaryColor }};">
-                                {{ t($translationGroup . '.read_more') }}
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        @else
-                            <a href="{{ route('service-center.complaints.show', $complaint->id) }}" 
-                               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                               style="background: {{ $primaryColor }}20; color: {{ $primaryColor }};">
-                                {{ t($translationGroup . '.read_more') }}
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
+                @else
+                    {{-- Log للشكاوى التي لا تخص المستخدم الحالي --}}
+                    @php
+                        \Log::warning('Invalid complaint shown to user', [
+                            'complaint_id' => $complaint->id,
+                            'complaint_type' => $complaint->complainant_type,
+                            'complaint_owner' => $complaint->complainant_id,
+                            'current_user_type' => $userType,
+                            'current_user_id' => $user->id
+                        ]);
+                    @endphp
+                @endif
             @endforeach
         </div>
 

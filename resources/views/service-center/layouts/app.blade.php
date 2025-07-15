@@ -118,10 +118,10 @@
                             </a>
                         </li>
                         
-  <li>
+ <li>
     <a href="{{ route('service-center.complaints.index') }}" 
        class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 
-              {{ request()->routeIs('service-center.complaints.index') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }} 
+              {{ request()->routeIs('service-center.complaints.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }} 
               ">
         <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -131,6 +131,16 @@
     </a>
 </li>
 
+<li>
+    <a href="{{ route('service-center.verification.index') }}" 
+       class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 
+              {{ request()->routeIs('service-center.verification.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+        <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        {{ t('service_center.verification') }}
+    </a>
+</li>
 
                         <li>
                             <a href="#" class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 text-gray-300 hover:bg-gray-800 hover:text-white opacity-60 cursor-not-allowed">
