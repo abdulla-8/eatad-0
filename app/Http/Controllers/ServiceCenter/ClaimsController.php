@@ -412,13 +412,11 @@ class ClaimsController extends Controller
         ]);
     }
 
-    /**
-     * Reject claim by service center
-     */
     public function rejectClaim(Request $request, $id)
     {
         $serviceCenter = Auth::guard('service_center')->user();
 
+        // جلب المطالبة التي مركز الصيانة مسؤول عنها ويجب أن تكون في حالة "pending"
         $claim = Claim::where('service_center_id', $serviceCenter->id)
             ->where('id', $id)
             ->where('status', 'pending')
@@ -428,16 +426,15 @@ class ClaimsController extends Controller
             'rejection_reason' => 'required|string|max:1000'
         ]);
 
+        // تحديث الحالة إلى رفض
         $claim->update([
-            'status' => 'rejected',
-            'rejection_reason' => $request->rejection_reason,
+            'status' => 'pending',
             'service_center_note' => $request->rejection_reason,
-            'service_center_rejected_at' => now(),
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Claim rejected successfully'
+            'message' => 'تم الرفض بنجاح'
         ]);
     }
 }
