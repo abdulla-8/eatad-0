@@ -3,7 +3,7 @@
 @section('title', t($company->translation_group . '.claim_details'))
 
 @section('content')
-<div class="max-w-6xl mx-auto space-y-6">
+<div class=" space-y-6">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex items-center gap-4">
             <a href="{{ route('insurance.user.claims.index', $company->company_slug) }}" 
@@ -508,40 +508,19 @@
                 
                 <div class="p-6">
                     {{-- Basic Information Section --}}
-                    <div class="mb-8">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }};">
-                                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                            <h4 class="text-md font-semibold text-gray-900">{{ t($company->translation_group . '.basic_information') }}</h4>
-                        </div>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
-                                    </div>
-                                    <span class="font-semibold text-gray-900">{{ $claim->policy_number }}</span>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 12v-6m6 6H6a2 2 0 01-2-2v-6a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.submitted') }}</span>
-                                    </div>
-                                    <span class="font-semibold text-gray-900">{{ $claim->created_at->format('M d, Y H:i') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+               <div class="mb-8">
+    <div class="flex items-center p-4 mb-4 text-sm text-green-800 rounded-lg bg-gradient-to-r from-green-50 to-green-100 border border-green-200 shadow-md" role="alert">
+        <svg class="shrink-0 inline w-5 h-5 me-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        <div class="flex items-center justify-between w-full">
+            <span class="font-medium text-green-800">{{ t($company->translation_group . '.submitted') }}</span>
+            <span class="font-semibold text-green-700 text-sm">{{ $claim->created_at->format('M d, Y H:i') }}</span>
+        </div>
+    </div>
+</div>
+
+
 
                     {{-- Vehicle Information Section --}}
                     <div class="mb-8">
@@ -554,19 +533,7 @@
                             <h4 class="text-md font-semibold text-gray-900">{{ t($company->translation_group . '.vehicle_information') }}</h4>
                         </div>
                         <div class="grid md:grid-cols-2 gap-4">
-                            @if($claim->vehicle_plate_number || $claim->chassis_number)
-                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                                        </svg>
-                                        <span class="text-sm text-gray-600">{{ t($company->translation_group . '.vehicle_identification') }}</span>
-                                    </div>
-                                    <span class="font-semibold text-gray-900">{{ $claim->vehicle_plate_number ?: $claim->chassis_number }}</span>
-                                </div>
-                            </div>
-                            @endif
+                       
                             
                             @if($claim->vehicle_brand)
                             <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
@@ -718,6 +685,122 @@
                     @endif
                 </div>
             </div>
+@if($claim->vehicle_plate_number || $claim->chassis_number || $claim->policy_number)
+<div class="bg-white rounded-xl p-4 md:p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
+    <!-- رأس السيكشن -->
+    <div class="flex items-center gap-3 mb-6 pb-3 border-b" style="border-color: {{ $company->primary_color }};">
+        <div class="p-2 rounded-lg shadow-sm" style="background-color: {{ $company->primary_color }}20;">
+            <svg class="w-5 h-5 md:w-6 md:h-6" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-gray-800">{{ t($company->translation_group . '.important_numbers') }}</h3>
+    </div>
+    
+    @if($claim->vehicle_plate_number)
+    <div class="mb-6">
+        <!-- عنوان رقم اللوحة -->
+        <div class="flex items-center gap-2 mb-4">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <span class="text-sm font-medium text-gray-600">{{ t($company->translation_group . '.vehicle_plate_number') }}</span>
+        </div>
+        
+        <!-- تصميم اللوحة -->
+        <div class="flex justify-center items-center">
+            <div class="flex border border-gray-200 rounded-lg p-4 bg-white shadow-lg overflow-hidden {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
+                <!-- محتوى اللوحة -->
+                <div class="flex flex-col h-24 md:h-28">
+                    <!-- الصف الأول - العربية -->
+                    <div class="flex items-center justify-center h-1/2 border-b border-black">
+                        <!-- خانة الحروف العربية -->
+                        <div class="flex gap-1 bg-gray-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-char-ar1">ر</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-char-ar2">ج</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-char-ar3">ب</div>
+                        </div>
+                        <!-- فاصل عمودي -->
+                        <div class="w-0.5 bg-gray-200 mx-1 h-full"></div>
+                        <!-- خانة الأرقام العربية -->
+                        <div class="flex gap-1 bg-gray-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-ar1">٧</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-ar2">٩</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-ar3">٢</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-ar4">١</div>
+                        </div>
+                    </div>
+                    
+                    <!-- الصف الثاني - الإنجليزية -->
+                    <div class="flex items-center justify-center h-1/2">
+                        <!-- خانة الحروف الإنجليزية -->
+                        <div class="flex gap-1 bg-gray-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-char-en1">D</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-char-en2">B</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-char-en3">R</div>
+                        </div>
+                        <!-- فاصل عمودي -->
+                        <div class="w-0.5 bg-gray-200 mx-1 h-full"></div>
+                        <!-- خانة الأرقام الإنجليزية -->
+                        <div class="flex gap-1 bg-gray-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-en1">7</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-en2">9</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-en3">2</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold" id="display-num-en4">1</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- قسم العلم السعودي -->
+                <div class="flex flex-col items-center justify-center w-12 md:w-16 text-gray-800 {{ $isRtl ? 'border-l' : 'border-r' }} border-black px-1 py-2 h-24 md:h-28">
+                    <div class="flex items-center mb-1">
+                        <span class="text-xs md:text-sm">⚔️</span>
+                        <span class="text-xs">🌴</span>
+                    </div>
+                    <div class="text-xs font-bold mb-1">السعودية</div>
+                    <div class="flex flex-col items-center text-xs font-bold">
+                        <div>K</div>
+                        <div>S</div>
+                        <div>A</div>
+                    </div>
+                    <div class="text-xs mt-1">●</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    @if($claim->chassis_number)
+    <div class="bg-white rounded-lg p-3 md:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-600">{{ t($company->translation_group . '.chassis_number') }}</span>
+            </div>
+            <span class="font-mono text-sm md:text-base font-semibold text-gray-900 bg-gray-100 px-3 py-1 rounded-md break-all">{{ $claim->chassis_number }}</span>
+        </div>
+    </div>
+    @endif
+    
+    @if($claim->policy_number)
+    <div class="bg-white rounded-lg p-3 md:p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
+            </div>
+            <span class="font-mono text-sm md:text-base font-semibold text-gray-900 bg-gray-100 px-3 py-1 rounded-md break-all">{{ $claim->policy_number }}</span>
+        </div>
+    </div>
+    @endif
+</div>
+@endif
+
+
 
             @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
@@ -746,6 +829,8 @@
                 </div>
             </div>
             @endif
+
+            
 
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
@@ -1282,6 +1367,37 @@ const printStyles = `
 `;
 document.head.insertAdjacentHTML('beforeend', printStyles);
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const plateNumber = '{{ $claim->vehicle_plate_number }}';
+    if (plateNumber) {
+        const plateData = parsePlateNumber(plateNumber);
+        if (plateData) {
+            // تحديث الحروف العربية
+            document.getElementById('display-char-ar1').textContent = plateData.ar1;
+            document.getElementById('display-char-ar2').textContent = plateData.ar2;
+            document.getElementById('display-char-ar3').textContent = plateData.ar3;
+            
+            // تحديث الأرقام العربية
+            document.getElementById('display-num-ar1').textContent = plateData.arNum1;
+            document.getElementById('display-num-ar2').textContent = plateData.arNum2;
+            document.getElementById('display-num-ar3').textContent = plateData.arNum3;
+            document.getElementById('display-num-ar4').textContent = plateData.arNum4;
+            
+            // تحديث الحروف الإنجليزية
+            document.getElementById('display-char-en1').textContent = plateData.en1;
+            document.getElementById('display-char-en2').textContent = plateData.en2;
+            document.getElementById('display-char-en3').textContent = plateData.en3;
+            
+            // تحديث الأرقام الإنجليزية
+            document.getElementById('display-num-en1').textContent = plateData.enNum1;
+            document.getElementById('display-num-en2').textContent = plateData.enNum2;
+            document.getElementById('display-num-en3').textContent = plateData.enNum3;
+            document.getElementById('display-num-en4').textContent = plateData.enNum4;
+        }
+    }
+});
+</script>
 
 {{-- Custom Print Styles --}}
 <style>
@@ -1400,4 +1516,31 @@ document.head.insertAdjacentHTML('beforeend', printStyles);
             window.location.href = '/language/' + code;
         }
     </script>
+
+    <script>
+        function parsePlateNumber(plateNumber) {
+    // تحليل رقم اللوحة المحفوظ وإرجاع كائن يحتوي على الأجزاء المختلفة
+    // يجب تعديل هذه الدالة حسب تنسيق حفظ البيانات
+    if (!plateNumber) return null;
+    
+    // مثال على التحليل (يحتاج تعديل حسب طريقة حفظ البيانات)
+    return {
+        ar1: plateNumber.charAt(0) || '',
+        ar2: plateNumber.charAt(1) || '',
+        ar3: plateNumber.charAt(2) || '',
+        arNum1: plateNumber.charAt(3) || '',
+        arNum2: plateNumber.charAt(4) || '',
+        arNum3: plateNumber.charAt(5) || '',
+        arNum4: plateNumber.charAt(6) || '',
+        en1: plateNumber.charAt(7) || '',
+        en2: plateNumber.charAt(8) || '',
+        en3: plateNumber.charAt(9) || '',
+        enNum1: plateNumber.charAt(10) || '',
+        enNum2: plateNumber.charAt(11) || '',
+        enNum3: plateNumber.charAt(12) || '',
+        enNum4: plateNumber.charAt(13) || ''
+    };
+}
+
+        </script>
 @endsection

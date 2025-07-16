@@ -35,6 +35,12 @@ class InsuranceUser extends Authenticatable
     {
         return $this->belongsTo(InsuranceCompany::class);
     }
+    
+// في موديل InsuranceUser
+public function company()
+{
+    return $this->belongsTo(InsuranceCompany::class, 'insurance_company_id');
+}
 
     public function scopeActive($query)
     {

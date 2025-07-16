@@ -39,8 +39,11 @@
         <div class="p-6">
             <!-- Status and Type -->
             <div class="flex items-center gap-3 mb-6">
-                <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->type_badge['class'] }}">
+                <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->type_badge['class'] ?? 'bg-gray-100 text-gray-800' }}">
                     {{ t('admin.' . $complaint->type) }}
+                </span>
+                <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->complainant_type_badge['class'] ?? 'bg-blue-100 text-blue-800' }}">
+                    {{ $complaint->complainant_type_badge['text'] ?? t('admin.' . $complaint->complainant_type) }}
                 </span>
                 <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->is_read ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                     {{ $complaint->is_read ? t('admin.read') : t('admin.unread') }}
@@ -52,20 +55,65 @@
                 @endif
             </div>
 
-            <!-- Company Name -->
-            <div class="mb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t('admin.complainant') }}</h3>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700">{{ $complaint->complainant_name }}</p>
-                    <p class="text-sm text-gray-500 mt-1">{{ t('admin.' . $complaint->complainant_type) }}</p>
-                </div>
-            </div>
-
             <!-- Complaint ID -->
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t('admin.complaint_id') }}</h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700 font-mono">#{{ str_pad($complaint->id, 6, '0', STR_PAD_LEFT) }}</p>
+                    <p class="text-gray-700 font-mono">#{{ $complaint->id }}</p>
+                </div>
+            </div>
+
+            <!-- Complainant Information -->
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t('admin.complainant_information') }}</h3>
+                <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="font-medium text-gray-700">{{ t('admin.name') }}:</span>
+                        <span class="text-gray-900">{{ $complaint->complainant_name }}</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <span class="font-medium text-gray-700">{{ t('admin.type') }}:</span>
+                        <span class="px-2 py-1 rounded text-xs {{ $complaint->complainant_type_badge['class'] ?? 'bg-blue-100 text-blue-800' }}">
+                            {{ $complaint->complainant_type_badge['text'] ?? t('admin.' . $complaint->complainant_type) }}
+                        </span>
+                    </div>
+
+                    <!-- معلومات إضافية لمستخدمي شركة التأمين -->
+                    @if($complaint->complainant_type === 'insurance_user' && $complaint->complainant_details)
+                        <div class="border-t pt-3 mt-3">
+                            <h4 class="font-medium text-gray-900 mb-2">{{ t('admin.additional_details') }}</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                @if($complaint->complainant_details->company)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.insurance_company') }}:</span>
+                                        <span class="text-blue-600 font-semibold">{{ $complaint->complainant_details->company->legal_name }}</span>
+                                    </div>
+                                @endif
+                                
+                                @if($complaint->complainant_details->policy_number)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.policy_number') }}:</span>
+                                        <span class="text-gray-900">{{ $complaint->complainant_details->policy_number }}</span>
+                                    </div>
+                                @endif
+                                
+                                @if($complaint->complainant_details->phone)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.phone') }}:</span>
+                                        <span class="text-gray-900">{{ $complaint->complainant_details->phone }}</span>
+                                    </div>
+                                @endif
+                                
+                                @if($complaint->complainant_details->email)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.email') }}:</span>
+                                        <span class="text-gray-900">{{ $complaint->complainant_details->email }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -126,6 +174,11 @@
                             </div>
                             <p class="text-sm text-gray-600 mt-1">
                                 {{ t('admin.submitted_by') }} {{ $complaint->complainant_name }}
+                                @if($complaint->complainant_type === 'insurance_user' && $complaint->complainant_details && $complaint->complainant_details->company)
+                                    <span class="text-blue-600 font-medium">
+                                        ({{ $complaint->complainant_details->company->legal_name }})
+                                    </span>
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -173,6 +226,16 @@
                         <span class="font-medium">{{ t('admin.last_update') }}:</span>
                         {{ $complaint->updated_at->format('d/m/Y H:i') }}
                     </div>
+                    <div>
+                        <span class="font-medium">{{ t('admin.complainant_type') }}:</span>
+                        {{ $complaint->complainant_type_badge['text'] ?? t('admin.' . $complaint->complainant_type) }}
+                    </div>
+                    @if($complaint->complainant_type === 'insurance_user' && $complaint->complainant_details && $complaint->complainant_details->company)
+                        <div>
+                            <span class="font-medium">{{ t('admin.insurance_company') }}:</span>
+                            <span class="text-blue-600">{{ $complaint->complainant_details->company->legal_name }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -181,7 +244,7 @@
 
 <script>
 function markAsRead(id) {
-    fetch(`{{ route('admin.complaints.mark-read', '__ID__') }}`.replace('__ID__', id), {
+    fetch(`{{ route('admin.complaints.mark-as-read', '__ID__') }}`.replace('__ID__', id), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -191,18 +254,19 @@ function markAsRead(id) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.reload();
+            showNotification(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
         } else {
-            alert('{{ t('admin.error_updating_status') }}');
+            showNotification('{{ t('admin.error_updating_status') }}', 'error');
         }
     })
     .catch(error => {
-        alert('{{ t('admin.error_connecting_server') }}');
+        showNotification('{{ t('admin.error_connecting_server') }}', 'error');
     });
 }
 
 function markAsUnread(id) {
-    fetch(`{{ route('admin.complaints.mark-unread', '__ID__') }}`.replace('__ID__', id), {
+    fetch(`{{ route('admin.complaints.mark-as-unread', '__ID__') }}`.replace('__ID__', id), {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -212,14 +276,32 @@ function markAsUnread(id) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.reload();
+            showNotification(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
         } else {
-            alert('{{ t('admin.error_updating_status') }}');
+            showNotification('{{ t('admin.error_updating_status') }}', 'error');
         }
     })
     .catch(error => {
-        alert('{{ t('admin.error_connecting_server') }}');
+        showNotification('{{ t('admin.error_connecting_server') }}', 'error');
     });
+}
+
+// نظام الإشعارات
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+        type === 'success' ? 'bg-green-500 text-white' :
+        type === 'error' ? 'bg-red-500 text-white' :
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 </script>
 @endsection

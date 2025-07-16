@@ -1,5 +1,5 @@
 {{-- resources/views/complaints/show.blade.php --}}
-@extends($userType === 'insurance_company' ? 'insurance.layouts.app' : 'service-center.layouts.app')
+@extends($userType === 'insurance_company' ? 'insurance.layouts.app' : ($userType === 'service_center' ? 'service-center.layouts.app' : 'insurance-user.layouts.app'))
 
 @section('title', t($translationGroup . '.complaint_details'))
 
@@ -9,6 +9,13 @@
     <div class="flex items-center gap-4">
         @if($userType === 'insurance_company')
             <a href="{{ route('insurance.complaints.index', ['companyRoute' => $user->company_slug ?? 'default']) }}" 
+               class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </a>
+        @elseif($userType === 'insurance_user')
+            <a href="{{ route('insurance.user.complaints.index', ['companySlug' => optional($user->company)->company_slug ?? 'default']) }}" 
                class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -25,6 +32,14 @@
         <div class="flex-1">
             <h1 class="text-3xl font-bold text-gray-900">{{ t($translationGroup . '.complaint_details') }}</h1>
             <p class="text-gray-600 mt-1">{{ t($translationGroup . '.view_complaint_inquiry_details') }}</p>
+            
+            <!-- عرض اسم الشركة لمستخدمي شركة التأمين -->
+            @if($userType === 'insurance_user' && $user->company)
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-700">{{ t($translationGroup . '.company') }}:</span>
+                    <span class="text-sm text-blue-600 font-semibold">{{ $user->company->legal_name ?? $user->company->commercial_name }}</span>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -33,7 +48,7 @@
         <div class="p-6">
             <!-- Status and Type -->
             <div class="flex items-center gap-3 mb-6">
-                <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->type_badge['class'] }}">
+                <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->type_badge['class'] ?? 'bg-gray-100 text-gray-800' }}">
                     {{ t($translationGroup . '.' . $complaint->type) }}
                 </span>
                 <span class="px-4 py-2 rounded-full text-sm font-medium {{ $complaint->is_read ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
@@ -50,9 +65,36 @@
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t($translationGroup . '.complaint_id') }}</h3>
                 <div class="bg-gray-50 rounded-lg p-4">
-                    <p class="text-gray-700 font-mono">#{{ str_pad($complaint->id, 6, '0', STR_PAD_LEFT) }}</p>
+                    <p class="text-gray-700 font-mono">#{{ $complaint->id }}</p>
                 </div>
             </div>
+
+            <!-- معلومات الشاكي (لمستخدمي شركة التأمين) -->
+            @if($userType === 'insurance_user')
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t($translationGroup . '.complainant_information') }}</h3>
+                    <div class="bg-blue-50 rounded-lg p-4 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-blue-700">{{ t($translationGroup . '.name') }}:</span>
+                                <span class="text-blue-900">{{ $user->full_name }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-blue-700">{{ t($translationGroup . '.policy_number') }}:</span>
+                                <span class="text-blue-900">{{ $user->policy_number }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-blue-700">{{ t($translationGroup . '.phone') }}:</span>
+                                <span class="text-blue-900">{{ $user->phone }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-blue-700">{{ t($translationGroup . '.company') }}:</span>
+                                <span class="text-blue-900">{{ optional($user->company)->legal_name ?? 'غير محدد' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <!-- Subject -->
             <div class="mb-6">
@@ -83,7 +125,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                         </svg>
                         {{ t($translationGroup . '.view_attachment') }}
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
                     </a>
+                    <p class="text-xs text-gray-500 mt-2">
+                        {{ t($translationGroup . '.click_to_view_attachment') }}
+                    </p>
                 </div>
             </div>
             @endif
@@ -107,6 +155,11 @@
                             </div>
                             <p class="text-sm text-gray-600 mt-1">
                                 {{ t($translationGroup . '.submitted_by_you') }}
+                                @if($userType === 'insurance_user' && $user->company)
+                                    <span class="text-blue-600 font-medium">
+                                        ({{ optional($user->company)->legal_name }})
+                                    </span>
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -154,6 +207,18 @@
                         <span class="font-medium">{{ t($translationGroup . '.last_update') }}:</span>
                         {{ $complaint->updated_at->format('d/m/Y H:i') }}
                     </div>
+                    @if($userType === 'insurance_user')
+                        <div>
+                            <span class="font-medium">{{ t($translationGroup . '.complainant_type') }}:</span>
+                            <span class="text-blue-600">{{ t($translationGroup . '.insurance_user') }}</span>
+                        </div>
+                        @if($user->company)
+                            <div>
+                                <span class="font-medium">{{ t($translationGroup . '.insurance_company') }}:</span>
+                                <span class="text-blue-600">{{ $user->company->legal_name }}</span>
+                            </div>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>

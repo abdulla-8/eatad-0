@@ -113,10 +113,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Admin complaints routes
         Route::prefix('complaints')->name('complaints.')->group(function () {
-            Route::get('/', [AdminComplaintsController::class, 'index'])->name('index');
-            Route::get('/{id}', [AdminComplaintsController::class, 'show'])->name('show');
-            Route::post('/{id}/mark-read', [AdminComplaintsController::class, 'markAsRead'])->name('mark-read');
-            Route::post('/{id}/mark-unread', [AdminComplaintsController::class, 'markAsUnread'])->name('mark-unread');
+            Route::get('/', [\App\Http\Controllers\Admin\ComplaintsController::class, 'index'])->name('index');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\ComplaintsController::class, 'show'])->name('show');
+        
+        // Single complaint actions
+        Route::post('/{id}/mark-as-read', [\App\Http\Controllers\Admin\ComplaintsController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/{id}/mark-as-unread', [\App\Http\Controllers\Admin\ComplaintsController::class, 'markAsUnread'])->name('mark-as-unread');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\ComplaintsController::class, 'destroy'])->name('destroy');
+        
+        // Bulk actions
+        Route::post('/bulk-delete', [\App\Http\Controllers\Admin\ComplaintsController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::post('/delete-all', [\App\Http\Controllers\Admin\ComplaintsController::class, 'deleteAll'])->name('delete-all');
+        Route::post('/bulk-mark-read', [\App\Http\Controllers\Admin\ComplaintsController::class, 'bulkMarkAsRead'])->name('bulk-mark-read');
+        Route::post('/bulk-mark-unread', [\App\Http\Controllers\Admin\ComplaintsController::class, 'bulkMarkAsUnread'])->name('bulk-mark-unread');
+        Route::post('/export-selected', [\App\Http\Controllers\Admin\ComplaintsController::class, 'exportSelected'])->name('export-selected');
+
         });
 
         Route::prefix('languages')->name('languages.')->group(function () {
@@ -296,6 +307,10 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::get('/', [UnifiedComplaintsController::class, 'index'])->name('index');
             Route::post('/', [UnifiedComplaintsController::class, 'store'])->name('store');
             Route::get('/{id}', [UnifiedComplaintsController::class, 'show'])->name('show');
+
+            
+    Route::get('/{id}/edit', [UnifiedComplaintsController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [UnifiedComplaintsController::class, 'update'])->name('update');
         });
 
         // Claims management routes
@@ -402,6 +417,9 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
             Route::get('/', [UnifiedComplaintsController::class, 'index'])->name('index');
             Route::post('/', [UnifiedComplaintsController::class, 'store'])->name('store');
             Route::get('/{id}', [UnifiedComplaintsController::class, 'show'])->name('show');
+            
+    Route::get('/{id}/edit', [UnifiedComplaintsController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [UnifiedComplaintsController::class, 'update'])->name('update');
         });
 
         // Insurance company settings
@@ -489,7 +507,17 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
     Route::middleware(['auth:insurance_user'])->group(function () {
         Route::get('/dashboard', [InsuranceUserDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [InsuranceUserAuthController::class, 'logout'])->name('logout');
+        
+        
+ 
+        Route::prefix('complaints')->name('complaints.')->group(function () {
+            Route::get('/', [UnifiedComplaintsController::class, 'index'])->name('index');
+            Route::post('/', [UnifiedComplaintsController::class, 'store'])->name('store');
+            Route::get('/{id}', [UnifiedComplaintsController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [UnifiedComplaintsController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [UnifiedComplaintsController::class, 'update'])->name('update');
 
+              });
         // Claims management for insurance users
         Route::prefix('claims')->name('claims.')->group(function () {
             Route::get('/', [\App\Http\Controllers\InsuranceUser\ClaimsController::class, 'index'])->name('index');

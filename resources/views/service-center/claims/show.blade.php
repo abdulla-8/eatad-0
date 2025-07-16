@@ -345,6 +345,122 @@
     </div>
 </div>
 
+@if($claim->vehicle_plate_number || $claim->chassis_number || $claim->policy_number)
+<div class="bg-white rounded-xl p-4 md:p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300">
+    <!-- رأس السيكشن -->
+    <div class="flex items-center gap-3 mb-6 pb-3 border-b border-blue-600 rtl:space-x-reverse">
+        <div class="p-2 rounded-lg shadow-sm bg-blue-50">
+            <svg class="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+        </div>
+        <h3 class="text-lg md:text-xl font-bold text-gray-800">{{ t('service_center.important_numbers') }}</h3>
+    </div>
+    
+    @if($claim->vehicle_plate_number)
+    <div class="mb-6">
+        <!-- عنوان رقم اللوحة -->
+        <div class="flex items-center gap-2 mb-4 rtl:space-x-reverse">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <span class="text-sm font-medium text-gray-600">{{ t('service_center.vehicle_plate_number') }}</span>
+        </div>
+        
+        <!-- تصميم اللوحة -->
+        <div class="flex justify-center items-center">
+            <div class="flex border border-blue-300 rounded-lg p-4 bg-white shadow-lg overflow-hidden {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
+                <!-- محتوى اللوحة -->
+                <div class="flex flex-col h-24 md:h-28">
+                    <!-- الصف الأول - العربية -->
+                    <div class="flex items-center justify-center h-1/2 border-b border-blue-600">
+                        <!-- خانة الحروف العربية -->
+                        <div class="flex gap-1 bg-blue-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-char-ar1">ر</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-char-ar2">ج</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-char-ar3">ب</div>
+                        </div>
+                        <!-- فاصل عمودي -->
+                        <div class="w-0.5 bg-blue-400 mx-1 h-full"></div>
+                        <!-- خانة الأرقام العربية -->
+                        <div class="flex gap-1 bg-blue-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-ar1">٧</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-ar2">٩</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-ar3">٢</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-ar4">١</div>
+                        </div>
+                    </div>
+                    
+                    <!-- الصف الثاني - الإنجليزية -->
+                    <div class="flex items-center justify-center h-1/2">
+                        <!-- خانة الحروف الإنجليزية -->
+                        <div class="flex gap-1 bg-blue-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-char-en1">D</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-char-en2">B</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-char-en3">R</div>
+                        </div>
+                        <!-- فاصل عمودي -->
+                        <div class="w-0.5 bg-blue-400 mx-1 h-full"></div>
+                        <!-- خانة الأرقام الإنجليزية -->
+                        <div class="flex gap-1 bg-blue-50 rounded p-1 h-full items-center justify-center">
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-en1">7</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-en2">9</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-en3">2</div>
+                            <div class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center bg-white rounded text-sm md:text-base font-bold border border-blue-200" id="display-num-en4">1</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- قسم العلم السعودي -->
+                <div class="flex flex-col items-center justify-center w-12 md:w-16 text-gray-800 {{ $isRtl ? 'border-l' : 'border-r' }} border-blue-500 px-1 py-2 h-24 md:h-28">
+                    <div class="flex items-center mb-1">
+                        <span class="text-xs md:text-sm">⚔️</span>
+                        <span class="text-xs">🌴</span>
+                    </div>
+                    <div class="text-xs font-bold mb-1">السعودية</div>
+                    <div class="flex flex-col items-center text-xs font-bold">
+                        <div>K</div>
+                        <div>S</div>
+                        <div>A</div>
+                    </div>
+                    <div class="text-xs mt-1">●</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    
+    @if($claim->chassis_number)
+    <div class="bg-white rounded-lg p-3 md:p-4 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex items-center gap-2 rtl:space-x-reverse">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-600">{{ t('service_center.chassis_number') }}</span>
+            </div>
+            <span class="font-mono text-sm md:text-base font-semibold text-gray-900 bg-blue-50 px-3 py-1 rounded-md break-all">{{ $claim->chassis_number }}</span>
+        </div>
+    </div>
+    @endif
+    
+    @if($claim->policy_number)
+    <div class="bg-white rounded-lg p-3 md:p-4 border border-blue-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div class="flex items-center gap-2 rtl:space-x-reverse">
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span class="text-sm font-medium text-gray-600">{{ t('service_center.policy_number') }}</span>
+            </div>
+            <span class="font-mono text-sm md:text-base font-semibold text-gray-900 bg-blue-50 px-3 py-1 rounded-md break-all">{{ $claim->policy_number }}</span>
+        </div>
+    </div>
+    @endif
+</div>
+@endif
+
+
 
             @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">

@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Storage;
 
 class Complaint extends Model
 {
@@ -33,6 +34,7 @@ class Complaint extends Model
         Relation::morphMap([
             'insurance_company' => \App\Models\InsuranceCompany::class,
             'service_center' => \App\Models\ServiceCenter::class,
+            'insurance_user' => \App\Models\InsuranceUser::class, // إضافة مستخدمي التأمين
         ]);
     }
 
@@ -73,6 +75,12 @@ class Complaint extends Model
         return $query;
     }
 
+    public function scopeForUser($query, $userType, $userId)
+    {
+        return $query->where('complainant_type', $userType)
+                     ->where('complainant_id', $userId);
+    }
+
     // Accessors
     public function getTypeBadgeAttribute()
     {
@@ -89,14 +97,46 @@ class Complaint extends Model
         $badges = [
             'insurance_company' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'شركة تأمين'],
             'service_center' => ['class' => 'bg-green-100 text-green-800', 'text' => 'مركز صيانة'],
+            'insurance_user' => ['class' => 'bg-indigo-100 text-indigo-800', 'text' => 'مستخدم تأمين'], // إضافة مستخدمي التأمين
         ];
         return $badges[$this->complainant_type] ?? ['class' => 'bg-gray-100 text-gray-800', 'text' => 'غير محدد'];
     }
 
-    public function scopeForUser($query, $userType, $userId)
-{
-    return $query->where('complainant_type', $userType)
-                 ->where('complainant_id', $userId);
-}
+    // Helper methods لـ bulk operations
+    public function markAsRead()
+    {
+        $this->update(['is_read' => true]);
+    }
 
+    public function markAsUnread()
+    {
+        $this->update(['is_read' => false]);
+    }
+
+    // Model Events للتعامل مع الملفات المرفقة
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($complaint) {
+            if ($complaint->attachment_path) {
+                Storage::disk('public')->delete($complaint->attachment_path);
+            }
+        });
+    }
+
+    // Bulk delete method
+    public static function bulkDelete(array $ids)
+    {
+        // حذف الملفات المرفقة أولاً
+        $complaints = self::whereIn('id', $ids)->get();
+        foreach ($complaints as $complaint) {
+            if ($complaint->attachment_path) {
+                Storage::disk('public')->delete($complaint->attachment_path);
+            }
+        }
+
+        // حذف السجلات
+        return self::whereIn('id', $ids)->delete();
+    }
 }

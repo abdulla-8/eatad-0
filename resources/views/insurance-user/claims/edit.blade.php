@@ -151,19 +151,185 @@
 
               
 
-                <div class="input-group">
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        {{ t($company->translation_group . '.vehicle_plate_number') }}
-                    </label>
-                    <div class="relative">
-                        <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                        <input type="text" name="vehicle_plate_number" value="{{ old('vehicle_plate_number', $claim->vehicle_plate_number) }}" 
-                               class="form-input input-with-icon w-full"
-                               placeholder="{{ t($company->translation_group . '.enter_plate_number') }}">
-                    </div>
+<div class="input-group">
+    <label class="block text-sm font-semibold text-gray-700 mb-3">
+        {{ t($company->translation_group . '.vehicle_plate_number') }}
+    </label>
+    <div class="flex border border-gray-300 rounded- bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 w-fit {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
+        <!-- محتوى اللوحة -->
+        <div class="flex flex-col h-24 md:h-28">
+            <!-- الصف الأول - العربية -->
+            <div class="flex items-center justify-center gap-0 h-1/2 px-2 border-b border-black">
+                <!-- خانة الحروف العربية -->
+                <div class="flex gap-1 bg-gray-50  p-1 h-full items-center justify-center">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="ر" oninput="handleArabicInput(this)" id="plate_char_ar1">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="ج" oninput="handleArabicInput(this)" id="plate_char_ar2">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="ب" oninput="handleArabicInput(this)" id="plate_char_ar3">
                 </div>
+                <!-- فاصل عمودي -->
+                <div class="w-0.5 h-8 bg-black mx-1"></div>
+                <!-- خانة الأرقام العربية -->
+                <div class="flex gap-1 bg-gray-50  rounded p-1 h-full items-center justify-center">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="٧" oninput="convertToArabicNum(this)" id="plate_num_ar1">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="٩" oninput="convertToArabicNum(this)" id="plate_num_ar2">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="٢" oninput="convertToArabicNum(this)" id="plate_num_ar3">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="١" oninput="convertToArabicNum(this)" id="plate_num_ar4">
+                </div>
+            </div>
+            
+            <!-- الصف الثاني - الإنجليزية -->
+            <div class="flex items-center justify-center gap-0 h-1/2 px-2">
+                <!-- خانة الحروف الإنجليزية -->
+                <div class="flex gap-1 bg-gray-50 rounded p-1 h-full items-center justify-center">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="D" oninput="handleEnglishInput(this)" id="plate_char_en1">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="B" oninput="handleEnglishInput(this)" id="plate_char_en2">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="R" oninput="handleEnglishInput(this)" id="plate_char_en3">
+                </div>
+                <!-- فاصل عمودي -->
+                <div class="w-0.5 h-8 bg-black mx-1"></div>
+                <!-- خانة الأرقام الإنجليزية -->
+                <div class="flex gap-1 bg-gray-50 rounded p-1 h-full items-center justify-center">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="7" oninput="convertToEnglishNum(this)" id="plate_num_en1">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="9" oninput="convertToEnglishNum(this)" id="plate_num_en2">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="2" oninput="convertToEnglishNum(this)" id="plate_num_en3">
+                    <input type="text" class="w-6 h-6 md:w-8 md:h-8 text-center border border-gray-300 rounded text-sm md:text-base font-bold bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:bg-blue-50 outline-none transition-all duration-300 transform focus:scale-110 hover:shadow-md" maxlength="1" placeholder="1" oninput="convertToEnglishNum(this)" id="plate_num_en4">
+                </div>
+            </div>
+        </div>
+        
+        <!-- قسم العلم السعودي -->
+        <div class="flex flex-col items-center justify-center w-12 md:w-16 text-gray-800 {{ $isRtl ? 'border-l' : 'border-r' }} border-black px-1 py-2 h-24 md:h-28">
+            <div class="flex items-center mb-1">
+                <span class="text-xs md:text-sm">⚔️</span>
+                <span class="text-xs">🌴</span>
+            </div>
+            <div class="text-xs font-bold mb-1">السعودية</div>
+            <div class="flex flex-col items-center text-xs font-bold">
+                <div>K</div>
+                <div>S</div>
+                <div>A</div>
+            </div>
+            <div class="text-xs mt-1">●</div>
+        </div>
+    </div>
+    
+    <!-- حقل مخفي يجمع القيم عند الإرسال -->
+    <input type="hidden" name="vehicle_plate_number" id="plate_full" value="{{ old('vehicle_plate_number', $claim->vehicle_plate_number) }}">
+</div>
+
+<script>
+// دالة موحدة لإضافة التأثيرات البصرية
+function addVisualEffects(input) {
+    if (input.value) {
+        input.classList.add('border-green-500', 'bg-green-50', 'text-green-800');
+        input.classList.remove('border-gray-300');
+        // تأثير انتقال سلس
+        input.classList.add('animate-pulse');
+        setTimeout(() => {
+            input.classList.remove('animate-pulse');
+            autoFocusNext(input);
+        }, 200);
+    } else {
+        input.classList.remove('border-green-500', 'bg-green-50', 'text-green-800');
+        input.classList.add('border-gray-300');
+    }
+}
+
+// تحويل الرقم الإنجليزي إلى عربي مع التأثيرات
+function convertToArabicNum(input) {
+    let val = input.value;
+    if (/[0-9]/.test(val)) {
+        const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        input.value = arabicNums[parseInt(val, 10)];
+    }
+    else if (!/[٠-٩]/.test(val)) {
+        input.value = '';
+    }
+    
+    addVisualEffects(input);
+    updatePlateNumber();
+}
+
+// تحويل الرقم العربي إلى إنجليزي مع التأثيرات
+function convertToEnglishNum(input) {
+    let val = input.value;
+    if (/[٠-٩]/.test(val)) {
+        const englishNums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        input.value = englishNums[arabicNums.indexOf(val)];
+    }
+    else if (!/[0-9]/.test(val)) {
+        input.value = '';
+    }
+    
+    addVisualEffects(input);
+    updatePlateNumber();
+}
+
+// معالجة الحروف العربية مع التأثيرات
+function handleArabicInput(input) {
+    input.value = input.value.replace(/[^ء-ي]/g, '');
+    addVisualEffects(input);
+    updatePlateNumber();
+}
+
+// معالجة الحروف الإنجليزية مع التأثيرات
+function handleEnglishInput(input) {
+    input.value = input.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+    addVisualEffects(input);
+    updatePlateNumber();
+}
+
+// الانتقال التلقائي للحقل التالي
+function autoFocusNext(currentInput) {
+    const allInputs = document.querySelectorAll('#plate_char_ar1, #plate_char_ar2, #plate_char_ar3, #plate_num_ar1, #plate_num_ar2, #plate_num_ar3, #plate_num_ar4, #plate_char_en1, #plate_char_en2, #plate_char_en3, #plate_num_en1, #plate_num_en2, #plate_num_en3, #plate_num_en4');
+    const currentIndex = Array.from(allInputs).indexOf(currentInput);
+    
+    if (currentInput.value && currentIndex < allInputs.length - 1) {
+        setTimeout(() => {
+            allInputs[currentIndex + 1].focus();
+        }, 100);
+    }
+}
+
+// تجميع القيم وتحديث الحقل المخفي
+function updatePlateNumber() {
+    const ar1 = document.getElementById('plate_char_ar1').value;
+    const ar2 = document.getElementById('plate_char_ar2').value;
+    const ar3 = document.getElementById('plate_char_ar3').value;
+    const arNum1 = document.getElementById('plate_num_ar1').value;
+    const arNum2 = document.getElementById('plate_num_ar2').value;
+    const arNum3 = document.getElementById('plate_num_ar3').value;
+    const arNum4 = document.getElementById('plate_num_ar4').value;
+    const en1 = document.getElementById('plate_char_en1').value;
+    const en2 = document.getElementById('plate_char_en2').value;
+    const en3 = document.getElementById('plate_char_en3').value;
+    const enNum1 = document.getElementById('plate_num_en1').value;
+    const enNum2 = document.getElementById('plate_num_en2').value;
+    const enNum3 = document.getElementById('plate_num_en3').value;
+    const enNum4 = document.getElementById('plate_num_en4').value;
+
+    document.getElementById('plate_full').value = 
+        ar1 + ar2 + ar3 + arNum1 + arNum2 + arNum3 + arNum4 + 
+        en1 + en2 + en3 + enNum1 + enNum2 + enNum3 + enNum4;
+}
+
+// إضافة مستمعي الأحداث
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('#plate_char_ar1, #plate_char_ar2, #plate_char_ar3, #plate_num_ar1, #plate_num_ar2, #plate_num_ar3, #plate_num_ar4, #plate_char_en1, #plate_char_en2, #plate_char_en3, #plate_num_en1, #plate_num_en2, #plate_num_en3, #plate_num_en4');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+    });
+});
+</script>
+
+
+
 
                 <div class="input-group">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
@@ -965,6 +1131,134 @@
 </style>
 
 </div>
+
+
+<script>
+// تحويل الرقم الإنجليزي إلى عربي
+function convertToArabicNum(input) {
+    let val = input.value;
+    if (/[0-9]/.test(val)) {
+        const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        input.value = arabicNums[parseInt(val, 10)];
+    }
+    else if (!/[٠-٩]/.test(val)) {
+        input.value = '';
+    }
+    moveToNextInput(input);
+    updatePlateNumber();
+}
+
+// تحويل الرقم العربي إلى إنجليزي
+function convertToEnglishNum(input) {
+    let val = input.value;
+    if (/[٠-٩]/.test(val)) {
+        const englishNums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        input.value = englishNums[arabicNums.indexOf(val)];
+    }
+    else if (!/[0-9]/.test(val)) {
+        input.value = '';
+    }
+    moveToNextInput(input);
+    updatePlateNumber();
+}
+
+// الانتقال التلقائي للحقل التالي
+function moveToNextInput(currentInput) {
+    const allInputs = document.querySelectorAll('#plate_char_ar1, #plate_char_ar2, #plate_char_ar3, #plate_num_ar1, #plate_num_ar2, #plate_num_ar3, #plate_num_ar4, #plate_char_en1, #plate_char_en2, #plate_char_en3, #plate_num_en1, #plate_num_en2, #plate_num_en3, #plate_num_en4');
+    const currentIndex = Array.from(allInputs).indexOf(currentInput);
+    
+    if (currentInput.value.length === 1 && currentIndex < allInputs.length - 1) {
+        allInputs[currentIndex + 1].focus();
+    }
+}
+
+// تجميع القيم وتحديث الحقل المخفي
+function updatePlateNumber() {
+    const ar1 = document.getElementById('plate_char_ar1').value;
+    const ar2 = document.getElementById('plate_char_ar2').value;
+    const ar3 = document.getElementById('plate_char_ar3').value;
+    const arNum1 = document.getElementById('plate_num_ar1').value;
+    const arNum2 = document.getElementById('plate_num_ar2').value;
+    const arNum3 = document.getElementById('plate_num_ar3').value;
+    const arNum4 = document.getElementById('plate_num_ar4').value;
+    const en1 = document.getElementById('plate_char_en1').value;
+    const en2 = document.getElementById('plate_char_en2').value;
+    const en3 = document.getElementById('plate_char_en3').value;
+    const enNum1 = document.getElementById('plate_num_en1').value;
+    const enNum2 = document.getElementById('plate_num_en2').value;
+    const enNum3 = document.getElementById('plate_num_en3').value;
+    const enNum4 = document.getElementById('plate_num_en4').value;
+
+    document.getElementById('plate_full').value = 
+        ar1 + ar2 + ar3 + arNum1 + arNum2 + arNum3 + arNum4 + 
+        en1 + en2 + en3 + enNum1 + enNum2 + enNum3 + enNum4;
+}
+
+// دالة لتحليل رقم اللوحة المحفوظ
+function parsePlateNumber(plateNumber) {
+    if (!plateNumber) return null;
+    
+    return {
+        ar1: plateNumber.charAt(0) || '',
+        ar2: plateNumber.charAt(1) || '',
+        ar3: plateNumber.charAt(2) || '',
+        arNum1: plateNumber.charAt(3) || '',
+        arNum2: plateNumber.charAt(4) || '',
+        arNum3: plateNumber.charAt(5) || '',
+        arNum4: plateNumber.charAt(6) || '',
+        en1: plateNumber.charAt(7) || '',
+        en2: plateNumber.charAt(8) || '',
+        en3: plateNumber.charAt(9) || '',
+        enNum1: plateNumber.charAt(10) || '',
+        enNum2: plateNumber.charAt(11) || '',
+        enNum3: plateNumber.charAt(12) || '',
+        enNum4: plateNumber.charAt(13) || ''
+    };
+}
+
+// إضافة مستمعي الأحداث وتحميل البيانات
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('#plate_char_ar1, #plate_char_ar2, #plate_char_ar3, #plate_num_ar1, #plate_num_ar2, #plate_num_ar3, #plate_num_ar4, #plate_char_en1, #plate_char_en2, #plate_char_en3, #plate_num_en1, #plate_num_en2, #plate_num_en3, #plate_num_en4');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', function() {
+            updatePlateNumber();
+            if (this.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+    });
+
+    // تحميل البيانات الموجودة
+    const plateNumber = '{{ old('vehicle_plate_number', $claim->vehicle_plate_number) }}';
+    if (plateNumber) {
+        const plateData = parsePlateNumber(plateNumber);
+        if (plateData) {
+            document.getElementById('plate_char_ar1').value = plateData.ar1;
+            document.getElementById('plate_char_ar2').value = plateData.ar2;
+            document.getElementById('plate_char_ar3').value = plateData.ar3;
+            document.getElementById('plate_num_ar1').value = plateData.arNum1;
+            document.getElementById('plate_num_ar2').value = plateData.arNum2;
+            document.getElementById('plate_num_ar3').value = plateData.arNum3;
+            document.getElementById('plate_num_ar4').value = plateData.arNum4;
+            document.getElementById('plate_char_en1').value = plateData.en1;
+            document.getElementById('plate_char_en2').value = plateData.en2;
+            document.getElementById('plate_char_en3').value = plateData.en3;
+            document.getElementById('plate_num_en1').value = plateData.enNum1;
+            document.getElementById('plate_num_en2').value = plateData.enNum2;
+            document.getElementById('plate_num_en3').value = plateData.enNum3;
+            document.getElementById('plate_num_en4').value = plateData.enNum4;
+        }
+    }
+});
+</script>
 <script>
 let fileData = {}; // لحفظ بيانات الملفات
 let deletedFiles = []; // لحفظ الملفات المحذوفة
