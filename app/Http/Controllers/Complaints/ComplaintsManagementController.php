@@ -9,6 +9,7 @@ use App\Models\Complaint;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ComplaintsManagementController extends Controller
 {
@@ -210,20 +211,49 @@ class ComplaintsManagementController extends Controller
             ->with('success', 'تم إرسال الشكوى بنجاح');
     }
 
-    public function show(Request $request, $id)
+    // تم إصلاح هذه الدالة لمعالجة المعاملات بشكل ديناميكي
+    public function show(Request $request, ...$params)
     {
+        // استخراج الـ ID من آخر parameter (مناسب لجميع الـ routes)
+        $id = end($params);
         
-    Log::info('Show method called', ['id' => $id, 'route' => $request->route()->getName()]);
+        Log::info('Show method called with dynamic params', [
+            'all_params' => $params,
+            'extracted_id' => $id,
+            'route' => $request->route()->getName(),
+            'route_params' => $request->route()->parameters()
+        ]);
+        
         return $this->viewOrEdit($request, $id, 'show');
     }
 
-    public function edit(Request $request, $id)
+    // تم إصلاح هذه الدالة لمعالجة المعاملات بشكل ديناميكي
+    public function edit(Request $request, ...$params)
     {
+        // استخراج الـ ID من آخر parameter (مناسب لجميع الـ routes)
+        $id = end($params);
+        
+        Log::info('Edit method called with dynamic params', [
+            'all_params' => $params,
+            'extracted_id' => $id,
+            'route' => $request->route()->getName()
+        ]);
+        
         return $this->viewOrEdit($request, $id, 'edit');
     }
 
-    public function update(Request $request, $id)
+    // تم إصلاح هذه الدالة لمعالجة المعاملات بشكل ديناميكي
+    public function update(Request $request, ...$params)
     {
+        // استخراج الـ ID من آخر parameter (مناسب لجميع الـ routes)
+        $id = end($params);
+        
+        Log::info('Update method called with dynamic params', [
+            'all_params' => $params,
+            'extracted_id' => $id,
+            'route' => $request->route()->getName()
+        ]);
+
         $userType = $this->getCurrentUserType();
         $user = $this->getCurrentUser();
         
@@ -304,67 +334,192 @@ class ComplaintsManagementController extends Controller
 
     private function viewOrEdit(Request $request, $id, $view)
     {
+        // Debug: البداية
+        Log::info('DEBUG: ViewOrEdit Method Started', [
+            'complaint_id' => $id,
+            'view' => $view,
+            'route_name' => $request->route()->getName(),
+            'route_params' => $request->route()->parameters()
+        ]);
+
         $userType = $this->getCurrentUserType();
         $user = $this->getCurrentUser();
         
         if (!$user) {
-            abort(403);
+            Log::error('DEBUG: No authenticated user found');
+            abort(403, 'المستخدم غير مسجل الدخول');
         }
+
+        // Debug: معلومات المستخدم
+        Log::info('DEBUG: User Information', [
+            'user_id' => $user->id,
+            'user_type' => $userType,
+            'user_company_id' => $user->insurance_company_id ?? 'NOT SET',
+            'user_company_slug' => $user->company_slug ?? 'NOT SET'
+        ]);
 
         $routeName = $request->route()->getName();
         $filterUserType = $this->detectRouteUserType($routeName, $userType);
         
+        // Debug: نوع المستخدم المفلتر
+        Log::info('DEBUG: User Type Detection', [
+            'route_name' => $routeName,
+            'authenticated_user_type' => $userType,
+            'filter_user_type' => $filterUserType
+        ]);
+        
         if ($userType !== $filterUserType) {
+            Log::error('DEBUG: User type mismatch in viewOrEdit', [
+                'expected' => $filterUserType,
+                'actual' => $userType,
+                'route' => $routeName
+            ]);
             abort(403, 'غير مسموح لك بالوصول لهذه الصفحة');
         }
 
-        // التحقق من الشركة لمستخدمي التأمين
-        $companySlug = $request->route('companySlug');
-        if ($userType === 'insurance_user' && $companySlug) {
+        // التعامل مع معاملات مختلفة حسب نوع المستخدم
+        if ($userType === 'insurance_company') {
+            $companyRoute = $request->route('companyRoute');
+            
+            Log::info('DEBUG: Insurance Company Route Access', [
+                'company_route_param' => $companyRoute,
+                'user_company_slug' => $user->company_slug,
+                'complaint_id' => $id,
+                'route_params' => $request->route()->parameters()
+            ]);
+            
+            if ($companyRoute && $user->company_slug !== $companyRoute) {
+                Log::error('DEBUG: Company route mismatch', [
+                    'expected' => $companyRoute,
+                    'actual' => $user->company_slug
+                ]);
+                abort(403, 'غير مسموح لك بالوصول لهذه الشركة');
+            }
+        } elseif ($userType === 'insurance_user') {
+            $companySlug = $request->route('companySlug');
+            
+            Log::info('DEBUG: Insurance User Route Access', [
+                'company_slug_param' => $companySlug,
+                'user_insurance_company_id' => $user->insurance_company_id,
+                'complaint_id' => $id,
+                'route_params' => $request->route()->parameters()
+            ]);
+            
             $company = \App\Models\InsuranceCompany::find($user->insurance_company_id);
             
+            Log::info('DEBUG: Insurance User Company Query', [
+                'company_found' => $company ? 'YES' : 'NO',
+                'company_data' => $company ? $company->toArray() : 'NULL'
+            ]);
+            
             if (!$company) {
+                Log::error('DEBUG: No company found for insurance user', [
+                    'user_id' => $user->id,
+                    'insurance_company_id' => $user->insurance_company_id
+                ]);
                 abort(403, 'المستخدم غير مرتبط بأي شركة تأمين');
             }
             
             if ($company->company_slug !== $companySlug) {
+                Log::error('DEBUG: Company slug mismatch for insurance user', [
+                    'expected' => $companySlug,
+                    'actual' => $company->company_slug
+                ]);
                 abort(403, 'غير مسموح لك بالوصول لهذه الشركة');
             }
             
             $user->setRelation('company', $company);
         }
 
-        // التأكد من أن الشكوى تخص المستخدم الحالي فقط
+        // Debug: التحقق من وجود الشكوى قبل البحث
+        Log::info('DEBUG: Before Complaint Query', [
+            'complaint_id' => $id,
+            'complainant_id' => $user->id,
+            'complainant_type' => $filterUserType
+        ]);
+
+        // البحث المفصل عن الشكوى
+        $complaintQuery = Complaint::where('id', $id);
+        
+        // Debug: التحقق من وجود الشكوى بالـ ID فقط
+        $complaintExists = $complaintQuery->exists();
+        Log::info('DEBUG: Complaint Exists Check', [
+            'complaint_id' => $id,
+            'exists' => $complaintExists
+        ]);
+
+        if (!$complaintExists) {
+            Log::error('DEBUG: Complaint not found by ID', [
+                'complaint_id' => $id
+            ]);
+            abort(404, 'الشكوى غير موجودة');
+        }
+
+        // البحث مع فلترة المستخدم
         $complaint = Complaint::where([
             'id' => $id,
             'complainant_id' => $user->id,
             'complainant_type' => $filterUserType,
-        ])->firstOrFail();
+        ])->first();
+
+        // Debug: نتيجة البحث مع الفلترة
+        Log::info('DEBUG: Complaint Query Result', [
+            'complaint_found' => $complaint ? 'YES' : 'NO',
+            'complaint_data' => $complaint ? $complaint->toArray() : 'NULL'
+        ]);
+
+        if (!$complaint) {
+            // Debug: البحث عن الشكوى بدون فلترة للتحقق من البيانات
+            $anyComplaint = Complaint::where('id', $id)->first();
+            
+            Log::error('DEBUG: Complaint ownership check failed', [
+                'complaint_id' => $id,
+                'expected_complainant_id' => $user->id,
+                'expected_complainant_type' => $filterUserType,
+                'actual_complainant_id' => $anyComplaint ? $anyComplaint->complainant_id : 'NULL',
+                'actual_complainant_type' => $anyComplaint ? $anyComplaint->complainant_type : 'NULL',
+                'complaint_data' => $anyComplaint ? $anyComplaint->toArray() : 'NULL'
+            ]);
+            
+            abort(404, 'الشكوى غير موجودة أو غير مسموح لك بالوصول إليها');
+        }
 
         // تحديد القراءة عند العرض
         if ($view === 'show' && !$complaint->is_read) {
             $complaint->update(['is_read' => true]);
+            Log::info('DEBUG: Complaint marked as read', ['complaint_id' => $id]);
         }
 
         $translationGroup = $this->getTranslationGroup($user, $userType);
         $primaryColor = $this->getPrimaryColor($user, $userType);
         $company = $this->getCompanyForView($user, $userType);
 
+        Log::info('DEBUG: Successfully accessed complaint', [
+            'complaint_id' => $id,
+            'user_type' => $userType,
+            'view' => $view,
+            'route_name' => $routeName
+        ]);
+
         return view("complaints.$view", compact('complaint', 'user', 'userType', 'translationGroup', 'primaryColor', 'company'));
     }
 
     private function detectRouteUserType(string $routeName, string $authType): string
     {
-        // إضافة تحقق أكثر دقة للراوتس
-        if (strpos($routeName, 'insurance.user.complaints') !== false) {
+        Log::info('Detecting route user type', [
+            'route_name' => $routeName,
+            'auth_type' => $authType
+        ]);
+        
+        if (str_contains($routeName, 'insurance.user.complaints')) {
             return 'insurance_user';
         }
         
-        if (strpos($routeName, 'insurance.complaints') !== false) {
+        if (str_contains($routeName, 'insurance.complaints')) {
             return 'insurance_company';
         }
         
-        if (strpos($routeName, 'service-center.complaints') !== false) {
+        if (str_contains($routeName, 'service-center.complaints')) {
             return 'service_center';
         }
         
@@ -479,16 +634,17 @@ class ComplaintsManagementController extends Controller
             case 'insurance_company':
                 return [
                     'name' => 'insurance.complaints.index',
-                    'params' => ['companyRoute' => $user->company_slug ?? 'default']
+                    'params' => ['companyRoute' => $user->company_slug]
                 ];
             case 'service_center':
                 return [
                     'name' => 'service-center.complaints.index'
                 ];
             case 'insurance_user':
+                $company = $user->company ?? \App\Models\InsuranceCompany::find($user->insurance_company_id);
                 return [
                     'name' => 'insurance.user.complaints.index',
-                    'params' => ['companySlug' => $companySlug ?? $user->company?->company_slug ?? 'default']
+                    'params' => ['companySlug' => $companySlug ?? $company?->company_slug ?? 'default']
                 ];
             default:
                 return ['name' => 'complaints.index'];

@@ -149,9 +149,7 @@
                                 @endif
                             </div>
                         </div>
-
                     </div>
-
 
                     <!-- Action -->
                     <div class="flex justify-end">
@@ -164,21 +162,19 @@
                             </svg>
                         </a>
                     </div>
-       <!-- Service Center Response -->
-@if($claim->status === 'approved' && !empty($claim->service_center_note))
-    <div class="bg-green-50 border border-green-200 rounded-xl p-4 my-4">
-        <div class="font-bold text-green-800 mb-2">{{ t('insurance.service_center_accepted') }}</div>
-        <div class="text-green-700">{{ $claim->service_center_note }}</div>
-    </div>
-@elseif($claim->status === 'pending' && !empty($claim->service_center_note))
-    <div class="bg-red-50 border border-red-200 rounded-xl p-4 my-4">
-        <div class="font-bold text-red-800 mb-2">{{ t('insurance.service_center_rejected') }}</div>
-        <div class="text-red-700">{{ $claim->service_center_note }}</div>
-    </div>
-@endif
 
-
-
+                    <!-- Service Center Response -->
+                    @if($claim->status === 'approved' && !empty($claim->service_center_note))
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4 my-4">
+                            <div class="font-bold text-green-800 mb-2">{{ t('insurance.service_center_accepted') }}</div>
+                            <div class="text-green-700">{{ $claim->service_center_note }}</div>
+                        </div>
+                    @elseif($claim->status === 'pending' && !empty($claim->service_center_note))
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4 my-4">
+                            <div class="font-bold text-red-800 mb-2">{{ t('insurance.service_center_rejected') }}</div>
+                            <div class="text-red-700">{{ $claim->service_center_note }}</div>
+                        </div>
+                    @endif
                 </div>
             </div>
             @endforeach
@@ -280,28 +276,43 @@
 <script>
 let serviceCenters = [];
 
-// Load service centers with new claims count
 // Load service centers with accepted claims count
 fetch('{{ route("insurance.claims.service-centers", $company->company_slug) }}')
     .then(response => response.json())
     .then(data => {
+        console.log('Service Centers Data:', data); // للتأكد من البيانات
+        
         const select = document.getElementById('serviceCenterSelect');
         select.innerHTML = '<option value="">{{ t($company->translation_group . ".select_service_center") }}</option>';
+        
         data.forEach(center => {
             let claimsCount = center.accepted_claims_count ?? 0;
             let claimsText = claimsCount > 0 
                 ? `(${claimsCount} {{ t($company->translation_group . ".accepted_claims") }})`
                 : `({{ t($company->translation_group . ".no_accepted_claims") }})`;
             let areaText = center.area ? ` - ${center.area}` : '';
-            select.innerHTML += `<option value="${center.id}">${center.name}${areaText} ${claimsText}</option>`;
+            
+            // إضافة مؤشر مفصل لنوع مركز الصيانة
+            let typeText = '';
+            if (center.center_type === 'owned_by_current_company') {
+                typeText = ' - ✓ {{ t($company->translation_group . ".your_company_center") }}';
+            } else if (center.center_type === 'independent') {
+                typeText = ' - {{ t($company->translation_group . ".independent_center") }}';
+            } else if (center.center_type === 'owned_by_other_company' && center.owner_company) {
+                typeText = ` - {{ t($company->translation_group . ".owned_by") }} ${center.owner_company}`;
+            }
+            
+            // إضافة style مميز للمراكز التابعة للشركة الحالية
+            let optionClass = center.center_type === 'owned_by_current_company' ? 'font-weight: bold; color: #059669;' : '';
+            
+            select.innerHTML += `<option value="${center.id}" style="${optionClass}">${center.name}${areaText}${typeText} ${claimsText}</option>`;
         });
     })
     .catch(error => {
+        console.error('Error loading service centers:', error);
         const select = document.getElementById('serviceCenterSelect');
         select.innerHTML = '<option value="">{{ t($company->translation_group . ".error_loading") }}</option>';
     });
-
-
 
 function approveModal(claimId) {
     document.getElementById('approveForm').action = `{{ route('insurance.claims.approve', [$company->company_slug, '__ID__']) }}`.replace('__ID__', claimId);
@@ -326,6 +337,5 @@ document.getElementById('rejectModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('rejectModal');
 });
 </script>
-
 
 @endsection

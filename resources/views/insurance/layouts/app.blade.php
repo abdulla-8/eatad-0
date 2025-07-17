@@ -158,6 +158,19 @@
         {{ t($company->translation_group . '.users_management') }}
     </a>
 </li>
+<li>
+    <a href="{{ route('insurance.service-centers.index', ['companyRoute' => $company->company_slug]) }}"
+        class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 {{ request()->routeIs('insurance.service-centers.*') ? 'text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}"
+        style="{{ request()->routeIs('insurance.service-centers.*') ? 'background: ' . $company->primary_color : '' }}">
+        <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+            </path>
+        </svg>
+        {{ t($company->translation_group . '.service_centers', 'مراكز الصيانة') }}
+    </a>
+</li>
 
 
                         <li>
@@ -175,6 +188,19 @@
                                 {{ t($company->translation_group . '.settings', 'Settings') }}
                             </a>
                         </li>
+
+                        <li>
+    <a href="{{ route('insurance.profile.show', ['companyRoute' => auth('insurance_company')->user()->company_slug]) }}" 
+       class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 
+              {{ request()->routeIs('insurance.profile.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }} 
+              ">
+        <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+       {{ t($company->translation_group . '.my_profile', 'My Profile') }}
+    </a>
+</li>
 
                         <li>
     <a href="{{ route('insurance.parts-quotes.index', ['companyRoute' => $company->company_slug]) }}"

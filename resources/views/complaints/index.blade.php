@@ -4,6 +4,16 @@
 @section('title', t($translationGroup . '.complaints_inquiries'))
 
 @section('content')
+@php
+    // تحديد الـ company slug بشكل موحد
+    $companySlug = '';
+    if ($userType === 'insurance_company') {
+        $companySlug = $user->company_slug ?? ($user->company->company_slug ?? 'default');
+    } elseif ($userType === 'insurance_user') {
+        $companySlug = optional($user->company)->company_slug ?? 'default';
+    }
+@endphp
+
 <div class="space-y-6">
     <!-- Header with Stats -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -101,12 +111,12 @@
                     
                     @if(request()->hasAny(['status', 'type', 'search']))
                         @if($userType === 'insurance_company')
-                            <a href="{{ route('insurance.complaints.index', ['companyRoute' => $user->company_slug ?? 'default']) }}" 
+                            <a href="{{ route('insurance.complaints.index', ['companyRoute' => $companySlug]) }}" 
                                class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
                                 {{ t($translationGroup . '.clear') }}
                             </a>
                         @elseif($userType === 'insurance_user')
-                            <a href="{{ route('insurance.user.complaints.index', ['companySlug' => optional($user->company)->company_slug ?? 'default']) }}" 
+                            <a href="{{ route('insurance.user.complaints.index', ['companySlug' => $companySlug]) }}" 
                                class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
                                 {{ t($translationGroup . '.clear') }}
                             </a>
@@ -188,7 +198,7 @@
                         <div class="flex justify-end gap-2">
                             <!-- Edit Button -->
                             @if($userType === 'insurance_company')
-                                <a href="{{ route('insurance.complaints.edit', ['companyRoute' => $user->company_slug ?? 'default', 'id' => $complaint->id]) }}" 
+                                <a href="{{ route('insurance.complaints.edit', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
                                    class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 transition-colors border border-yellow-200">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -196,7 +206,7 @@
                                     {{ t($translationGroup . '.edit') }}
                                 </a>
                             @elseif($userType === 'insurance_user')
-                                <a href="{{ route('insurance.user.complaints.edit', ['companySlug' => optional($user->company)->company_slug ?? 'default', 'id' => $complaint->id]) }}" 
+                                <a href="{{ route('insurance.user.complaints.edit', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
                                    class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 transition-colors border border-yellow-200">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -215,7 +225,7 @@
                             
                             <!-- View Button -->
                             @if($userType === 'insurance_company')
-                                <a href="{{ route('insurance.complaints.show', ['companyRoute' => $user->company_slug ?? 'default', 'id' => $complaint->id]) }}" 
+                                <a href="{{ route('insurance.complaints.show', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors border border-blue-200">
                                     {{ t($translationGroup . '.read_more') }}
                                     <svg class="w-4 h-4 {{ app()->getLocale() === 'ar' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +233,7 @@
                                     </svg>
                                 </a>
                             @elseif($userType === 'insurance_user')
-                                <a href="{{ route('insurance.user.complaints.show', ['companySlug' => optional($user->company)->company_slug ?? 'default', 'id' => $complaint->id]) }}" 
+                                <a href="{{ route('insurance.user.complaints.show', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors border border-blue-200">
                                     {{ t($translationGroup . '.read_more') }}
                                     <svg class="w-4 h-4 {{ app()->getLocale() === 'ar' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -286,9 +296,9 @@
         </div>
         
         @if($userType === 'insurance_company')
-            <form id="complaintForm" method="POST" action="{{ route('insurance.complaints.store', ['companyRoute' => $user->company_slug ?? 'default']) }}" enctype="multipart/form-data" class="p-6">
+            <form id="complaintForm" method="POST" action="{{ route('insurance.complaints.store', ['companyRoute' => $companySlug]) }}" enctype="multipart/form-data" class="p-6">
         @elseif($userType === 'insurance_user')
-            <form id="complaintForm" method="POST" action="{{ route('insurance.user.complaints.store', ['companySlug' => optional($user->company)->company_slug ?? 'default']) }}" enctype="multipart/form-data" class="p-6">
+            <form id="complaintForm" method="POST" action="{{ route('insurance.user.complaints.store', ['companySlug' => $companySlug]) }}" enctype="multipart/form-data" class="p-6">
         @else
             <form id="complaintForm" method="POST" action="{{ route('service-center.complaints.store') }}" enctype="multipart/form-data" class="p-6">
         @endif

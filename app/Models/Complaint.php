@@ -34,7 +34,7 @@ class Complaint extends Model
         Relation::morphMap([
             'insurance_company' => \App\Models\InsuranceCompany::class,
             'service_center' => \App\Models\ServiceCenter::class,
-            'insurance_user' => \App\Models\InsuranceUser::class, // إضافة مستخدمي التأمين
+            'insurance_user' => \App\Models\InsuranceUser::class,
         ]);
     }
 
@@ -42,6 +42,25 @@ class Complaint extends Model
     public function complainant()
     {
         return $this->morphTo();
+    }
+
+    // Specific relationship methods for easier access
+    public function insuranceCompany()
+    {
+        return $this->belongsTo(\App\Models\InsuranceCompany::class, 'complainant_id')
+                    ->where('complainant_type', 'insurance_company');
+    }
+
+    public function serviceCenter()
+    {
+        return $this->belongsTo(\App\Models\ServiceCenter::class, 'complainant_id')
+                    ->where('complainant_type', 'service_center');
+    }
+
+    public function insuranceUser()
+    {
+        return $this->belongsTo(\App\Models\InsuranceUser::class, 'complainant_id')
+                    ->where('complainant_type', 'insurance_user');
     }
 
     // Scopes
@@ -97,12 +116,12 @@ class Complaint extends Model
         $badges = [
             'insurance_company' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'شركة تأمين'],
             'service_center' => ['class' => 'bg-green-100 text-green-800', 'text' => 'مركز صيانة'],
-            'insurance_user' => ['class' => 'bg-indigo-100 text-indigo-800', 'text' => 'مستخدم تأمين'], // إضافة مستخدمي التأمين
+            'insurance_user' => ['class' => 'bg-indigo-100 text-indigo-800', 'text' => 'مستخدم تأمين'],
         ];
         return $badges[$this->complainant_type] ?? ['class' => 'bg-gray-100 text-gray-800', 'text' => 'غير محدد'];
     }
 
-    // Helper methods لـ bulk operations
+    // Helper methods للـ bulk operations
     public function markAsRead()
     {
         $this->update(['is_read' => true]);

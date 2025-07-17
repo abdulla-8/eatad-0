@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany; // إضافة هذا
+
 class InsuranceCompany extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -45,6 +47,33 @@ class InsuranceCompany extends Authenticatable
         'office_location_lng' => 'decimal:8'
     ];
 
+    // باقي الـ methods...
+
+    /**
+     * العلاقة مع مراكز الصيانة
+     */
+    public function serviceCenters(): HasMany
+    {
+        return $this->hasMany(ServiceCenter::class, 'insurance_company_id');
+    }
+
+    /**
+     * المراكز النشطة
+     */
+    public function activeServiceCenters(): HasMany
+    {
+        return $this->serviceCenters()->where('is_active', true);
+    }
+
+    /**
+     * المراكز المعتمدة
+     */
+    public function approvedServiceCenters(): HasMany
+    {
+        return $this->serviceCenters()->where('is_approved', true);
+    }
+
+    // باقي الـ methods الموجودة...
     public function additionalPhones()
     {
         return $this->hasMany(InsuranceCompanyPhone::class);
@@ -186,9 +215,6 @@ class InsuranceCompany extends Authenticatable
     {
         return $this->hasMany(Claim::class)->where('status', 'pending');
     }
-
-    
-
 
     public function complaints()
     {

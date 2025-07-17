@@ -1,17 +1,19 @@
 <?php
-// app/Models/ServiceCenter.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo; // إضافة هذا
 
 class ServiceCenter extends Authenticatable
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'insurance_company_id',
+        'created_by_company',
         'phone',
         'password',
         'commercial_register',
@@ -20,6 +22,7 @@ class ServiceCenter extends Authenticatable
         'center_slug',
         'translation_group',
         'center_logo',
+        'profile_picture',
         'primary_color',
         'secondary_color',
         'industrial_area_id',
@@ -29,13 +32,15 @@ class ServiceCenter extends Authenticatable
         'painting_technicians',
         'electrical_technicians',
         'other_technicians',
+        'has_tow_service',
+        'tow_trucks_count',
+        'daily_tow_capacity',
         'center_area_sqm',
         'center_location_lat',
         'center_location_lng',
         'center_address',
         'is_active',
-        'is_approved',
-        'has_tow_service',
+        'is_approved'
     ];
 
     protected $hidden = [
@@ -47,6 +52,7 @@ class ServiceCenter extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'created_by_company' => 'boolean',
         'is_approved' => 'boolean',
         'body_work_technicians' => 'integer',
         'mechanical_technicians' => 'integer',
@@ -57,9 +63,53 @@ class ServiceCenter extends Authenticatable
         'center_location_lat' => 'decimal:8',
         'center_location_lng' => 'decimal:8',
         'has_tow_service' => 'boolean',
+        'tow_trucks_count' => 'integer',
+        'daily_tow_capacity' => 'integer',
     ];
 
-    // Relations
+    /**
+     * العلاقة مع شركة التأمين
+     */
+    public function insuranceCompany(): BelongsTo
+    {
+        return $this->belongsTo(InsuranceCompany::class, 'insurance_company_id');
+    }
+
+    /**
+     * المراكز المنشأة بواسطة شركات التأمين
+     */
+    public function scopeCreatedByCompany($query)
+    {
+        return $query->where('created_by_company', true);
+    }
+
+    /**
+     * المراكز الخاصة بشركة تأمين محددة
+     */
+    public function scopeForInsuranceCompany($query, $companyId)
+    {
+        return $query->where('insurance_company_id', $companyId);
+    }
+
+    /**
+     * تحديد Route Key للـ Model Binding
+     */
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
+
+    /**
+     * تحسين Route Model Binding
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('id', $value)
+            ->where('created_by_company', true)
+            ->firstOrFail();
+    }
+
+    // باقي الـ Relations
     public function industrialArea()
     {
         return $this->belongsTo(IndustrialArea::class);
@@ -85,7 +135,7 @@ class ServiceCenter extends Authenticatable
         return $this->hasMany(Translation::class, 'translation_group', 'translation_group');
     }
 
-    // Scopes
+    // باقي الـ Methods...
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -96,7 +146,6 @@ class ServiceCenter extends Authenticatable
         return $query->where('is_approved', true);
     }
 
-    // Accessors
     public function getDisplayNameAttribute()
     {
         return $this->legal_name;
@@ -201,7 +250,6 @@ class ServiceCenter extends Authenticatable
             !empty($this->industrial_area_id);
     }
 
-
     public function claims()
     {
         return $this->hasMany(Claim::class);
@@ -212,7 +260,6 @@ class ServiceCenter extends Authenticatable
         return $this->hasMany(Claim::class)->whereIn('status', ['approved', 'in_progress']);
     }
 
- 
     public function complaints()
     {
         return $this->morphMany(Complaint::class, 'complainant');

@@ -94,13 +94,13 @@
                 </div>
                 
                 <div class="flex gap-2 lg:items-end">
-                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm">
                         {{ t('admin.filter') }}
                     </button>
                     
                     @if(request()->hasAny(['status', 'type', 'complainant_type', 'search']))
                         <a href="{{ route('admin.complaints.index') }}" 
-                           class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
+                           class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors shadow-sm">
                             {{ t('admin.clear') }}
                         </a>
                     @endif
@@ -127,7 +127,7 @@
                     <div class="flex gap-2 flex-wrap">
                         <!-- Mark as Read -->
                         <button onclick="bulkMarkAsRead()" 
-                                class="bulk-action-btn px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-green-600"
+                                class="bulk-action-btn px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-green-600 shadow-sm hover:shadow-md"
                                 disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -137,7 +137,7 @@
                         
                         <!-- Mark as Unread -->
                         <button onclick="bulkMarkAsUnread()" 
-                                class="bulk-action-btn px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-orange-600"
+                                class="bulk-action-btn px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-orange-600 shadow-sm hover:shadow-md"
                                 disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -147,7 +147,7 @@
                         
                         <!-- Export Selected -->
                         <button onclick="exportSelected()" 
-                                class="bulk-action-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-indigo-600"
+                                class="bulk-action-btn px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-indigo-600 shadow-sm hover:shadow-md"
                                 disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -157,7 +157,7 @@
                         
                         <!-- Delete Selected -->
                         <button onclick="bulkDelete()" 
-                                class="bulk-action-btn px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-red-600"
+                                class="bulk-action-btn px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-red-600 shadow-sm hover:shadow-md"
                                 disabled>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -167,7 +167,7 @@
                         
                         <!-- Delete All -->
                         <button onclick="showDeleteAllModal()" 
-                                class="px-4 py-2 bg-red-800 text-white rounded-lg font-medium hover:bg-red-900 transition-colors flex items-center gap-2 border border-red-800">
+                                class="px-4 py-2 bg-red-800 text-white rounded-lg font-medium hover:bg-red-900 transition-all flex items-center gap-2 border border-red-800 shadow-sm hover:shadow-md">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                             </svg>
@@ -211,11 +211,37 @@
                                     </div>
                                 @endif
                                 
+                                <!-- عرض معلومات مركز الصيانة مع الشركة التابعة -->
+                                @if($complaint->complainant_type === 'service_center' && $complaint->complainant_details)
+                                    <div class="mt-1 text-xs text-gray-500">
+                                        <div class="flex items-center gap-4">
+                                            <span>{{ t('admin.phone') }}: {{ $complaint->complainant_details->phone }}</span>
+                                            <span>{{ t('admin.commercial_register') }}: {{ $complaint->complainant_details->commercial_register }}</span>
+                                        </div>
+                                        
+                                        <!-- عرض الشركة التابعة إذا كانت موجودة -->
+                                        @if($complaint->complainant_details->created_by_company && $complaint->complainant_details->insuranceCompany)
+                                            <div class="flex items-center gap-1 mt-2">
+                                                <div class="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 rounded-full font-medium border border-emerald-200">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                                    </svg>
+                                                    <span class="text-xs">تابع لشركة:</span>
+                                                    <span class="font-bold">{{ $complaint->complainant_details->insuranceCompany->legal_name }}</span>
+                                                </div>
+                                                <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                                                    {{ t('admin.company_managed') }}
+                                                </span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                                
                                 <p class="text-gray-500 text-xs mt-1">{{ $complaint->created_at->format('d/m/Y H:i') }}</p>
                             </div>
                         </div>
                         
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3 flex-wrap">
                             <span class="px-3 py-1.5 rounded-full text-sm font-medium border {{ $complaint->complainant_type_badge['class'] }}">
                                 {{ $complaint->complainant_type_badge['text'] }}
                             </span>
@@ -250,24 +276,33 @@
                         <div class="flex gap-2">
                             @if(!$complaint->is_read)
                                 <button onclick="markAsRead({{ $complaint->id }})"
-                                        class="px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors border border-green-500">
+                                        class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-all border border-green-600 shadow-sm hover:shadow-md flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
                                     {{ t('admin.mark_as_read') }}
                                 </button>
                             @else
                                 <button onclick="markAsUnread({{ $complaint->id }})"
-                                        class="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors border border-orange-500">
+                                        class="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-all border border-orange-600 shadow-sm hover:shadow-md flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
                                     {{ t('admin.mark_as_unread') }}
                                 </button>
                             @endif
                             
                             <button onclick="deleteComplaint({{ $complaint->id }})"
-                                    class="px-3 py-1.5 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors border border-red-500">
+                                    class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-all border border-red-600 shadow-sm hover:shadow-md flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
                                 {{ t('admin.delete') }}
                             </button>
                         </div>
                         
                         <a href="{{ route('admin.complaints.show', $complaint->id) }}" 
-                           class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors border border-blue-200">
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-all border border-blue-200 shadow-sm hover:shadow-md">
                             {{ t('admin.read_more') }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

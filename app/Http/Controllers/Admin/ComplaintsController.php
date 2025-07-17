@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/Admin/ComplaintsController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -29,12 +28,12 @@ class ComplaintsController extends Controller
             }
         }
 
-        // تحديث فلترة نوع الشاكي لتشمل مستخدمي التأمين
+        // فلترة نوع الشاكي
         if ($request->complainant_type && in_array($request->complainant_type, ['insurance_company', 'service_center', 'insurance_user'])) {
             $query->where('complainant_type', $request->complainant_type);
         }
 
-        // إضافة فلتر بحث محسن لمستخدمي التأمين
+        // بحث محسن يشمل البحث في بيانات الشركات التابعة لمراكز الصيانة
         if ($request->search) {
             $query->where(function($q) use ($request) {
                 $q->where('subject', 'like', '%' . $request->search . '%')
@@ -50,8 +49,20 @@ class ComplaintsController extends Controller
                                   ->orWhere('policy_number', 'like', '%' . $request->search . '%');
                     })
                     ->orWhereHas('insuranceUser.company', function($companyQuery) use ($request) {
-                        $companyQuery->where('legal_name', 'like', '%' . $request->search . '%')
-                                     ->orWhere('commercial_name', 'like', '%' . $request->search . '%');
+                        $companyQuery->where('legal_name', 'like', '%' . $request->search . '%');
+                    });
+                }
+                
+                // البحث في بيانات مراكز الصيانة والشركات التابعة لها
+                if ($request->complainant_type === 'service_center' || !$request->complainant_type) {
+                    $q->orWhereHas('serviceCenter', function($centerQuery) use ($request) {
+                        $centerQuery->where('legal_name', 'like', '%' . $request->search . '%')
+                                   ->orWhere('phone', 'like', '%' . $request->search . '%')
+                                   ->orWhere('commercial_register', 'like', '%' . $request->search . '%');
+                    })
+                    // البحث في الشركة التابع لها مركز الصيانة
+                    ->orWhereHas('serviceCenter.insuranceCompany', function($companyQuery) use ($request) {
+                        $companyQuery->where('legal_name', 'like', '%' . $request->search . '%');
                     });
                 }
             });
@@ -59,14 +70,14 @@ class ComplaintsController extends Controller
 
         $complaints = $query->paginate(10);
 
-        // إضافة معلومات تفصيلية عن الشاكي لكل شكوى
+        // إضافة معلومات تفصيلية
         $complaints->getCollection()->transform(function($complaint) {
             $complaint->complainant_details = $this->getComplainantDetails($complaint);
             $complaint->formatted_complainant_info = $this->getFormattedComplainantInfo($complaint);
             return $complaint;
         });
 
-        // Statistics - تحديث الإحصائيات لتشمل مستخدمي التأمين
+        // إحصائيات محدثة
         $stats = [
             'total' => Complaint::count(),
             'unread' => Complaint::where('is_read', false)->count(),
@@ -76,6 +87,10 @@ class ComplaintsController extends Controller
             'other' => Complaint::where('type', 'other')->count(),
             'insurance_companies' => Complaint::where('complainant_type', 'insurance_company')->count(),
             'service_centers' => Complaint::where('complainant_type', 'service_center')->count(),
+            'service_centers_by_companies' => Complaint::where('complainant_type', 'service_center')
+                ->whereHas('serviceCenter', function($q) {
+                    $q->where('created_by_company', true);
+                })->count(),
             'insurance_users' => Complaint::where('complainant_type', 'insurance_user')->count(),
         ];
 
@@ -86,7 +101,6 @@ class ComplaintsController extends Controller
     {
         $complaint = Complaint::findOrFail($id);
         
-        // إضافة معلومات تفصيلية عن الشاكي
         $complaint->complainant_details = $this->getComplainantDetails($complaint);
         $complaint->formatted_complainant_info = $this->getFormattedComplainantInfo($complaint);
         
@@ -98,6 +112,237 @@ class ComplaintsController extends Controller
         return view('admin.complaints.show', compact('complaint', 'userType', 'translationGroup', 'primaryColor', 'user'));
     }
 
+    // باقي الدوال تبقى كما هي...
+
+    /**
+     * الحصول على تفاصيل الشاكي مع دعم مراكز الصيانة التابعة
+     */
+    private function getComplainantDetails($complaint)
+    {
+        try {
+            switch ($complaint->complainant_type) {
+                case 'insurance_company':
+                    return \App\Models\InsuranceCompany::find($complaint->complainant_id);
+                    
+                case 'service_center':
+                    // تحميل مركز الصيانة مع الشركة التابع لها
+                    return \App\Models\ServiceCenter::with('insuranceCompany')->find($complaint->complainant_id);
+                    
+                case 'insurance_user':
+                    return \App\Models\InsuranceUser::with('company')->find($complaint->complainant_id);
+                    
+                default:
+                    return null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching complainant details', [
+                'complaint_id' => $complaint->id,
+                'complainant_type' => $complaint->complainant_type,
+                'complainant_id' => $complaint->complainant_id,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * تنسيق معلومات الشاكي مع دعم الشركات التابعة
+     */
+    private function getFormattedComplainantInfo($complaint)
+    {
+        $details = $this->getComplainantDetails($complaint);
+        
+        if (!$details) {
+            return [
+                'type' => $this->getComplainantTypeLabel($complaint->complainant_type),
+                'name' => $complaint->complainant_name,
+                'details' => 'لا توجد تفاصيل إضافية'
+            ];
+        }
+
+        switch ($complaint->complainant_type) {
+            case 'insurance_company':
+                return [
+                    'type' => 'شركة تأمين',
+                    'name' => $details->legal_name,
+                    'details' => "السجل التجاري: {$details->commercial_register}, الهاتف: {$details->phone}"
+                ];
+                
+            case 'service_center':
+                $info = [
+                    'type' => 'مركز صيانة',
+                    'name' => $details->legal_name,
+                    'details' => "السجل التجاري: {$details->commercial_register}, الهاتف: {$details->phone}",
+                ];
+                
+                // إضافة معلومات الشركة التابع لها إذا كان تابعاً لشركة تأمين
+                if ($details->created_by_company && $details->insuranceCompany) {
+                    $info['parent_company'] = $details->insuranceCompany->legal_name;
+                    $info['details'] .= " | تابع لشركة: {$details->insuranceCompany->legal_name}";
+                }
+                
+                return $info;
+                
+            case 'insurance_user':
+                return [
+                    'type' => 'مستخدم تأمين',
+                    'name' => $details->full_name,
+                    'details' => "الهاتف: {$details->phone} | الهوية: {$details->national_id} | رقم البوليصة: {$details->policy_number}",
+                    'company' => optional($details->company)->legal_name ?? 'غير محدد',
+                    'user_id' => $details->id
+                ];
+                
+            default:
+                return [
+                    'type' => 'غير محدد',
+                    'name' => $complaint->complainant_name,
+                    'details' => 'لا توجد تفاصيل إضافية'
+                ];
+        }
+    }
+
+    /**
+     * معلومات الشاكي للتسجيل مع دعم الشركات التابعة
+     */
+    private function getComplainantInfoForLog($complaint)
+    {
+        $details = $this->getComplainantDetails($complaint);
+        
+        if (!$details) {
+            return [
+                'type' => $complaint->complainant_type,
+                'name' => $complaint->complainant_name,
+                'id' => $complaint->complainant_id
+            ];
+        }
+
+        $logInfo = [
+            'type' => $complaint->complainant_type,
+            'name' => $complaint->complainant_name,
+            'id' => $complaint->complainant_id
+        ];
+
+        if ($complaint->complainant_type === 'insurance_user') {
+            $logInfo['user_details'] = [
+                'phone' => $details->phone,
+                'national_id' => $details->national_id,
+                'policy_number' => $details->policy_number,
+                'company' => optional($details->company)->legal_name
+            ];
+        } elseif ($complaint->complainant_type === 'service_center') {
+            $logInfo['center_details'] = [
+                'phone' => $details->phone,
+                'commercial_register' => $details->commercial_register,
+                'created_by_company' => $details->created_by_company ?? false,
+                'parent_company' => optional($details->insuranceCompany)->legal_name
+            ];
+        }
+
+        return $logInfo;
+    }
+
+    public function exportSelected(Request $request)
+    {
+        $request->validate([
+            'complaint_ids' => 'required|array|min:1',
+            'complaint_ids.*' => 'integer|exists:complaints,id'
+        ]);
+
+        try {
+            $complaints = Complaint::whereIn('id', $request->complaint_ids)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $csvData = [];
+            $csvData[] = [
+                'ID', 'Type', 'Complainant Type', 'Subject', 'Complainant Name', 
+                'User Details', 'Insurance Company', 'Parent Company', 'Status', 'Created At'
+            ];
+
+            foreach ($complaints as $complaint) {
+                $complainantDetails = $this->getComplainantDetails($complaint);
+                $userDetails = '';
+                $insuranceCompany = '';
+                $parentCompany = '';
+                
+                if ($complaint->complainant_type === 'insurance_user' && $complainantDetails) {
+                    $userDetails = "Phone: {$complainantDetails->phone}, ID: {$complainantDetails->national_id}, Policy: {$complainantDetails->policy_number}";
+                    $insuranceCompany = optional($complainantDetails->company)->legal_name ?? 'غير محدد';
+                } elseif ($complaint->complainant_type === 'service_center' && $complainantDetails) {
+                    $userDetails = "Phone: {$complainantDetails->phone}, Register: {$complainantDetails->commercial_register}";
+                    if ($complainantDetails->created_by_company && $complainantDetails->insuranceCompany) {
+                        $parentCompany = $complainantDetails->insuranceCompany->legal_name;
+                    }
+                }
+                
+                $csvData[] = [
+                    $complaint->id,
+                    $complaint->type,
+                    $this->getComplainantTypeLabel($complaint->complainant_type),
+                    $complaint->subject,
+                    $complaint->complainant_name,
+                    $userDetails,
+                    $insuranceCompany,
+                    $parentCompany,
+                    $complaint->is_read ? 'Read' : 'Unread',
+                    $complaint->created_at->format('Y-m-d H:i:s')
+                ];
+            }
+
+            $filename = 'complaints-' . date('Y-m-d-H-i-s') . '.csv';
+            $filePath = storage_path('app/public/exports/' . $filename);
+
+            $exportDir = storage_path('app/public/exports');
+            if (!file_exists($exportDir)) {
+                mkdir($exportDir, 0755, true);
+            }
+
+            $file = fopen($filePath, 'w');
+            fwrite($file, "\xEF\xBB\xBF");
+            foreach ($csvData as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+
+            $typesCounts = $complaints->groupBy('complainant_type')->map->count();
+
+            Log::info('Complaints exported by admin', [
+                'exported_count' => count($complaints),
+                'types_breakdown' => $typesCounts,
+                'filename' => $filename,
+                'admin_id' => auth('admin')->id(),
+            ]);
+
+            return response()->download($filePath)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            Log::error('Error exporting complaints', [
+                'error' => $e->getMessage(),
+                'complaint_ids' => $request->complaint_ids,
+                'admin_id' => auth('admin')->id(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تصدير الشكاوى'
+            ], 500);
+        }
+    }
+
+    private function getComplainantTypeLabel($type)
+    {
+        switch ($type) {
+            case 'insurance_company':
+                return 'شركة تأمين';
+            case 'service_center':
+                return 'مركز صيانة';
+            case 'insurance_user':
+                return 'مستخدم تأمين';
+            default:
+                return 'غير محدد';
+        }
+    }
+
+    // باقي الدوال تبقى كما هي...
     public function markAsRead($id)
     {
         try {
@@ -160,7 +405,6 @@ class ComplaintsController extends Controller
         }
     }
 
-    // حذف شكوى واحدة
     public function destroy($id)
     {
         try {
@@ -198,7 +442,6 @@ class ComplaintsController extends Controller
         }
     }
 
-    // Bulk delete للشكاوى المحددة
     public function bulkDelete(Request $request)
     {
         $request->validate([
@@ -207,7 +450,6 @@ class ComplaintsController extends Controller
         ]);
 
         try {
-            // الحصول على معلومات الشكاوى قبل الحذف للتسجيل
             $complaintsToDelete = Complaint::whereIn('id', $request->complaint_ids)->get();
             $typesCounts = $complaintsToDelete->groupBy('complainant_type')->map->count();
             
@@ -238,7 +480,6 @@ class ComplaintsController extends Controller
         }
     }
 
-    // حذف جميع الشكاوى مع تأكيد كلمة المرور
     public function deleteAll(Request $request)
     {
         $request->validate([
@@ -248,7 +489,6 @@ class ComplaintsController extends Controller
         try {
             $admin = auth('admin')->user();
             
-            // التحقق من كلمة المرور
             if (!Hash::check($request->confirmation_password, $admin->password)) {
                 return response()->json([
                     'success' => false,
@@ -256,7 +496,6 @@ class ComplaintsController extends Controller
                 ], 422);
             }
 
-            // الحصول على إحصائيات قبل الحذف
             $preDeleteStats = [
                 'total' => Complaint::count(),
                 'insurance_companies' => Complaint::where('complainant_type', 'insurance_company')->count(),
@@ -265,7 +504,6 @@ class ComplaintsController extends Controller
                 'unread' => Complaint::where('is_read', false)->count(),
             ];
 
-            // حذف جميع الملفات المرفقة
             $complaintsWithAttachments = Complaint::whereNotNull('attachment_path')->get();
             foreach ($complaintsWithAttachments as $complaint) {
                 if ($complaint->attachment_path) {
@@ -274,8 +512,6 @@ class ComplaintsController extends Controller
             }
 
             $totalDeleted = Complaint::count();
-            
-            // حذف جميع الشكاوى
             Complaint::truncate();
 
             Log::warning('All complaints deleted by admin', [
@@ -304,7 +540,6 @@ class ComplaintsController extends Controller
         }
     }
 
-    // تحديث حالة القراءة للشكاوى المحددة
     public function bulkMarkAsRead(Request $request)
     {
         $request->validate([
@@ -380,210 +615,6 @@ class ComplaintsController extends Controller
                 'success' => false,
                 'message' => 'حدث خطأ أثناء تحديث حالة الشكاوى'
             ], 500);
-        }
-    }
-
-    public function exportSelected(Request $request)
-    {
-        $request->validate([
-            'complaint_ids' => 'required|array|min:1',
-            'complaint_ids.*' => 'integer|exists:complaints,id'
-        ]);
-
-        try {
-            $complaints = Complaint::whereIn('id', $request->complaint_ids)
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            $csvData = [];
-            $csvData[] = ['ID', 'Type', 'Complainant Type', 'Subject', 'Complainant Name', 'User Details', 'Insurance Company', 'Status', 'Created At'];
-
-            foreach ($complaints as $complaint) {
-                $complainantDetails = $this->getComplainantDetails($complaint);
-                $userDetails = '';
-                $insuranceCompany = '';
-                
-                if ($complaint->complainant_type === 'insurance_user' && $complainantDetails) {
-                    $userDetails = "Phone: {$complainantDetails->phone}, ID: {$complainantDetails->national_id}, Policy: {$complainantDetails->policy_number}";
-                    $insuranceCompany = optional($complainantDetails->company)->legal_name ?? 'غير محدد';
-                }
-                
-                $csvData[] = [
-                    $complaint->id,
-                    $complaint->type,
-                    $this->getComplainantTypeLabel($complaint->complainant_type),
-                    $complaint->subject,
-                    $complaint->complainant_name,
-                    $userDetails,
-                    $insuranceCompany,
-                    $complaint->is_read ? 'Read' : 'Unread',
-                    $complaint->created_at->format('Y-m-d H:i:s')
-                ];
-            }
-
-            $filename = 'complaints-' . date('Y-m-d-H-i-s') . '.csv';
-            $filePath = storage_path('app/public/exports/' . $filename);
-
-            $exportDir = storage_path('app/public/exports');
-            if (!file_exists($exportDir)) {
-                mkdir($exportDir, 0755, true);
-            }
-
-            // إضافة UTF-8 BOM للدعم الصحيح للعربية
-            $file = fopen($filePath, 'w');
-            fwrite($file, "\xEF\xBB\xBF"); // UTF-8 BOM
-            foreach ($csvData as $row) {
-                fputcsv($file, $row);
-            }
-            fclose($file);
-
-            // إحصائيات التصدير
-            $typesCounts = $complaints->groupBy('complainant_type')->map->count();
-
-            Log::info('Complaints exported by admin', [
-                'exported_count' => count($complaints),
-                'types_breakdown' => $typesCounts,
-                'filename' => $filename,
-                'admin_id' => auth('admin')->id(),
-            ]);
-
-            return response()->download($filePath)->deleteFileAfterSend(true);
-        } catch (\Exception $e) {
-            Log::error('Error exporting complaints', [
-                'error' => $e->getMessage(),
-                'complaint_ids' => $request->complaint_ids,
-                'admin_id' => auth('admin')->id(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'حدث خطأ أثناء تصدير الشكاوى'
-            ], 500);
-        }
-    }
-
-    /**
-     * الحصول على تفاصيل الشاكي
-     */
-    private function getComplainantDetails($complaint)
-    {
-        try {
-            switch ($complaint->complainant_type) {
-                case 'insurance_company':
-                    return \App\Models\InsuranceCompany::find($complaint->complainant_id);
-                case 'service_center':
-                    return \App\Models\ServiceCenter::find($complaint->complainant_id);
-                case 'insurance_user':
-                    return \App\Models\InsuranceUser::with('company')->find($complaint->complainant_id);
-                default:
-                    return null;
-            }
-        } catch (\Exception $e) {
-            Log::error('Error fetching complainant details', [
-                'complaint_id' => $complaint->id,
-                'complainant_type' => $complaint->complainant_type,
-                'complainant_id' => $complaint->complainant_id,
-                'error' => $e->getMessage()
-            ]);
-            return null;
-        }
-    }
-
-    /**
-     * تنسيق معلومات الشاكي للعرض
-     */
-    private function getFormattedComplainantInfo($complaint)
-    {
-        $details = $this->getComplainantDetails($complaint);
-        
-        if (!$details) {
-            return [
-                'type' => $this->getComplainantTypeLabel($complaint->complainant_type),
-                'name' => $complaint->complainant_name,
-                'details' => 'لا توجد تفاصيل إضافية'
-            ];
-        }
-
-        switch ($complaint->complainant_type) {
-            case 'insurance_company':
-                return [
-                    'type' => 'شركة تأمين',
-                    'name' => $details->legal_name ?? $details->commercial_name,
-                    'details' => "الرقم التجاري: {$details->commercial_number}, الهاتف: {$details->phone}"
-                ];
-                
-            case 'service_center':
-                return [
-                    'type' => 'مركز صيانة',
-                    'name' => $details->legal_name ?? $details->commercial_name,
-                    'details' => "الرقم التجاري: {$details->commercial_number}, الهاتف: {$details->phone}"
-                ];
-                
-            case 'insurance_user':
-                return [
-                    'type' => 'مستخدم تأمين',
-                    'name' => $details->full_name,
-                    'details' => "الهاتف: {$details->phone} | الهوية: {$details->national_id} | رقم البوليصة: {$details->policy_number}",
-                    'company' => optional($details->company)->legal_name ?? 'غير محدد',
-                    'user_id' => $details->id
-                ];
-                
-            default:
-                return [
-                    'type' => 'غير محدد',
-                    'name' => $complaint->complainant_name,
-                    'details' => 'لا توجد تفاصيل إضافية'
-                ];
-        }
-    }
-
-    /**
-     * معلومات الشاكي للتسجيل
-     */
-    private function getComplainantInfoForLog($complaint)
-    {
-        $details = $this->getComplainantDetails($complaint);
-        
-        if (!$details) {
-            return [
-                'type' => $complaint->complainant_type,
-                'name' => $complaint->complainant_name,
-                'id' => $complaint->complainant_id
-            ];
-        }
-
-        $logInfo = [
-            'type' => $complaint->complainant_type,
-            'name' => $complaint->complainant_name,
-            'id' => $complaint->complainant_id
-        ];
-
-        if ($complaint->complainant_type === 'insurance_user') {
-            $logInfo['user_details'] = [
-                'phone' => $details->phone,
-                'national_id' => $details->national_id,
-                'policy_number' => $details->policy_number,
-                'company' => optional($details->company)->legal_name
-            ];
-        }
-
-        return $logInfo;
-    }
-
-    /**
-     * الحصول على تسمية نوع الشاكي
-     */
-    private function getComplainantTypeLabel($type)
-    {
-        switch ($type) {
-            case 'insurance_company':
-                return 'شركة تأمين';
-            case 'service_center':
-                return 'مركز صيانة';
-            case 'insurance_user':
-                return 'مستخدم تأمين';
-            default:
-                return 'غير محدد';
         }
     }
 }

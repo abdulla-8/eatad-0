@@ -114,6 +114,63 @@
                             </div>
                         </div>
                     @endif
+
+                    <!-- معلومات إضافية لمراكز الصيانة مع الشركة التابعة -->
+                    @if($complaint->complainant_type === 'service_center' && $complaint->complainant_details)
+                        <div class="border-t pt-3 mt-3">
+                            <h4 class="font-medium text-gray-900 mb-2">{{ t('admin.service_center_details') }}</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                @if($complaint->complainant_details->phone)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.phone') }}:</span>
+                                        <span class="text-gray-900">{{ $complaint->complainant_details->phone }}</span>
+                                    </div>
+                                @endif
+                                
+                                @if($complaint->complainant_details->commercial_register)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.commercial_register') }}:</span>
+                                        <span class="text-gray-900">{{ $complaint->complainant_details->commercial_register }}</span>
+                                    </div>
+                                @endif
+                                
+                                @if($complaint->complainant_details->industrialArea)
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-gray-700">{{ t('admin.industrial_area') }}:</span>
+                                        <span class="text-gray-900">{{ $complaint->complainant_details->industrialArea->name }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <!-- عرض الشركة التابع لها في قسم منفصل ومميز -->
+                        @if($complaint->complainant_details->created_by_company && $complaint->complainant_details->insuranceCompany)
+                            <div class="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-l-4 border-emerald-400 rounded-lg">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-emerald-800">{{ t('admin.managed_by_insurance_company') }}</p>
+                                        <p class="text-emerald-700 text-sm">{{ t('admin.this_service_center_is_managed_by') }}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center gap-2">
+                                    <span class="px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full font-semibold text-sm">
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ $complaint->complainant_details->insuranceCompany->legal_name }}
+                                    </span>
+                                    <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                                        {{ t('admin.company_managed_center') }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endif
+                    @endif
                 </div>
             </div>
 
@@ -174,10 +231,22 @@
                             </div>
                             <p class="text-sm text-gray-600 mt-1">
                                 {{ t('admin.submitted_by') }} {{ $complaint->complainant_name }}
+                                
+                                {{-- عرض معلومات الشركة التابعة لمستخدم التأمين --}}
                                 @if($complaint->complainant_type === 'insurance_user' && $complaint->complainant_details && $complaint->complainant_details->company)
                                     <span class="text-blue-600 font-medium">
                                         ({{ $complaint->complainant_details->company->legal_name }})
                                     </span>
+                                @endif
+                                
+                                {{-- عرض معلومات الشركة التابعة لمركز الصيانة --}}
+                                @if($complaint->complainant_type === 'service_center' && $complaint->complainant_details && $complaint->complainant_details->created_by_company && $complaint->complainant_details->insuranceCompany)
+                                    <div class="mt-2 inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                        تابع لشركة {{ $complaint->complainant_details->insuranceCompany->legal_name }}
+                                    </div>
                                 @endif
                             </p>
                         </div>
@@ -230,10 +299,30 @@
                         <span class="font-medium">{{ t('admin.complainant_type') }}:</span>
                         {{ $complaint->complainant_type_badge['text'] ?? t('admin.' . $complaint->complainant_type) }}
                     </div>
+                    
+                    {{-- معلومات الشركة للمستخدمين --}}
                     @if($complaint->complainant_type === 'insurance_user' && $complaint->complainant_details && $complaint->complainant_details->company)
                         <div>
                             <span class="font-medium">{{ t('admin.insurance_company') }}:</span>
                             <span class="text-blue-600">{{ $complaint->complainant_details->company->legal_name }}</span>
+                        </div>
+                    @endif
+                    
+                    {{-- معلومات الشركة التابعة لمراكز الصيانة --}}
+                    @if($complaint->complainant_type === 'service_center' && $complaint->complainant_details && $complaint->complainant_details->created_by_company && $complaint->complainant_details->insuranceCompany)
+                        <div class="md:col-span-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">{{ t('admin.parent_insurance_company') }}:</span>
+                                <span class="px-3 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 rounded-full font-semibold text-sm border border-emerald-200">
+                                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ $complaint->complainant_details->insuranceCompany->legal_name }}
+                                </span>
+                                <span class="text-xs text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                                    {{ t('admin.service_center_managed_by_company') }}
+                                </span>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -287,7 +376,6 @@ function markAsUnread(id) {
     });
 }
 
-// نظام الإشعارات
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
