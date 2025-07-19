@@ -359,7 +359,8 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.estimated_pickup_time') }}</label>
                 <input type="datetime-local" name="estimated_pickup_time" 
                        class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
-                       min="{{ now()->addMinutes(30)->format('Y-m-d\TH:i') }}">
+                       min="{{ now()->addMinutes(30)->format('Y-m-d\TH:i') }}"
+                       max="{{ now()->addHours(12)->format('Y-m-d\TH:i') }}">
             </div>
             
             <div>
