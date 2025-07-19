@@ -394,27 +394,9 @@
             });
         });
 
-        // دالة تبديل اللغة محسنة
-        function changeLanguage(code) {
-            try {
-                const baseUrl = window.location.origin;
-                const pathSegments = window.location.pathname.split('/');
-                
-                // استبدال كود اللغة في الـ URL
-                if (pathSegments[1] && pathSegments[1].length === 2) {
-                    pathSegments[1] = code;
-                } else {
-                    pathSegments.splice(1, 0, code);
-                }
-                
-                window.location.href = baseUrl + pathSegments.join('/');
-            } catch (error) {
-                console.error('Error changing language:', error);
-                // fallback
-                window.location.href = window.location.origin + '/language/' + code;
-            }
-        }
-
+function changeLanguage(code) {
+    window.location.href = '/language/' + code;
+}
         // تحسين الأداء مع Intersection Observer
         if ('IntersectionObserver' in window) {
             const observer = new IntersectionObserver((entries) => {
