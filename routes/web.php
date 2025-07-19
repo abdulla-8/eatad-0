@@ -97,12 +97,12 @@ Route::get('/track/{code}', function ($code) {
 })->name('tow.track');
 
 // ==== COMPLAINTS MARK READ ROUTE (Global) ====
-Route::post('/complaints/{complaint}/mark-read', function($complaint) {
+Route::post('/complaints/{complaint}/mark-read', function ($complaint) {
     Log::info('Global mark-read route accessed', ['complaint_id' => $complaint]);
-    
+
     $complaintModel = \App\Models\Complaint::findOrFail($complaint);
     $complaintModel->update(['is_read' => true]);
-    
+
     return response()->json(['success' => true]);
 })->name('complaints.mark-read')->middleware('auth:insurance_company,insurance_user,service_center');
 
@@ -128,12 +128,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('complaints')->name('complaints.')->group(function () {
             Route::get('/', [AdminComplaintsController::class, 'index'])->name('index');
             Route::get('/{id}', [AdminComplaintsController::class, 'show'])->name('show');
-            
+
             // Single complaint actions
             Route::post('/{id}/mark-as-read', [AdminComplaintsController::class, 'markAsRead'])->name('mark-as-read');
             Route::post('/{id}/mark-as-unread', [AdminComplaintsController::class, 'markAsUnread'])->name('mark-as-unread');
             Route::delete('/{id}', [AdminComplaintsController::class, 'destroy'])->name('destroy');
-            
+
             // Bulk actions
             Route::post('/bulk-delete', [AdminComplaintsController::class, 'bulkDelete'])->name('bulk-delete');
             Route::post('/delete-all', [AdminComplaintsController::class, 'deleteAll'])->name('delete-all');
@@ -236,11 +236,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/', [ServiceCenterManagementController::class, 'serviceCentersIndex'])->name('index');
                 Route::get('/create', [ServiceCenterManagementController::class, 'serviceCentersCreate'])->name('create');
                 Route::post('/', [ServiceCenterManagementController::class, 'serviceCentersStore'])->name('store');
-                Route::get('/{serviceCenter}/edit', [ServiceCenterManagementController::class, 'serviceCentersEdit'])->name('edit');
-                Route::put('/{serviceCenter}', [ServiceCenterManagementController::class, 'serviceCentersUpdate'])->name('update');
-                Route::delete('/{serviceCenter}', [ServiceCenterManagementController::class, 'serviceCentersDestroy'])->name('destroy');
-                Route::post('/{serviceCenter}/toggle', [ServiceCenterManagementController::class, 'serviceCentersToggle'])->name('toggle');
-                Route::post('/{serviceCenter}/approve', [ServiceCenterManagementController::class, 'serviceCentersApprove'])->name('approve');
+                Route::get('/{id}/edit', [ServiceCenterManagementController::class, 'serviceCentersEdit'])->name('edit');
+                Route::put('/{id}', [ServiceCenterManagementController::class, 'serviceCentersUpdate'])->name('update');
+                Route::delete('/{id}', [ServiceCenterManagementController::class, 'serviceCentersDestroy'])->name('destroy');
+                Route::post('/{id}/toggle', [ServiceCenterManagementController::class, 'serviceCentersToggle'])->name('toggle');
+                Route::post('/{id}/approve', [ServiceCenterManagementController::class, 'serviceCentersApprove'])->name('approve');
             });
 
             Route::prefix('tow-service-companies')->name('tow-service-companies.')->group(function () {
@@ -324,15 +324,15 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
 
         // Service center profile routes - تم إصلاحها
         Route::prefix('profile')->name('profile.')->group(function () {
-            Route::get('/', function() {
+            Route::get('/', function () {
                 Log::info('Service center profile show route accessed', [
                     'user_id' => auth('service_center')->user()->id ?? 'NOT_AUTHENTICATED',
                     'route_name' => request()->route()->getName()
                 ]);
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->show(request());
             })->name('show');
-            
-            Route::get('/edit', function() {
+
+            Route::get('/edit', function () {
                 Log::info('Service center profile edit route accessed', [
                     'user_id' => auth('service_center')->user()->id ?? 'NOT_AUTHENTICATED',
                     'route_name' => request()->route()->getName()
@@ -340,15 +340,15 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->edit(request());
             })->name('edit');
 
-            Route::post('/change-password', function() {
+            Route::post('/change-password', function () {
                 Log::info('Service center profile change password route accessed', [
                     'user_id' => auth('service_center')->user()->id ?? 'NOT_AUTHENTICATED',
                     'route_name' => request()->route()->getName()
                 ]);
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->changePassword(request());
             })->name('change-password');
-            
-            Route::put('/', function() {
+
+            Route::put('/', function () {
                 Log::info('Service center profile update route accessed', [
                     'user_id' => auth('service_center')->user()->id ?? 'NOT_AUTHENTICATED',
                     'route_name' => request()->route()->getName()
@@ -467,7 +467,7 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
         });
 
         // Service Centers management
-        Route::prefix('service-centers')->name('service-centers.')->group(function() {
+        Route::prefix('service-centers')->name('service-centers.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Insurance\ServiceCenterController::class, 'index'])->name('index');
             Route::get('/create', [\App\Http\Controllers\Insurance\ServiceCenterController::class, 'create'])->name('create');
             Route::post('/', [\App\Http\Controllers\Insurance\ServiceCenterController::class, 'store'])->name('store');
@@ -480,7 +480,7 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
 
         // Insurance company profile routes
         Route::prefix('profile')->name('profile.')->group(function () {
-            Route::get('/', function() {
+            Route::get('/', function () {
                 Log::info('Insurance company profile show route accessed', [
                     'company_route' => request()->route('companyRoute'),
                     'user_id' => auth('insurance_company')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -488,8 +488,8 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
                 ]);
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->show(request());
             })->name('show');
-            
-            Route::get('/edit', function() {
+
+            Route::get('/edit', function () {
                 Log::info('Insurance company profile edit route accessed', [
                     'company_route' => request()->route('companyRoute'),
                     'user_id' => auth('insurance_company')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -498,7 +498,7 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->edit(request());
             })->name('edit');
 
-            Route::post('/change-password', function() {
+            Route::post('/change-password', function () {
                 Log::info('Insurance company profile change password route accessed', [
                     'company_route' => request()->route('companyRoute'),
                     'user_id' => auth('insurance_company')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -506,8 +506,8 @@ Route::prefix('{companyRoute}')->name('insurance.')->middleware(['company.route'
                 ]);
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->changePassword(request());
             })->name('change-password');
-            
-            Route::put('/', function() {
+
+            Route::put('/', function () {
                 Log::info('Insurance company profile update route accessed', [
                     'company_route' => request()->route('companyRoute'),
                     'user_id' => auth('insurance_company')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -620,10 +620,10 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
             Route::get('/{id}/edit', [UnifiedComplaintsController::class, 'edit'])->name('edit')->where('id', '[0-9]+');
             Route::put('/{id}', [UnifiedComplaintsController::class, 'update'])->name('update')->where('id', '[0-9]+');
         });
-      
+
         // Insurance user profile routes
         Route::prefix('profile')->name('profile.')->group(function () {
-            Route::get('/', function() {
+            Route::get('/', function () {
                 Log::info('Insurance user profile show route accessed', [
                     'company_slug' => request()->route('companySlug'),
                     'user_id' => auth('insurance_user')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -631,8 +631,8 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
                 ]);
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->show(request());
             })->name('show');
-            
-            Route::get('/edit', function() {
+
+            Route::get('/edit', function () {
                 Log::info('Insurance user profile edit route accessed', [
                     'company_slug' => request()->route('companySlug'),
                     'user_id' => auth('insurance_user')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -641,7 +641,7 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->edit(request());
             })->name('edit');
 
-            Route::post('/change-password', function() {
+            Route::post('/change-password', function () {
                 Log::info('Insurance user profile change password route accessed', [
                     'company_slug' => request()->route('companySlug'),
                     'user_id' => auth('insurance_user')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -649,8 +649,8 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
                 ]);
                 return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->changePassword(request());
             })->name('change-password');
-            
-            Route::put('/', function() {
+
+            Route::put('/', function () {
                 Log::info('Insurance user profile update route accessed', [
                     'company_slug' => request()->route('companySlug'),
                     'user_id' => auth('insurance_user')->user()->id ?? 'NOT_AUTHENTICATED',
@@ -674,4 +674,3 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
         });
     });
 });
-

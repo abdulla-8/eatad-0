@@ -102,16 +102,19 @@ class ServiceCenterManagementController extends Controller
         }
     }
 
-    public function serviceCentersEdit(ServiceCenter $serviceCenter)
+    public function serviceCentersEdit($id)
     {
+        $serviceCenter = ServiceCenter::findOrFail($id);
         $serviceCenter->load('additionalPhones');
         $industrialAreas = IndustrialArea::active()->ordered()->get();
         $serviceSpecializations = ServiceSpecialization::active()->ordered()->get();
         return view('admin.users.service-centers.addedit', compact('serviceCenter', 'industrialAreas', 'serviceSpecializations'));
     }
 
-    public function serviceCentersUpdate(Request $request, ServiceCenter $serviceCenter)
+    public function serviceCentersUpdate(Request $request, $id)
     {
+        $serviceCenter = ServiceCenter::findOrFail($id);
+
         $request->validate([
             'phone' => 'required|string|max:20|unique:service_centers,phone,' . $serviceCenter->id,
             'password' => 'nullable|string|min:6',
@@ -188,9 +191,11 @@ class ServiceCenterManagementController extends Controller
         }
     }
 
-    public function serviceCentersDestroy(ServiceCenter $serviceCenter)
+
+    public function serviceCentersDestroy($id)
     {
         try {
+            $serviceCenter = ServiceCenter::findOrFail($id);
             $serviceCenter->delete();
             return redirect()->route('admin.users.service-centers.index')
                 ->with('success', t('admin.service_center_deleted'));
@@ -199,9 +204,10 @@ class ServiceCenterManagementController extends Controller
         }
     }
 
-    public function serviceCentersToggle(ServiceCenter $serviceCenter)
+    public function serviceCentersToggle($id)
     {
         try {
+            $serviceCenter = ServiceCenter::findOrFail($id);
             $serviceCenter->update(['is_active' => !$serviceCenter->is_active]);
 
             $message = $serviceCenter->is_active
@@ -214,9 +220,10 @@ class ServiceCenterManagementController extends Controller
         }
     }
 
-    public function serviceCentersApprove(ServiceCenter $serviceCenter)
+    public function serviceCentersApprove($id)
     {
         try {
+            $serviceCenter = ServiceCenter::findOrFail($id);
             $serviceCenter->update(['is_approved' => !$serviceCenter->is_approved]);
 
             $message = $serviceCenter->is_approved
@@ -238,11 +245,11 @@ class ServiceCenterManagementController extends Controller
                 'active' => ServiceCenter::active()->count(),
                 'approved' => ServiceCenter::approved()->count(),
                 'pending_approval' => ServiceCenter::where('is_approved', false)->count(),
-                'total_technicians' => ServiceCenter::sum('body_work_technicians') + 
-                                     ServiceCenter::sum('mechanical_technicians') + 
-                                     ServiceCenter::sum('painting_technicians') + 
-                                     ServiceCenter::sum('electrical_technicians') + 
-                                     ServiceCenter::sum('other_technicians'),
+                'total_technicians' => ServiceCenter::sum('body_work_technicians') +
+                    ServiceCenter::sum('mechanical_technicians') +
+                    ServiceCenter::sum('painting_technicians') +
+                    ServiceCenter::sum('electrical_technicians') +
+                    ServiceCenter::sum('other_technicians'),
                 'total_area' => ServiceCenter::sum('center_area_sqm')
             ]
         ];
