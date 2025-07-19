@@ -37,7 +37,7 @@ use App\Http\Controllers\InsuranceUser\DashboardController as InsuranceUserDashb
 // Tow Service Controllers
 use App\Http\Controllers\TowService\AuthController as TowServiceAuthController;
 use App\Http\Controllers\TowService\DashboardController as TowServiceDashboardController;
-
+use App\Http\Controllers\TowService\TowServiceProfileController ;
 // Insurance Settings Controllers
 use App\Http\Controllers\Insurance\SettingsController as InsuranceSettingsController;
 
@@ -419,21 +419,35 @@ Route::prefix('tow-service')->name('tow-service.')->group(function () {
         Route::get('/dashboard', [TowServiceDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [TowServiceAuthController::class, 'logout'])->name('logout');
 
+        // Profile Routes - using TowService specific controller for both types
+        Route::get('/profile', [TowServiceProfileController::class, 'show'])->name('profile.show');
+        Route::get('/profile/edit', [TowServiceProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [TowServiceProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/change-password', [TowServiceProfileController::class, 'changePassword'])->name('profile.change-password');
+
+        // Offers Routes - unified for both company and individual
+        Route::get('/offers', [TowServiceProfileController::class, 'offers'])->name('offers.index');
+        Route::post('/offers/{offer}/accept', [TowServiceProfileController::class, 'acceptOffer'])->name('offers.accept');
+        Route::post('/offers/{offer}/reject', [TowServiceProfileController::class, 'rejectOffer'])->name('offers.reject');
+        
+        // Alternative: Keep separate routes but use the same controller
         // Company specific routes
         Route::middleware(['auth:tow_service_company'])->group(function () {
-            Route::get('/company/offers', [TowCompanyController::class, 'offers'])->name('company.offers.index');
-            Route::post('/company/offers/{offer}/accept', [TowCompanyController::class, 'acceptOffer'])->name('company.offers.accept');
-            Route::post('/company/offers/{offer}/reject', [TowCompanyController::class, 'rejectOffer'])->name('company.offers.reject');
+            Route::get('/company/offers', [TowServiceProfileController::class, 'companyOffers'])->name('company.offers.index');
+            Route::post('/company/offers/{offer}/accept', [TowServiceProfileController::class, 'acceptCompanyOffer'])->name('company.offers.accept');
+            Route::post('/company/offers/{offer}/reject', [TowServiceProfileController::class, 'rejectCompanyOffer'])->name('company.offers.reject');
         });
 
         // Individual specific routes
         Route::middleware(['auth:tow_service_individual'])->group(function () {
-            Route::get('/individual/offers', [TowIndividualController::class, 'offers'])->name('individual.offers.index');
-            Route::post('/individual/offers/{offer}/accept', [TowIndividualController::class, 'acceptOffer'])->name('individual.offers.accept');
-            Route::post('/individual/offers/{offer}/reject', [TowIndividualController::class, 'rejectOffer'])->name('individual.offers.reject');
+            Route::get('/individual/offers', [TowServiceProfileController::class, 'individualOffers'])->name('individual.offers.index');
+            Route::post('/individual/offers/{offer}/accept', [TowServiceProfileController::class, 'acceptIndividualOffer'])->name('individual.offers.accept');
+            Route::post('/individual/offers/{offer}/reject', [TowServiceProfileController::class, 'rejectIndividualOffer'])->name('individual.offers.reject');
         });
     });
 });
+
+
 
 
 // ==== INSURANCE COMPANY ROUTES ====
