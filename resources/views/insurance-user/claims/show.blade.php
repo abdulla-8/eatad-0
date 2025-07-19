@@ -39,219 +39,353 @@
     </div>
 
     <!-- Progress Tracker -->
-    @if($claim->status !== 'rejected')
- <div class="bg-white rounded-xl shadow-sm border p-6">
-    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-        <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-        </svg>
-        {{ t($company->translation_group . '.claim_progress') }}
-    </h3>
+<!-- Enhanced Progress Tracker with RTL Support & Beautiful Icons -->
+@if($claim->status !== 'rejected')
+@php
+    $isRtl = app()->getLocale() === 'ar' || in_array(app()->getLocale(), ['ar', 'he', 'fa']);
+@endphp
+<div class="bg-gradient-to-br from-white via-gray-50/50 to-white rounded-2xl shadow-xl border border-gray-100/60 backdrop-blur-sm p-8 relative overflow-hidden {{ $isRtl ? 'rtl' : 'ltr' }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
+    <!-- Decorative Background Elements -->
+    <div class="absolute top-0 {{ $isRtl ? 'left-0' : 'right-0' }} w-32 h-32 bg-gradient-to-{{ $isRtl ? 'br' : 'bl' }} from-emerald-50/40 to-transparent rounded-full {{ $isRtl ? '-translate-y-16 -translate-x-16' : '-translate-y-16 translate-x-16' }}"></div>
+    <div class="absolute bottom-0 {{ $isRtl ? 'right-0' : 'left-0' }} w-24 h-24 bg-gradient-to-{{ $isRtl ? 'tl' : 'tr' }} from-emerald-50/30 to-transparent rounded-full {{ $isRtl ? 'translate-y-12 translate-x-12' : 'translate-y-12 -translate-x-12' }}"></div>
     
-    <!-- Mobile: Vertical Timeline -->
-    <div class="space-y-6 md:hidden">
+    <!-- Header -->
+    <div class="relative z-10 mb-8">
+        <div class="flex items-center gap-3 mb-2 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+            <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+            </div>
+            <div class="{{ $isRtl ? 'text-right' : 'text-left' }}">
+                <h3 class="text-xl font-bold text-gray-900 tracking-tight">{{ t($company->translation_group . '.claim_progress') }}</h3>
+                <p class="text-sm text-gray-500 mt-1">Track your claim status in real-time</p>
+            </div>
+        </div>
+    </div>
+        
+    <!-- Mobile: Enhanced Vertical Timeline -->
+    <div class="space-y-8 md:hidden relative z-10">
         @php
             $steps = [
                 [
                     'title' => t($company->translation_group . '.submitted'),
                     'date' => $claim->created_at->format('M d'),
-                    'icon' => 'check',
-                    'color' => $company->primary_color,
-                    'active' => true
+                    'icon' => 'document',
+                    'active' => true,
+                    'description' => 'Your claim has been successfully submitted'
                 ],
                 [
                     'title' => t($company->translation_group . '.approved'),
                     'date' => $claim->status !== 'pending' ? t($company->translation_group . '.done') : t($company->translation_group . '.pending'),
-                    'icon' => in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'check' : '2',
-                    'color' => in_array($claim->status, ['approved', 'in_progress', 'completed']) ? $company->primary_color : '#e5e7eb',
-                    'active' => in_array($claim->status, ['approved', 'in_progress', 'completed'])
+                    'icon' => in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'badge-check' : 'clock',
+                    'active' => in_array($claim->status, ['approved', 'in_progress', 'completed']),
+                    'description' => 'Claim review and approval process'
                 ],
                 [
                     'title' => t($company->translation_group . '.vehicle_received'),
                     'date' => $claim->vehicle_arrived_at_center 
                               ? $claim->vehicle_arrived_at_center->format('M d') 
                               : ($claim->status === 'approved' ? t($company->translation_group . '.pending') : t($company->translation_group . '.waiting')),
-                    'icon' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) ? 'check' : '3',
-                    'color' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) ? $company->primary_color : '#e5e7eb',
-                    'active' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']))
+                    'icon' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) ? 'truck' : 'location',
+                    'active' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])),
+                    'description' => 'Vehicle arrival at service center'
                 ],
                 [
                     'title' => t($company->translation_group . '.repair_in_progress'),
                     'date' => $claim->status === 'completed' 
                               ? t($company->translation_group . '.completed') 
                               : ($claim->status === 'in_progress' ? t($company->translation_group . '.in_progress') : t($company->translation_group . '.waiting')),
-                    'icon' => in_array($claim->status, ['in_progress', 'completed']) ? ($claim->status === 'completed' ? 'check' : 'gear') : '4',
-                    'color' => in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb',
-                    'active' => in_array($claim->status, ['in_progress', 'completed'])
+                    'icon' => in_array($claim->status, ['in_progress', 'completed']) ? ($claim->status === 'completed' ? 'wrench' : 'cog') : 'tools',
+                    'active' => in_array($claim->status, ['in_progress', 'completed']),
+                    'description' => 'Vehicle repair and maintenance'
                 ],
                 [
                     'title' => t($company->translation_group . '.ready_for_pickup'),
                     'date' => $claim->status === 'completed' ? t($company->translation_group . '.ready') : t($company->translation_group . '.waiting'),
-                    'icon' => $claim->status === 'completed' ? 'check' : '5',
-                    'color' => $claim->status === 'completed' ? $company->primary_color : '#e5e7eb',
-                    'active' => $claim->status === 'completed'
+                    'icon' => $claim->status === 'completed' ? 'sparkles' : 'calendar',
+                    'active' => $claim->status === 'completed',
+                    'description' => 'Vehicle ready for collection'
                 ]
             ];
+            
+            // عكس ترتيب الخطوات للعربية
+            if($isRtl) {
+                $steps = array_reverse($steps);
+            }
         @endphp
 
-        @foreach($steps as $step)
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mt-1 flex-shrink-0
-                          {{ $step['active'] ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                     style="{{ $step['active'] ? 'background: ' . $step['color'] : '' }}">
-                    @if($step['icon'] === 'check')
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    @elseif($step['icon'] === 'gear')
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826 2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        </svg>
-                    @else
-                        {{ $step['icon'] }}
+        @foreach($steps as $index => $step)
+            <div class="flex items-start gap-5 relative group {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                <!-- Connecting Line -->
+                @if($index < count($steps) - 1)
+                    @php
+                        $nextStepActive = $isRtl ? ($index > 0 && $steps[$index - 1]['active']) : ($steps[$index + 1]['active']);
+                    @endphp
+                    <div class="absolute {{ $isRtl ? 'right-6' : 'left-6' }} top-16 w-0.5 h-12 {{ $nextStepActive ? 'bg-gradient-to-b from-emerald-500 to-emerald-400' : 'bg-gradient-to-b from-gray-200 to-gray-100' }} transition-all duration-500"></div>
+                @endif
+                
+                <!-- Enhanced Icon Circle -->
+                <div class="relative flex-shrink-0">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm z-10 relative transition-all duration-500 transform
+                                {{ $step['active'] ? 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white shadow-xl shadow-emerald-500/25 scale-110' : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400 shadow-md' }}">
+                        @switch($step['icon'])
+                            @case('document')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                @break
+                            @case('badge-check')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                                </svg>
+                                @break
+                            @case('clock')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                @break
+                            @case('truck')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                @break
+                            @case('location')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                @break
+                            @case('wrench')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                </svg>
+                                @break
+                            @case('cog')
+                                <svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                </svg>
+                                @break
+                            @case('tools')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3V1m0 18v2m8-10a4 4 0 00-4-4H9m12 4a4 4 0 01-4 4h-2m4-8a2 2 0 012 2v4a2 2 0 01-2 2"></path>
+                                </svg>
+                                @break
+                            @case('sparkles')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                                @break
+                            @case('calendar')
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                @break
+                        @endswitch
+                    </div>
+                    
+                    <!-- Pulse Animation for Active Steps -->
+                    @if($step['active'])
+                        <div class="absolute inset-0 w-12 h-12 rounded-2xl bg-emerald-500/20 animate-ping"></div>
                     @endif
                 </div>
-                <div>
-                    <div class="font-medium">{{ $step['title'] }}</div>
-                    <div class="text-xs text-gray-500">{{ $step['date'] }}</div>
+                
+                <!-- Enhanced Content Card -->
+                <div class="flex-1 pt-1 pb-2">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 border {{ $step['active'] ? 'border-emerald-200/50 shadow-lg shadow-emerald-500/10' : 'border-gray-200/50 shadow-sm' }} transition-all duration-300 group-hover:shadow-lg">
+                        <div class="font-bold text-gray-900 mb-1 {{ $step['active'] ? 'text-emerald-800' : 'text-gray-600' }} transition-colors duration-300 {{ $isRtl ? 'text-right' : 'text-left' }}">
+                            {{ $step['title'] }}
+                        </div>
+                        <div class="text-xs text-gray-500 mb-2 {{ $isRtl ? 'text-right' : 'text-left' }}">{{ $step['description'] }}</div>
+                        <div class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold {{ $step['active'] ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }} transition-all duration-300">
+                            @if($step['active'] && $step['icon'] === 'cog')
+                                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse {{ $isRtl ? 'ml-2' : 'mr-2' }}"></div>
+                            @endif
+                            {{ $step['date'] }}
+                        </div>
+                    </div>
                 </div>
             </div>
         @endforeach
     </div>
 
-    <!-- Desktop: Horizontal Timeline -->
-    <div class="hidden md:flex items-center justify-between mb-4">
-        <!-- Step 1: Submitted -->
-        <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold mb-2" 
-                 style="background: {{ $company->primary_color }};">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+    <!-- Desktop: Enhanced Horizontal Timeline -->
+    <div class="hidden md:block relative z-10">
+        <!-- Enhanced Progress Bar Background -->
+        <div class="relative mb-12">
+            <!-- Background Track -->
+            <div class="absolute top-6 {{ $isRtl ? 'right-0 left-0' : 'left-0 right-0' }} h-2 bg-gradient-to-{{ $isRtl ? 'l' : 'r' }} from-gray-100 via-gray-200 to-gray-100 rounded-full shadow-inner"></div>
+            
+            <!-- Active Progress with Glow Effect -->
+            @php
+                $progressWidth = 0;
+                if (in_array($claim->status, ['approved', 'in_progress', 'completed'])) $progressWidth = 25;
+                if ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) $progressWidth = 50;
+                if (in_array($claim->status, ['in_progress', 'completed'])) $progressWidth = 75;
+                if ($claim->status === 'completed') $progressWidth = 100;
+            @endphp
+            
+            <div class="absolute top-6 {{ $isRtl ? 'right-0' : 'left-0' }} h-2 bg-gradient-to-{{ $isRtl ? 'l' : 'r' }} from-emerald-400 via-emerald-500 to-emerald-600 rounded-full shadow-lg shadow-emerald-500/30 transition-all duration-2000 ease-out" 
+                 style="width: {{ $progressWidth }}%">
+                <!-- Animated Shine Effect -->
+                <div class="absolute inset-0 bg-gradient-to-{{ $isRtl ? 'l' : 'r' }} from-transparent via-white/30 to-transparent rounded-full animate-pulse"></div>
             </div>
-            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.submitted') }}</span>
-            <span class="text-xs text-gray-500">{{ $claim->created_at->format('M d') }}</span>
-        </div>
-        
-        <!-- Connector -->
-        <div class="flex-1 h-0.5 mx-2" 
-             style="background: {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) || $claim->vehicle_arrived_at_center ? $company->primary_color : '#e5e7eb' }};"></div>
-        
-        <!-- Step 2: Approved -->
-        <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                        {{ in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                 style="{{ in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
-                @if(in_array($claim->status, ['approved', 'in_progress', 'completed']))
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                @else
-                    2
-                @endif
-            </div>
-            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.approved') }}</span>
-            <span class="text-xs text-gray-500">
-                @if($claim->status !== 'pending')
-                    {{ t($company->translation_group . '.done') }}
-                @else
-                    {{ t($company->translation_group . '.pending') }}
-                @endif
-            </span>
-        </div>
-        
-        <!-- Connector -->
-        <div class="flex-1 h-0.5 mx-2" 
-             style="background: {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></div>
-        
-        <!-- Step 3: Vehicle Received -->
-        <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                        {{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                 style="{{ $claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
-                @if($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']))
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                @else
-                    3
-                @endif
-            </div>
-            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.vehicle_received') }}</span>
-            <span class="text-xs text-gray-500">
-                @if($claim->vehicle_arrived_at_center)
-                    {{ $claim->vehicle_arrived_at_center->format('M d') }}
-                @elseif($claim->status === 'approved')
-                    {{ t($company->translation_group . '.pending') }}
-                @else
-                    {{ t($company->translation_group . '.waiting') }}
-                @endif
-            </span>
-        </div>
-        
-        <!-- Connector -->
-        <div class="flex-1 h-0.5 mx-2" 
-             style="background: {{ in_array($claim->status, ['in_progress', 'completed']) ? $company->primary_color : '#e5e7eb' }};"></div>
-        
-        <!-- Step 4: Repair In Progress -->
-        <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                        {{ in_array($claim->status, ['in_progress', 'completed']) ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                 style="{{ in_array($claim->status, ['in_progress', 'completed']) ? 'background: ' . $company->primary_color : '' }}">
-                @if(in_array($claim->status, ['in_progress', 'completed']))
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        @if($claim->status === 'completed')
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        @else
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826 2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                
+            <!-- Enhanced Steps Container -->
+            <div class="relative flex {{ $isRtl ? 'flex-row-reverse' : '' }} justify-between items-start">
+                @php
+                    $desktopSteps = [
+                        [
+                            'title' => t($company->translation_group . '.submitted'),
+                            'date' => $claim->created_at->format('M d'),
+                            'icon' => 'document',
+                            'active' => true
+                        ],
+                        [
+                            'title' => t($company->translation_group . '.approved'),
+                            'date' => $claim->status !== 'pending' ? t($company->translation_group . '.done') : t($company->translation_group . '.pending'),
+                            'icon' => in_array($claim->status, ['approved', 'in_progress', 'completed']) ? 'badge-check' : 'clock',
+                            'active' => in_array($claim->status, ['approved', 'in_progress', 'completed'])
+                        ],
+                        [
+                            'title' => t($company->translation_group . '.vehicle_received'),
+                            'date' => $claim->vehicle_arrived_at_center 
+                                      ? $claim->vehicle_arrived_at_center->format('M d') 
+                                      : ($claim->status === 'approved' ? t($company->translation_group . '.pending') : t($company->translation_group . '.waiting')),
+                            'icon' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed'])) ? 'truck' : 'location',
+                            'active' => ($claim->vehicle_arrived_at_center || in_array($claim->status, ['in_progress', 'completed']))
+                        ],
+                        [
+                            'title' => t($company->translation_group . '.repair_in_progress'),
+                            'date' => $claim->status === 'completed' 
+                                      ? t($company->translation_group . '.completed') 
+                                      : ($claim->status === 'in_progress' ? t($company->translation_group . '.in_progress') : t($company->translation_group . '.waiting')),
+                            'icon' => in_array($claim->status, ['in_progress', 'completed']) ? ($claim->status === 'completed' ? 'wrench' : 'cog') : 'tools',
+                            'active' => in_array($claim->status, ['in_progress', 'completed'])
+                        ],
+                        [
+                            'title' => t($company->translation_group . '.ready_for_pickup'),
+                            'date' => $claim->status === 'completed' ? t($company->translation_group . '.ready') : t($company->translation_group . '.waiting'),
+                            'icon' => $claim->status === 'completed' ? 'sparkles' : 'calendar',
+                            'active' => $claim->status === 'completed'
+                        ]
+                    ];
+                @endphp
+
+                @foreach($desktopSteps as $step)
+                <!-- Step Card -->
+                <div class="flex flex-col items-center group">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold shadow-lg mb-4 transition-all duration-500 group-hover:scale-110
+                                    {{ $step['active'] ? 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white shadow-emerald-500/30 scale-110' : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400' }}">
+                            @switch($step['icon'])
+                                @case('document')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    @break
+                                @case('badge-check')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                                    </svg>
+                                    @break
+                                @case('clock')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    @break
+                                @case('truck')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                    </svg>
+                                    @break
+                                @case('location')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    @break
+                                @case('wrench')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    </svg>
+                                    @break
+                                @case('cog')
+                                    <svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    </svg>
+                                    @break
+                                @case('tools')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM7 3V1m0 18v2m8-10a4 4 0 00-4-4H9m12 4a4 4 0 01-4 4h-2m4-8a2 2 0 012 2v4a2 2 0 01-2 2"></path>
+                                    </svg>
+                                    @break
+                                @case('sparkles')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                    </svg>
+                                    @break
+                                @case('calendar')
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    @break
+                            @endswitch
+                        </div>
+                        @if($step['active'])
+                            <div class="absolute inset-0 w-12 h-12 rounded-2xl bg-emerald-500/20 animate-ping"></div>
                         @endif
-                    </svg>
-                @else
-                    4
-                @endif
+                    </div>
+                    <div class="bg-white/90 backdrop-blur-sm rounded-xl p-4 border max-w-32 text-center transition-all duration-300 group-hover:shadow-xl
+                                {{ $step['active'] ? 'border-emerald-200/50 shadow-lg shadow-emerald-500/10' : 'border-gray-200/50 shadow-md' }}">
+                        <span class="text-sm font-bold block mb-2 {{ $step['active'] ? 'text-emerald-800' : 'text-gray-600' }}">
+                            {{ $step['title'] }}
+                        </span>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full {{ $step['active'] ? 'bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-600 border border-gray-200' }}">
+                            @if($step['active'] && $step['icon'] === 'cog')
+                                <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse {{ $isRtl ? 'ml-1' : 'mr-1' }}"></div>
+                            @endif
+                            {{ $step['date'] }}
+                        </span>
+                    </div>
+                </div>
+                @endforeach
             </div>
-            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.repair_in_progress') }}</span>
-            <span class="text-xs text-gray-500">
-                @if($claim->status === 'completed')
-                    {{ t($company->translation_group . '.completed') }}
-                @elseif($claim->status === 'in_progress')
-                    {{ t($company->translation_group . '.in_progress') }}
-                @else
-                    {{ t($company->translation_group . '.waiting') }}
-                @endif
-            </span>
-        </div>
-        
-        <!-- Connector -->
-        <div class="flex-1 h-0.5 mx-2" 
-             style="background: {{ $claim->status === 'completed' ? $company->primary_color : '#e5e7eb' }};"></div>
-        
-        <!-- Step 5: Ready for Pickup -->
-        <div class="flex flex-col items-center flex-1">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2
-                        {{ $claim->status === 'completed' ? 'text-white' : 'text-gray-400 bg-gray-200' }}"
-                 style="{{ $claim->status === 'completed' ? 'background: ' . $company->primary_color : '' }}">
-                @if($claim->status === 'completed')
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                @else
-                    5
-                @endif
-            </div>
-            <span class="text-xs font-medium text-center">{{ t($company->translation_group . '.ready_for_pickup') }}</span>
-            <span class="text-xs text-gray-500">
-                @if($claim->status === 'completed')
-                    {{ t($company->translation_group . '.ready') }}
-                @else
-                    {{ t($company->translation_group . '.waiting') }}
-                @endif
-            </span>
         </div>
     </div>
-</div>
-
+    
+    <!-- Enhanced Status Summary -->
+    @if($claim->status === 'completed')
+        <div class="mt-8 p-6 bg-gradient-to-{{ $isRtl ? 'l' : 'r' }} from-emerald-50 via-emerald-50/80 to-emerald-50 border-2 border-emerald-200/50 rounded-2xl relative z-10">
+            <div class="flex items-center gap-4 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="{{ $isRtl ? 'text-right' : 'text-left' }}">
+                    <h4 class="text-lg font-bold text-emerald-800 mb-1">🎉 Great News!</h4>
+                    <p class="text-emerald-700">Your vehicle is ready for pickup. Please visit our service center to collect your repaired vehicle.</p>
+                </div>
+            </div>
+        </div>
+    @elseif($claim->status === 'in_progress')
+        <div class="mt-8 p-6 bg-gradient-to-{{ $isRtl ? 'l' : 'r' }} from-blue-50 via-blue-50/80 to-blue-50 border-2 border-blue-200/50 rounded-2xl relative z-10">
+            <div class="flex items-center gap-4 {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg class="w-6 h-6 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    </svg>
+                </div>
+                <div class="{{ $isRtl ? 'text-right' : 'text-left' }}">
+                    <h4 class="text-lg font-bold text-blue-800 mb-1">⚙️ Work in Progress</h4>
+                    <p class="text-blue-700">Our technicians are currently working on your vehicle. We'll notify you once the repairs are completed.</p>
+                </div>
+            </div>
+        </div>
     @endif
+</div>
+@endif
 
     {{-- Main Status Alert --}}
     @if($claim->status === 'completed')
