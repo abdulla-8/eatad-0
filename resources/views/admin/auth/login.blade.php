@@ -29,7 +29,7 @@
     </script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 {{ $isRtl ? 'font-cairo' : 'font-inter' }}">
-    
+
     <!-- Language Switcher -->
     <div class="fixed top-8 {{ $isRtl ? 'left-8' : 'right-8' }} z-50">
         <x-language-switcher class="bg-dark-800/80 backdrop-blur-md border border-gold-500/30 text-white hover:bg-dark-700/80 hover:border-gold-500/50 transition-all duration-300 shadow-lg" />

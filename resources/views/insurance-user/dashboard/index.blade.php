@@ -6,7 +6,10 @@
 @endpush
 
 @section('content')
-<div class="container mx-auto px-4 py-6 rtl:text-right ltr:text-left" dir="rtl">
+@php
+    $isRtl = app()->getLocale() === 'ar' || in_array(app()->getLocale(), ['ar', 'he', 'fa']);
+@endphp
+<div class="container mx-auto px-4 py-6 {{ $isRtl ? 'text-right' : 'text-left' }}" >
     <!-- Welcome Section -->
     <div class="rounded-2xl p-6 md:p-8 text-white text-center mb-6 md:mb-8 shadow-xl" 
          style="background: linear-gradient(135deg, {{ $company->primary_color ?? '#3b82f6' }}, {{ $company->secondary_color ?? '#8b5cf6' }});">

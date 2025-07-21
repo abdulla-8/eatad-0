@@ -3,7 +3,7 @@
 @section('title', t($company->translation_group . '.claim_details'))
 
 @section('content')
-<div class=" space-y-6">
+<div class=" space-y-6  ">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="flex items-center gap-4">
             <a href="{{ route('insurance.user.claims.index', $company->company_slug) }}" 
@@ -625,12 +625,13 @@
             </div>
         @endif
     @endif
-
-    <div class="grid lg:grid-cols-3 gap-6">
+                </div>
+             
+    <div class="md:grid lg:grid-cols-3 gap-6 ">
         <div class="lg:col-span-2 space-y-6">
             {{-- Enhanced Claim Information Section --}}
-            <div class="bg-white rounded-xl shadow-sm border">
-                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-white">
+            <div class=" rounded-xl shadow-sm border p-6 ">
+                <div class="lg:p-6 border-b bg-gradient-to-r from-gray-50 to-white">
                     <h3 class="text-lg font-bold flex items-center gap-2">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: {{ $company->primary_color }}20;">
                             <svg class="w-5 h-5" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -641,10 +642,10 @@
                     </h3>
                 </div>
                 
-                <div class="p-6">
+                <div class=" p-3 lg:p-6">
                     {{-- Basic Information Section --}}
                <div class="mb-8">
-    <div class="flex items-center p-4 mb-4 text-sm text-green-800 rounded-lg bg-gradient-to-r from-green-50 to-green-100 border border-green-200 shadow-md" role="alert">
+    <div class="flex items-center  p-4 mb-4 text-sm text-green-800 rounded-lg bg-gradient-to-r from-green-50 to-green-100 border border-green-200 shadow-md" role="alert">
         <svg class="shrink-0 inline w-5 h-5 me-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
         </svg>
@@ -657,8 +658,8 @@
 
 
                     {{-- Vehicle Information Section --}}
-                    <div class="mb-8">
-                        <div class="flex items-center gap-2 mb-4">
+                    <div class="mb-8  {{ $isRtl ? 'rtl' : 'ltr' }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
+                        <div class="flex items-center gap-2 mb-4 {{ $isRtl ? 'rtl' : 'ltr' }}">
                             <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background: {{ $company->primary_color }};">
                                 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -670,7 +671,7 @@
                        
                             
                             @if($claim->vehicle_brand)
-                            <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                            <div class="bg-gray-50 rounded-lg p-4 border-l-4 " style="border-color: {{ $company->primary_color }};">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1408,18 +1409,18 @@
                 </div>
                 
                 <div class="p-6">
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 ">
                         @foreach($claim->attachments->groupBy('type') as $type => $attachments)
-                        <div class="bg-gray-50 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
+                        <div class="bg-gray-50 mb-8 md:mb-0 rounded-lg p-4 border-l-4" style="border-color: {{ $company->primary_color }};">
                             <h4 class="font-medium text-gray-900 mb-3 flex items-center gap-2">
                                 <svg class="w-4 h-4" style="color: {{ $company->primary_color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
                                 {{ t($company->translation_group . '.' . $type) }}
                             </h4>
-                            <div class="space-y-2">
+                            <div class="space-y-2 ">
                                 @foreach($attachments as $attachment)
-                                <div class="flex items-center justify-between bg-white rounded p-2 border">
+                                <div class="flex  items-center justify-between bg-white rounded p-2 border">
                                     <div class="flex items-center gap-2 flex-1 min-w-0">
                                         <div class="w-8 h-8 rounded flex items-center justify-center flex-shrink-0"
                                              style="background: {{ $company->primary_color }}20;">
@@ -1677,4 +1678,5 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
         </script>
+        
 @endsection
