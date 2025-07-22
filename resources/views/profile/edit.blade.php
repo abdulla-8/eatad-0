@@ -1,11 +1,11 @@
 {{-- resources/views/profile/edit.blade.php --}}
 @extends($userType === 'insurance_company' ? 'insurance.layouts.app' : ($userType === 'service_center' ? 'service-center.layouts.app' : 'insurance-user.layouts.app'))
 
-@section('title', 'تعديل البروفايل')
+@section('title', t($company->translation_group . '.edit_profile'))
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto py-8 px-2 sm:px-3 lg:px-8">
         
         <!-- Header -->
         <div class="mb-8">
@@ -25,8 +25,8 @@
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">تعديل البروفايل</h1>
-                    <p class="text-gray-600 mt-1">قم بتحديث معلوماتك الشخصية</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ t($company->translation_group . '.edit_profile') }}</h1>
+                    <p class="text-gray-600 mt-1">{{ t($company->translation_group . '.update_personal_information') }}</p>
                 </div>
             </div>
         </div>
@@ -44,19 +44,19 @@
                 @method('PUT')
                 
                 <!-- Form Header -->
-                <div class="border-b border-gray-200 px-8 py-6">
+                <div class="border-b border-gray-200 px-3 md:px-8 py-6">
                     <h2 class="text-2xl font-bold text-gray-900 flex items-center">
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 rtl:mr-0 rtl:ml-3" style="background-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}20;">
                             <svg class="w-5 h-5" style="color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                             </svg>
                         </div>
-                        تعديل المعلومات الشخصية
+                        {{ t($company->translation_group . '.edit_personal_information') }}
                     </h2>
                 </div>
 
                 <!-- Form Fields -->
-                <div class="px-8 py-6">
+                <div class="px-3 md:px-8 py-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         @foreach($profileData['display_fields'] as $field => $info)
                             <div class="group">
@@ -136,7 +136,7 @@
                                             </svg>
                                         @endif
                                     </div>
-                                    {{ $info['label'] }}
+                                    {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}
                                 </label>
                                 
                                 @if(str_contains($field, 'address'))
@@ -145,7 +145,7 @@
                                               rows="3"
                                               class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:border-transparent px-4 py-3 transition-all duration-200 @error($field) border-red-500 @enderror"
                                               style="focus:ring-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};"
-                                              placeholder="أدخل {{ $info['label'] }}">{{ old($field, $user->$field) }}</textarea>
+                                              placeholder="{{ t($company->translation_group . '.enter') }} {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}">{{ old($field, $user->$field) }}</textarea>
                                 @else
                                     <input type="{{ str_contains($field, 'count') || str_contains($field, 'technicians') ? 'number' : 'text' }}" 
                                            id="{{ $field }}" 
@@ -154,7 +154,7 @@
                                            {{ str_contains($field, 'count') || str_contains($field, 'technicians') ? 'min="0"' : '' }}
                                            class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:border-transparent px-4 py-3 transition-all duration-200 @error($field) border-red-500 @enderror"
                                            style="focus:ring-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};"
-                                           placeholder="أدخل {{ $info['label'] }}">
+                                           placeholder="{{ t($company->translation_group . '.enter') }} {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}">
                                 @endif
                                 
                                 @error($field)
@@ -179,7 +179,7 @@
                             <svg class="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
                             </svg>
-                            حفظ التغييرات
+                            {{ t($company->translation_group . '.save_changes') }}
                         </button>
                         
                         @if($userType === 'insurance_company')
@@ -195,7 +195,7 @@
                             <svg class="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                             </svg>
-                            إلغاء
+                            {{ t($company->translation_group . '.cancel') }}
                         </a>
                     </div>
                 </div>
@@ -223,7 +223,7 @@
         <svg class="w-4 h-4 inline mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
-        يرجى تصحيح الأخطاء أدناه
+        {{ t($company->translation_group . '.please_fix_errors_below') }}
     </div>
     <script>
         setTimeout(() => {

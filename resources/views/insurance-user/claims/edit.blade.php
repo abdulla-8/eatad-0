@@ -155,7 +155,7 @@
     <label class="block text-sm font-semibold text-gray-700 mb-3">
         {{ t($company->translation_group . '.vehicle_plate_number') }}
     </label>
-    <div class="flex border border-gray-300 rounded- bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 w-fit {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
+    <div class="flex border border-gray-300 p-2 rounded-lg bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 w-fit {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
         <!-- محتوى اللوحة -->
         <div class="flex flex-col h-24 md:h-28">
             <!-- الصف الأول - العربية -->
@@ -477,9 +477,9 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
     <div class="section-content">
-        <div class="grid md:grid-cols-2 gap-6">
+        <div class="md:grid md:grid-cols-2 gap-6">
             <!-- Policy Image -->
-            <div class="input-group">
+            <div class="input-group mb-8">
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                     {{ t($company->translation_group . '.policy_image') }} 
                     <span class="text-gray-500 text-xs">({{ t($company->translation_group . '.optional') }})</span>
@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- Registration Form -->
-            <div class="input-group">
+            <div class="input-group mb-8">
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                     {{ t($company->translation_group . '.registration_form') }}
                     <span class="text-yellow-600 text-xs">({{ t($company->translation_group . '.conditional') }})</span>
@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- Damage Report -->
-            <div class="input-group">
+            <div class="input-group mb-8">
                 @php
                     $damageReports = $claim->attachments->where('type', 'damage_report');
                     $damageReportRequired = $damageReports->count() === 0;
@@ -650,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- Estimation Report -->
-            <div class="input-group">
+            <div class="input-group mb-8">
                 @php
                     $estimationReports = $claim->attachments->where('type', 'estimation_report');
                     $estimationReportRequired = $estimationReports->count() === 0;
@@ -718,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <!-- Repair Receipt -->
-            <div class="input-group">
+            <div class="input-group mb-8">
                 <label class="block text-sm font-semibold text-gray-700 mb-3">
                     {{ t($company->translation_group . '.repair_receipt') }}
                     <span class="text-gray-500 text-xs">({{ t($company->translation_group . '.optional') }})</span>

@@ -11,7 +11,7 @@
 @endphp
 
 <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class=" max-w-full md:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
@@ -43,9 +43,9 @@
         </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4" style="border-left-color: {{ $primaryColor }};">
-                <div class="flex items-center justify-between">
+                <div class="md:flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">إجمالي المراكز</p>
                         <p class="text-3xl font-bold text-gray-900">{{ $serviceCenters->count() }}</p>

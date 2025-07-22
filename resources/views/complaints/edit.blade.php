@@ -274,7 +274,7 @@
                 
                 <!-- Form Actions -->
                 <div class="flex gap-4 pt-6 border-t border-gray-200 mt-6">
-                    <button type="submit" class="flex-1 inline-flex justify-center items-center gap-2 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    <button  style="background-color: {{ $profileData['colors']['primary'] ?? '#000' }};" type="submit" class="flex-1 inline-flex justify-center items-center gap-2 py-3  text-white rounded-lg font-medium hover:bg-black transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>

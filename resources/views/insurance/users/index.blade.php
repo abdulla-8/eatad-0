@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="md:flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">{{ t($company->translation_group . '.users_management') }}</h1>
             <p class="text-gray-600 mt-1">{{ t($company->translation_group . '.manage_company_users') }} {{ $company->legal_name }}</p>
@@ -21,8 +21,8 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border p-6">
+    <div class="md:grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
                      style="background: {{ $company->primary_color }}20;">
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border p-6">
+        <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border p-6">
+        <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border p-6">
+        <div class="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

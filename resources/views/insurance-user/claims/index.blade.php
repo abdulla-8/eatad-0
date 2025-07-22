@@ -310,14 +310,19 @@
                     <!-- Actions -->
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-100">
                         <div class="flex flex-col sm:flex-row gap-3 min-w-0 flex-1">
-                            <a href="{{ route('insurance.user.claims.show', [$company->company_slug, $claim->id]) }}" 
-                               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white transition-colors text-sm sm:text-base justify-center sm:justify-start"
-                               style="background: {{ $company->primary_color }};">
-                                <span class="break-words">{{ t($company->translation_group . '.view_details') }}</span>
-                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
+                       <a href="{{ route('insurance.user.claims.show', [$company->company_slug, $claim->id]) }}" 
+   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white transition-colors text-sm sm:text-base justify-center sm:justify-start"
+   style="background: {{ $company->primary_color }};">
+    <span class="break-words">{{ t($company->translation_group . '.view_details') }}</span>
+    <svg class="w-4 h-4 flex-shrink-0 {{ $isRtl ? '' : '' }}" 
+         fill="none" 
+         stroke="currentColor" 
+         viewBox="0 0 24 24"
+         style="{{ $isRtl ? 'transform: scaleX(-1);' : '' }}">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+    </svg>
+</a>
+
                             
                             @if($claim->status === 'rejected')
                                 <a href="{{ route('insurance.user.claims.edit', [$company->company_slug, $claim->id]) }}" 

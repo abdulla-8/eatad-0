@@ -11,29 +11,29 @@
             <p class="text-gray-600 mt-1">{{ t('service_center.manage_assigned_claims') }}</p>
         </div>
         <!-- Quick Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-7 gap-3">
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="md:grid grid-cols-2 lg:grid-cols-7 gap-3 p-3">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-6">
                 <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.total') }}</div>
             </div>
      
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-6">
                 <div class="text-2xl font-bold text-blue-600">{{ $stats['approved'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.accepted_by_center') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-6">
                 <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.rejected_by_center') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-6">
                 <div class="text-2xl font-bold text-purple-600">{{ $stats['awaiting_parts'] ?? 0 }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.awaiting_parts') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-6">
                 <div class="text-2xl font-bold text-yellow-600">{{ $stats['in_progress'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.in_progress') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-6">
                 <div class="text-2xl font-bold text-gray-600">{{ $stats['completed'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.completed') }}</div>
             </div>

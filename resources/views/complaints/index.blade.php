@@ -27,8 +27,8 @@
             @endif
         </div>
         
-        <button onclick="openComplaintModal()" 
-                class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+        <button onclick="openComplaintModal()"  style="background-color: {{ $profileData['colors']['primary'] ?? '#001100' }};"
+                class="inline-flex items-center gap-2 px-6 py-3  text-white rounded-lg font-medium hover:bg-black transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -102,7 +102,7 @@
                 </div>
                 
                 <div class="flex gap-2 lg:items-end">
-                    <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    <button  style="background-color: {{ $profileData['colors']['primary'] ?? '#000' }};" type="submit" class="px-6 py-2.5  text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
                         <svg class="w-4 h-4 inline {{ app()->getLocale() === 'ar' ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                         </svg>
@@ -453,7 +453,7 @@
             
             <!-- Modal Actions -->
             <div class="flex gap-4 pt-6 border-t border-gray-200 mt-6">
-                <button type="submit" class="flex-1 inline-flex justify-center items-center gap-2 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <button  style="background-color: {{ $profileData['colors']['primary'] ?? '#000' }};" type="submit" class="flex-1 inline-flex justify-center items-center gap-2 py-3  text-white rounded-lg font-medium hover:bg-black transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                     </svg>

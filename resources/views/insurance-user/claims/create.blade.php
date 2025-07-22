@@ -5,6 +5,7 @@
 @push('styles')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <style>
     .form-section {
         background: white;
@@ -223,7 +224,7 @@
 @endpush
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-8 p-6 ">
+<div class="max-w-full md:max-w-5xl mx-auto space-y-8 p-2 md:p-6 ">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
         <a href="{{ route('insurance.user.claims.index', $company->company_slug) }}" 
@@ -283,9 +284,9 @@
                             <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <select name="is_vehicle_working" id="is_vehicle_working" class="form-input input-with-icon w-full" required>
-                                <option value="1" {{ old('is_vehicle_working') == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.yes') }}</option>
-                                <option value="0" {{ old('is_vehicle_working') == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.no') }}</option>
+                            <select name="is_vehicle_working" id="is_vehicle_working" class="form-input input-with-icon w-full over-flow-hidden" required>
+                                <option  value="1" {{ old('is_vehicle_working') == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.yes') }}</option>
+                                <option  value="0" {{ old('is_vehicle_working') == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.no') }}</option>
                             </select>
                         </div>
                     </div>
@@ -295,7 +296,7 @@
     <label class="block text-sm font-semibold text-gray-700 mb-3">
         {{ t($company->translation_group . '.vehicle_plate_number') }}
     </label>
-    <div class="flex border border-gray-300 rounded-lg bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 w-fit {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
+    <div class="flex border border-gray-300 p-2 rounded-lg bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 w-fit {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
         <!-- محتوى اللوحة -->
         <div class="flex flex-col h-24 md:h-28">
             <!-- الصف الأول - العربية -->
