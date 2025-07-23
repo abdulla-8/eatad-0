@@ -42,7 +42,7 @@
 </head>
 
 <body class="bg-gray-100 {{ app()->getLocale() == 'ar' ? 'font-cairo' : 'font-inter' }}">
-    <div class="min-h-screen">
+    <div class="min-h-screen ">
 
         <!-- Mobile Header -->
         <header class="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3 relative z-50">
@@ -65,9 +65,9 @@
             </div>
         </header>
 
-        <div class="flex lg:flex-row">
+        <div class="flex  lg:flex-row">
             <!-- Sidebar -->
-            <aside id="sidebar" class="fixed lg:static inset-y-0 {{ $isRtl ? 'right-0' : 'left-0' }} z-40 w-72 bg-dark-900 text-white transform {{ $isRtl ? 'translate-x-full' : '-translate-x-full' }} lg:translate-x-0 transition-transform duration-300 ease-in-out lg:flex lg:flex-col">
+            <aside id="sidebar" class="fixed d-none lg:static inset-y-0 {{ $isRtl ? 'right-0' : 'left-0' }} z-40 w-72 bg-dark-900 text-white transform {{ $isRtl ? 'translate-x-full' : '-translate-x-full' }} lg:translate-x-0 transition-transform duration-300 ease-in-out lg:flex lg:flex-col">
 
                 <!-- Logo Section -->
                 <div class="p-6 border-b border-gray-700">

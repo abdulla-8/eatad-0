@@ -41,7 +41,7 @@
         @endif
         <div class="flex-1">
             <h1 class="text-3xl font-bold text-gray-900">{{ t($translationGroup . '.complaint_details') }}</h1>
-            <p class="text-gray-600 mt-1">{{ t($translationGroup . '.view_complaint_inquiry_details') }}</p>
+          
             
             <!-- عرض اسم الشركة لمستخدمي شركة التأمين -->
             @if($userType === 'insurance_user' && $user->company)

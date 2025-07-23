@@ -37,28 +37,28 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
-        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+    <div class="md:grid grid-cols-2 lg:grid-cols-6 gap-3">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
             <div class="text-xs text-gray-600">{{ t($translationGroup . '.total') }}</div>
         </div>
-        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-red-600">{{ $stats['unread'] }}</div>
             <div class="text-xs text-gray-600">{{ t($translationGroup . '.unread') }}</div>
         </div>
-        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-green-600">{{ $stats['read'] }}</div>
             <div class="text-xs text-gray-600">{{ t($translationGroup . '.read') }}</div>
         </div>
-        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-blue-600">{{ $stats['inquiry'] }}</div>
             <div class="text-xs text-gray-600">{{ t($translationGroup . '.inquiries') }}</div>
         </div>
-        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-yellow-600">{{ $stats['complaint'] }}</div>
             <div class="text-xs text-gray-600">{{ t($translationGroup . '.complaints') }}</div>
         </div>
-        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-gray-600">{{ $stats['other'] }}</div>
             <div class="text-xs text-gray-600">{{ t($translationGroup . '.other') }}</div>
         </div>
@@ -139,15 +139,46 @@
                 <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow {{ !$complaint->is_read ? 'ring-2 ring-red-100' : '' }}">
                     <div class="p-6">
                         <!-- Header -->
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-center gap-3 {{ app()->getLocale() === 'ar' ? 'flex-row-reverse' : '' }}">
-                                <div class="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold {{ !$complaint->is_read ? 'bg-red-500' : 'bg-blue-600' }}">
-                                    {{ str_pad($complaint->id, 2, '0', STR_PAD_LEFT) }}
-                                </div>
+                        <div class="flex  items-start justify-between mb-4">
+                            <div class="flex  items-center  {{ app()->getLocale() === 'ar' ? 'flex-row-reverse' : '' }}">
+
+                            <div class="flex items-center">
+                                <div class="relative me-3">
+    <svg class="w-10 h-10 drop-shadow-lg" viewBox="0 0 24 24">
+        <defs>
+            <linearGradient id="warningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#FF8E53;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
+            </linearGradient>
+            <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge> 
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+        
+        <!-- الخلفية مع التأثير -->
+        <path d="M12 2L3 20h18L12 2z" fill="url(#warningGradient)" opacity="0.9" filter="url(#glow)"/>
+        
+        <!-- الحدود -->
+        <path stroke="#FFFFFF" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"
+              d="M12 2L3 20h18L12 2z"/>
+        
+        <!-- علامة التعجب -->
+        <line x1="12" y1="9" x2="12" y2="13" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="12" cy="16" r="1.2" fill="#FFFFFF"/>
+    </svg>
+</div>
+                                      <h3 class="font-bold text-lg {{ !$complaint->is_read ? 'text-red-900' : 'text-gray-900' }}">{{ $complaint->subject }}</h3>
+                                
+
+
                                 <div>
-                                    <h3 class="font-bold text-lg {{ !$complaint->is_read ? 'text-red-900' : 'text-gray-900' }}">{{ $complaint->subject }}</h3>
-                                    <p class="text-gray-500 text-xs">{{ $complaint->created_at->format('d/m/Y H:i') }}</p>
-                                    
+                              
+                                  
                                     <!-- Show user details for insurance users -->
                                     @if($userType === 'insurance_user')
                                         <div class="mt-1 flex items-center gap-2 text-xs">
@@ -179,6 +210,7 @@
 
                         <!-- Content -->
                         <div class="mb-4">
+                               <p class="text-gray-500 text-xs">{{ $complaint->created_at->format('d/m/Y H:i') }}</p>   
                             <p class="text-gray-600 text-sm">
                                 {{ Str::limit($complaint->description, 150) }}
                             </p>

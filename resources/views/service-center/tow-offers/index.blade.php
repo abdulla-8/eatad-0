@@ -3,29 +3,29 @@
 @section('title', t('service_center.tow_offers'))
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 ">
     <!-- Header with Stats -->
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="md:flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
             <h1 class="text-3xl font-bold text-gray-900">{{ t('service_center.tow_offers') }}</h1>
             <p class="text-gray-600 mt-1">{{ t('service_center.manage_tow_offers') }}</p>
         </div>
         
         <!-- Quick Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+        <div class="md:grid grid-cols-2 lg:grid-cols-4 gap-3  md:p-0">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
                 <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.total_offers') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
                 <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.pending') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
                 <div class="text-2xl font-bold text-green-600">{{ $stats['accepted'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.accepted') }}</div>
             </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
                 <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
                 <div class="text-xs text-gray-600">{{ t('service_center.rejected') }}</div>
             </div>
