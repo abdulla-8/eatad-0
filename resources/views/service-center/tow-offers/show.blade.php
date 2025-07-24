@@ -82,7 +82,7 @@
                         </svg>
                         <span class="text-gray-600 text-sm">{{ t('service_center.current_stage') }}</span>
                     </div>
-                    <span class="font-medium">{{ t('service_center.' . $offer->towRequest->current_stage) }}</span>
+                    <!-- <span class="font-medium">{{ t('service_center.' . $offer->towRequest->current_stage) }}</span> -->
                 </div>
             </div>
 
@@ -188,9 +188,9 @@
             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13l1.5-4.5a1 1 0 011-1h13a1 1 0 011 1l1.5 4.5M5 16h14v2a2 2 0 01-2 2H7a2 2 0 01-2-2v-2z" />
             </svg>
-            <span class="text-gray-600 text-sm">{{ t('service_center.vehicle') }}</span>
+            <span class="text-gray-600 text-sm">{{ t('service_center.chassis_number') }}</span>
           </div>
-          <span class="font-medium">{{ $offer->towRequest->claim->vehicle_plate_number ?: $offer->towRequest->claim->chassis_number }}</span>
+          <span class="font-medium">{{  $offer->towRequest->claim->chassis_number }}</span>
         </div>
       </div>
 
@@ -232,7 +232,7 @@
                         <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    {{ t('service_center.view_pickup_on_map') }}
+                    {{ t('service_center.view_on_map') }}
                 </a>
             @endif
         </div>
@@ -255,7 +255,7 @@
                         <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                         <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    {{ t('service_center.view_delivery_on_map') }}
+                    {{ t('service_center.view_on_map') }}
                 </a>
             @endif
         </div>
@@ -358,7 +358,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.estimated_pickup_time') }}</label>
                 <input type="datetime-local" name="estimated_pickup_time" 
-                       class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                       class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
                        min="{{ now()->addMinutes(30)->format('Y-m-d\TH:i') }}"
                        max="{{ now()->addHours(12)->format('Y-m-d\TH:i') }}">
             </div>
@@ -366,8 +366,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.notes') }}</label>
                 <textarea name="notes" rows="3" 
-                          class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
-                          placeholder="{{ t('service_center.additional_notes') }}"></textarea>
+                          class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                          placeholder=""></textarea>
             </div>
             
             <div class="flex gap-4 pt-4">
@@ -394,8 +394,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('service_center.rejection_reason') }}</label>
                 <textarea name="rejection_reason" rows="4" 
-                          class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
-                          placeholder="{{ t('service_center.why_rejecting') }}"></textarea>
+                          class="w-full border  border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5"
+                          placeholder=""></textarea>
             </div>
             
             <div class="flex gap-4 pt-4">

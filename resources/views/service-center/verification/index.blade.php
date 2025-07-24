@@ -26,12 +26,12 @@
             <form id="verificationForm" class="space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('service_center.delivery_verification_code') }}</label>
-                    <div class="flex gap-4">
+                    <div class="md:flex gap-4">
                         <input type="text" 
                                id="verificationCode" 
                                placeholder="Enter 6-digit code" 
                                maxlength="6" 
-                               class="flex-1 px-4 py-3 text-lg font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center tracking-widest">
+                               class="flex-1 mb-4 px-4 py-3 text-lg font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center tracking-widest">
                         <button type="submit" 
                                 class="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,12 +78,12 @@
         <form id="customerDeliveryForm" class="space-y-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('service_center.customer_delivery_code') }}</label>
-                <div class="flex gap-4">
+                <div class="md:flex gap-4">
                     <input type="text" 
                            id="customerDeliveryCode" 
                            placeholder="Enter 6-digit code" 
                            maxlength="6" 
-                           class="flex-1 px-4 py-3 text-lg font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-center tracking-widest">
+                           class="flex-1 px-4 mb-4 py-3 text-lg font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-center tracking-widest">
                     <button type="submit" 
                             class="px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +183,7 @@ document.getElementById('customerDeliveryCode').addEventListener('input', functi
                         <div>
                             <h3 class="font-medium text-gray-900">{{ $delivery->claim->insuranceUser->full_name }}</h3>
                             <p class="text-gray-600 text-sm">{{ t('service_center.request') }} #{{ $delivery->request_code }}</p>
-                            <p class="text-gray-500 text-xs">{{ t('service_center.vehicle') }}: {{ $delivery->claim->vehicle_plate_number ?: $delivery->claim->chassis_number }}</p>
+                            <p class="text-gray-500 text-xs">{{ t('service_center.chassis_number') }}: {{ $delivery->claim->chassis_number }}</p>
                         </div>
                     </div>
                     <div class="text-right">

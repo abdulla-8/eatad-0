@@ -132,179 +132,278 @@
         </div>
     </div>
 
-    <!-- Complaints List -->
-    @if($complaints->count())
-        <div class="space-y-4">
-            @foreach($complaints as $complaint)
-                <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow {{ !$complaint->is_read ? 'ring-2 ring-red-100' : '' }}">
-                    <div class="p-6">
-                        <!-- Header -->
-                        <div class="flex  items-start justify-between mb-4">
-                            <div class="flex  items-center  {{ app()->getLocale() === 'ar' ? 'flex-row-reverse' : '' }}">
+  @php
+    $isRtl = app()->getLocale() === 'ar';
+@endphp
 
-                            <div class="flex items-center">
-                                <div class="relative me-3">
-    <svg class="w-10 h-10 drop-shadow-lg" viewBox="0 0 24 24">
-        <defs>
-            <linearGradient id="warningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
-                <stop offset="50%" style="stop-color:#FF8E53;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
-            </linearGradient>
-            <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                <feMerge> 
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-            </filter>
-        </defs>
-        
-        <!-- الخلفية مع التأثير -->
-        <path d="M12 2L3 20h18L12 2z" fill="url(#warningGradient)" opacity="0.9" filter="url(#glow)"/>
-        
-        <!-- الحدود -->
-        <path stroke="#FFFFFF" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"
-              d="M12 2L3 20h18L12 2z"/>
-        
-        <!-- علامة التعجب -->
-        <line x1="12" y1="9" x2="12" y2="13" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="12" cy="16" r="1.2" fill="#FFFFFF"/>
-    </svg>
-</div>
-                                      <h3 class="font-bold text-lg {{ !$complaint->is_read ? 'text-red-900' : 'text-gray-900' }}">{{ $complaint->subject }}</h3>
+<!-- Complaints List -->
+@if($complaints->count())
+    <div class="space-y-4">
+        @foreach($complaints as $complaint)
+            <div class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 {{ !$complaint->is_read ? 'ring-2 ring-red-100' : '' }}">
+                <div class="p-4 md:p-6">
+                    <!-- الصف الأول: أيقونة الشكوى + العنوان + نوع الشكوى وحالتها -->
+                    <div class="flex items-start justify-between mb-4">
+                        <!-- الأيقونة والعنوان -->
+                        <div class="flex items-center gap-3 flex-1 min-w-0 ">
+                            <!-- أيقونة الشكوى -->
+                            <div class="relative flex-shrink-0">
+                                <svg class="w-10 h-10 md:w-12 md:h-12 drop-shadow-lg hover:scale-105 transition-transform" viewBox="0 0 24 24">
+                                    <defs>
+                                        <linearGradient id="warningGradient{{ $complaint->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+                                            <stop offset="50%" style="stop-color:#FF8E53;stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
+                                        </linearGradient>
+                                        <filter id="glow{{ $complaint->id }}">
+                                            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                            <feMerge> 
+                                                <feMergeNode in="coloredBlur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    
+                                    <!-- الخلفية مع التأثير -->
+                                    <path d="M12 2L3 20h18L12 2z" fill="url(#warningGradient{{ $complaint->id }})" opacity="0.9" filter="url(#glow{{ $complaint->id }})"/>
+                                    
+                                    <!-- الحدود -->
+                                    <path stroke="#FFFFFF" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                          d="M12 2L3 20h18L12 2z"/>
+                                    
+                                    <!-- علامة التعجب -->
+                                    <line x1="12" y1="9" x2="12" y2="13" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+                                    <circle cx="12" cy="16" r="1.2" fill="#FFFFFF"/>
+                                </svg>
                                 
-
-
-                                <div>
-                              
-                                  
-                                    <!-- Show user details for insurance users -->
-                                    @if($userType === 'insurance_user')
-                                        <div class="mt-1 flex items-center gap-2 text-xs">
-                                            <span class="text-gray-500">{{ t($translationGroup . '.complainant') }}:</span>
-                                            <span class="font-medium text-gray-700">{{ $user->full_name }}</span>
-                                            <span class="text-gray-400">•</span>
-                                            <span class="text-gray-500">{{ $user->policy_number }}</span>
-                                        </div>
-                                    @endif
-                                </div>
+                                <!-- مؤشر عدم القراءة -->
+                                @if(!$complaint->is_read)
+                                    <div class="absolute -top-1 {{ $isRtl ? '-left-1' : '-right-1' }}">
+                                        <div class="w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded-full animate-pulse border-2 border-white"></div>
+                                    </div>
+                                @endif
                             </div>
-                            
-                            <div class="flex items-center gap-3 {{ app()->getLocale() === 'ar' ? 'flex-row-reverse' : '' }}">
-                                <span class="px-3 py-1.5 rounded-full text-sm font-medium border {{ $complaint->type_badge['class'] ?? 'bg-gray-100 text-gray-800' }}">
-                                    {{ t($translationGroup . '.' . $complaint->type) }}
-                                </span>
-                                <span class="px-3 py-1.5 rounded-full text-sm font-medium border {{ $complaint->is_read ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300' }}">
-                                    {{ $complaint->is_read ? t($translationGroup . '.read') : t($translationGroup . '.unread') }}
-                                </span>
+
+                            <!-- عنوان الشكوى -->
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-lg md:text-xl {{ !$complaint->is_read ? 'text-red-900' : 'text-gray-900' }} truncate {{ $isRtl ? 'text-right' : 'text-left' }}">
+                                    {{ $complaint->subject }}
+                                </h3>
                                 
-                                <!-- Show complainant type for insurance users -->
+                                <!-- معلومات المستخدم للتأمين -->
                                 @if($userType === 'insurance_user')
-                                    <span class="px-3 py-1.5 rounded-full text-sm font-medium border {{ $complaint->complainant_type_badge['class'] ?? 'bg-indigo-100 text-indigo-800' }}">
-                                        {{ $complaint->complainant_type_badge['text'] ?? t($translationGroup . '.insurance_user') }}
-                                    </span>
+                                    <div class="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                                        <div class="flex flex-wrap items-center gap-2 text-xs {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                            <span class="text-blue-700 font-medium">{{ t($translationGroup . '.complainant') }}:</span>
+                                            <span class="text-blue-800">{{ $user->full_name }}</span>
+                                            <span class="text-blue-400">•</span>
+                                            <span class="text-blue-600">{{ $user->policy_number }}</span>
+                                        </div>
+                                    </div>
                                 @endif
                             </div>
                         </div>
-
-                        <!-- Content -->
-                        <div class="mb-4">
-                               <p class="text-gray-500 text-xs">{{ $complaint->created_at->format('d/m/Y H:i') }}</p>   
-                            <p class="text-gray-600 text-sm">
-                                {{ Str::limit($complaint->description, 150) }}
-                            </p>
+                        
+                        <!-- النوع وحالة القراءة - جنباً إلى جنب -->
+                        <div class="flex items-center gap-2 {{ $isRtl ? 'mr-3 flex-row-reverse' : 'ml-3' }}">
+                            <span class="px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium border {{ $complaint->type_badge['class'] ?? 'bg-gray-100 text-gray-800' }} whitespace-nowrap">
+                                {{ t($translationGroup . '.' . $complaint->type) }}
+                            </span>
+                            <span class="px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium border {{ $complaint->is_read ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300' }} whitespace-nowrap">
+                                {{ $complaint->is_read ? t($translationGroup . '.read') : t($translationGroup . '.unread') }}
+                            </span>
                             
-                            <!-- Show attachment info if exists -->
-                            @if($complaint->attachment_path)
-                                <div class="mt-3 flex items-center gap-2 text-sm text-gray-500">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                    </svg>
-                                    <span>{{ t($translationGroup . '.has_attachment') }}</span>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex justify-end gap-2">
-                            <!-- Edit Button -->
-                            @if($userType === 'insurance_company')
-                                <a href="{{ route('insurance.complaints.edit', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 transition-colors border border-yellow-200">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
-                                    {{ t($translationGroup . '.edit') }}
-                                </a>
-                            @elseif($userType === 'insurance_user')
-                                <a href="{{ route('insurance.user.complaints.edit', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 transition-colors border border-yellow-200">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
-                                    {{ t($translationGroup . '.edit') }}
-                                </a>
-                            @else
-                                <a href="{{ route('service-center.complaints.edit', $complaint->id) }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 transition-colors border border-yellow-200">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                    </svg>
-                                    {{ t($translationGroup . '.edit') }}
-                                </a>
-                            @endif
-                            
-                            <!-- View Button -->
-                            @if($userType === 'insurance_company')
-                                <a href="{{ route('insurance.complaints.show', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors border border-blue-200">
-                                    {{ t($translationGroup . '.read_more') }}
-                                    <svg class="w-4 h-4 {{ app()->getLocale() === 'ar' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </a>
-                            @elseif($userType === 'insurance_user')
-                                <a href="{{ route('insurance.user.complaints.show', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors border border-blue-200">
-                                    {{ t($translationGroup . '.read_more') }}
-                                    <svg class="w-4 h-4 {{ app()->getLocale() === 'ar' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </a>
-                            @else
-                                <a href="{{ route('service-center.complaints.show', $complaint->id) }}" 
-                                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 transition-colors border border-blue-200">
-                                    {{ t($translationGroup . '.read_more') }}
-                                    <svg class="w-4 h-4 {{ app()->getLocale() === 'ar' ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </a>
+                            @if($userType === 'insurance_user')
+                                <span class="px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium border {{ $complaint->complainant_type_badge['class'] ?? 'bg-indigo-100 text-indigo-800' }} whitespace-nowrap">
+                                    {{ $complaint->complainant_type_badge['text'] ?? t($translationGroup . '.insurance_user') }}
+                                </span>
                             @endif
                         </div>
                     </div>
-                </div>
-            @endforeach
-        </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-center">
-            {{ $complaints->withQueryString()->links() }}
-        </div>
-    @else
-        <!-- Empty State -->
-        <div class="bg-white rounded-xl shadow-sm border">
-            <div class="p-12 text-center">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-blue-50">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                    </svg>
+                    <!-- الصف الثاني: التاريخ -->
+                    <div class="flex items-center gap-2 mb-4 {{ $isRtl ? 'flex-row' : '' }}">
+                      
+                        
+                            <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-200 shadow-sm">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24">
+                                    <defs>
+                                        <linearGradient id="dateGradient{{ $complaint->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+                                        </linearGradient>
+                                    </defs>
+                                    <rect x="3" y="6" width="18" height="15" rx="2" fill="url(#dateGradient{{ $complaint->id }})" opacity="0.8"/>
+                                    <path d="M8 2v4M16 2v4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+                                    <path d="M3 10h18" stroke="#FFFFFF" stroke-width="2"/>
+                                    <circle cx="9" cy="14" r="1" fill="#FFFFFF"/>
+                                    <circle cx="15" cy="14" r="1" fill="#FFFFFF"/>
+                                    <circle cx="9" cy="18" r="1" fill="#FFFFFF"/>
+                                    <circle cx="15" cy="18" r="1" fill="#FFFFFF"/>
+                                </svg>
+                            </div>
+                          <span class="text-sm md:text-base text-gray-600 font-medium">
+                                {{ $complaint->created_at->format('d/m/Y H:i') }}
+                            </span>
+                    </div>
+
+                    <!-- الصف الثالث: الوصف -->
+                    <div class="mb-4">
+                        <div class="p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                            <p class="text-gray-700 text-sm md:text-base leading-relaxed {{ $isRtl ? 'text-right' : 'text-left' }}">
+                                {{ Str::limit($complaint->description, 200) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- الصف الرابع: المرفقات (إن وجدت) -->
+                    @if($complaint->attachment_path)
+                        <div class="flex items-center gap-2 mb-4 {{ $isRtl ? 'flex-row' : '' }}">
+                        
+                                <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center border border-emerald-200 shadow-sm">
+                                    <svg class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24">
+                                        <defs>
+                                            <linearGradient id="attachGradient{{ $complaint->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+                                                <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" 
+                                              stroke="url(#attachGradient{{ $complaint->id }})" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <span class="text-sm md:text-base text-emerald-600 font-medium flex items-center gap-1">
+                                    {{ t($translationGroup . '.has_attachment') }}
+                                    <svg class="w-3 h-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </span>
+                         
+                        </div>
+                    @endif
+
+                    <!-- الصف الأخير: الإجراءات -->
+                    <div class="flex flex-wrap gap-2 pt-4 border-t border-gray-200  justify-end">
+                        <!-- Edit Button -->
+                        @if($userType === 'insurance_company')
+                            <a href="{{ route('insurance.complaints.edit', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
+                               class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 hover:shadow-md transition-all duration-200 border border-yellow-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                @if($isRtl)
+                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                @else
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                @endif
+                            </a>
+                        @elseif($userType === 'insurance_user')
+                            <a href="{{ route('insurance.user.complaints.edit', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
+                               class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 hover:shadow-md transition-all duration-200 border border-yellow-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                @if($isRtl)
+                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                @else
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                @endif
+                            </a>
+                        @else
+                            <a href="{{ route('service-center.complaints.edit', $complaint->id) }}" 
+                               class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 hover:shadow-md transition-all duration-200 border border-yellow-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                @if($isRtl)
+                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                @else
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                @endif
+                            </a>
+                        @endif
+                        
+                        <!-- View Button -->
+                        @if($userType === 'insurance_company')
+                            <a href="{{ route('insurance.complaints.show', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
+                               class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 hover:shadow-md transition-all duration-200 border border-blue-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                @if($isRtl)
+                                    <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                @else
+                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                @endif
+                            </a>
+                        @elseif($userType === 'insurance_user')
+                            <a href="{{ route('insurance.user.complaints.show', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
+                               class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 hover:shadow-md transition-all duration-200 border border-blue-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                @if($isRtl)
+                                    <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                @else
+                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                @endif
+                            </a>
+                        @else
+                            <a href="{{ route('service-center.complaints.show', $complaint->id) }}" 
+                               class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium hover:bg-blue-100 hover:shadow-md transition-all duration-200 border border-blue-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
+                                @if($isRtl)
+                                    <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                @else
+                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                @endif
+                            </a>
+                        @endif
+                    </div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t($translationGroup . '.no_complaints_found') }}</h3>
-                <p class="text-gray-600">{{ t($translationGroup . '.no_complaints_description') }}</p>
             </div>
+        @endforeach
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center mt-6">
+        {{ $complaints->withQueryString()->links() }}
+    </div>
+@else
+    <!-- Empty State -->
+    <div class="bg-white rounded-xl shadow-sm border">
+        <div class="p-8 md:p-12 text-center">
+            <div class="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-blue-50">
+                <svg class="w-6 h-6 md:w-8 md:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t($translationGroup . '.no_complaints_found') }}</h3>
+            <p class="text-gray-600">{{ t($translationGroup . '.no_complaints_description') }}</p>
         </div>
-    @endif
+    </div>
+@endif
+
 </div>
 
 <!-- Enhanced Add Complaint Modal -->

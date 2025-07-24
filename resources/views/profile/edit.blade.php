@@ -171,8 +171,8 @@
                 </div>
 
                 <!-- Form Actions -->
-                <div class="border-t border-gray-200 px-8 py-6">
-                    <div class="flex gap-4">
+                <div class="border-t border-gray-200 px-4 md:px-8 py-6">
+                    <div class="flex gap-2 md:gap-4 ">
                         <button type="submit" 
                                 class="flex-1 flex items-center justify-center py-3 px-6 text-white rounded-xl font-medium transition-all duration-200 hover:shadow-lg"
                                 style="background-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};">

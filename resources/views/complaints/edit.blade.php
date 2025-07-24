@@ -43,7 +43,7 @@
             
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">{{ t($translationGroup . '.edit_complaint') }}</h1>
-                <p class="text-gray-600 mt-1">{{ t($translationGroup . '.edit_complaint_description') }}</p>
+          
                 
                 <!-- Show company name for insurance users -->
                 @if($userType === 'insurance_user' && $user->company)
@@ -81,7 +81,7 @@
                 </div>
                 <div>
                     <h3 class="text-xl font-bold text-gray-900">{{ t($translationGroup . '.edit_complaint_form') }}</h3>
-                    <p class="text-sm text-gray-600">{{ t($translationGroup . '.edit_complaint_form_description') }}</p>
+                  
                 </div>
             </div>
 
@@ -136,7 +136,7 @@
                                         </div>
                                         <div>
                                             <div class="font-medium text-gray-900">{{ t($translationGroup . '.inquiry') }}</div>
-                                            <div class="text-sm text-gray-500">{{ t($translationGroup . '.inquiry_desc') }}</div>
+                                           
                                         </div>
                                     </div>
                                 </div>
@@ -153,7 +153,7 @@
                                         </div>
                                         <div>
                                             <div class="font-medium text-gray-900">{{ t($translationGroup . '.complaint') }}</div>
-                                            <div class="text-sm text-gray-500">{{ t($translationGroup . '.complaint_desc') }}</div>
+                                         
                                         </div>
                                     </div>
                                 </div>
@@ -170,7 +170,7 @@
                                         </div>
                                         <div>
                                             <div class="font-medium text-gray-900">{{ t($translationGroup . '.other') }}</div>
-                                            <div class="text-sm text-gray-500">{{ t($translationGroup . '.other_desc') }}</div>
+                                    
                                         </div>
                                     </div>
                                 </div>
@@ -215,16 +215,37 @@
                                     <p class="text-sm font-medium text-gray-900">{{ basename($complaint->attachment_path) }}</p>
                                     <p class="text-sm text-gray-500">{{ t($translationGroup . '.uploaded_at') }}: {{ $complaint->created_at->format('d/m/Y H:i') }}</p>
                                 </div>
-                                <div class="flex gap-2">
-                                    <a href="{{ Storage::url($complaint->attachment_path) }}" target="_blank"
-                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                        {{ t($translationGroup . '.view') }}
-                                    </a>
-                                    <label class="flex items-center gap-1 cursor-pointer">
-                                        <input type="checkbox" name="remove_attachment" value="1" class="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500">
-                                        <span class="text-sm text-red-600">{{ t($translationGroup . '.remove') }}</span>
-                                    </label>
-                                </div>
+                            <div class="flex flex-col sm:flex-row gap-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 shadow-sm">
+    <!-- زر عرض المرفق -->
+    <a href="{{ Storage::url($complaint->attachment_path) }}" target="_blank"
+       class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg group">
+        <svg class="w-4 h-4 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        <span>{{ t($translationGroup . '.view') }}</span>
+        <svg class="w-3 h-3 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+    </a>
+
+    <!-- خانة حذف المرفق -->
+    <label class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-50 to-red-100 text-red-700 rounded-lg font-medium hover:from-red-100 hover:to-red-200 cursor-pointer transition-all duration-200 border border-red-200 hover:border-red-300 group">
+        <div class="relative">
+            <input type="checkbox" name="remove_attachment" value="1" 
+                   class="w-4 h-4 text-red-600 bg-white border-2 border-red-300 rounded focus:ring-red-500 focus:ring-2 transition-all duration-200">
+            <svg class="w-3 h-3 absolute top-0.5 left-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+        </div>
+        <svg class="w-4 h-4 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        <span>{{ t($translationGroup . '.remove') }}</span>
+    </label>
+</div>
+
                             </div>
                         </div>
                     @endif
@@ -244,9 +265,9 @@
                                         <span>{{ t($translationGroup . '.upload_file') }}</span>
                                         <input id="file-upload" name="attachment" type="file" class="sr-only" accept=".jpeg,.png,.jpg,.pdf,.doc,.docx" onchange="handleFilePreview(this)">
                                     </label>
-                                    <p class="pl-1">{{ t($translationGroup . '.drag_drop') }}</p>
+                               
                                 </div>
-                                <p class="text-xs text-gray-500">{{ t($translationGroup . '.attachment_note') }}</p>
+                       
                             </div>
                         </div>
                         
