@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', t('service_center.dashboard')) - {{ t('service_center.dashboard') }}</title>
+    <title>@yield('title', t('insurance_company.dashboard')) - {{ t('insurance_company.dashboard') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -326,7 +326,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        <h1 class="font-bold text-lg">{{ t('service_center.dashboard') }}</h1>
+                        <h1 class="font-bold text-lg">{{ t('insurance_company.dashboard') }}</h1>
                     </div>
                 </div>
                 <x-language-switcher class="bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100" />
@@ -347,7 +347,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h1 class="text-lg font-bold">{{ t('service_center.dashboard') }}</h1>
+                                <h1 class="text-lg font-bold">{{ t('insurance_company.dashboard') }}</h1>
                             </div>
                         </div>
                         <!-- زر إغلاق للموبايل فقط -->
@@ -363,65 +363,47 @@
                 <nav class="sidebar-navigation px-4">
                     <ul class="space-y-2">
                         <li class="sidebar-nav-item">
-                            <a href="{{ route('service-center.dashboard') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus {{ request()->routeIs('service-center.dashboard') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                            <a href="{{ route('insurance.dashboard',$company->company_slug) }}" class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus {{ request()->routeIs('insurance.dashboard') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
                                 <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
                                 </svg>
-                                {{ t('service_center.dashboard') }}
+                                {{ t('insurance_company.dashboard') }}
                             </a>
                         </li>
 
                         <li class="sidebar-nav-item">
-                            <a href="{{ route('service-center.claims.index') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus {{ request()->routeIs('service-center.claims.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                            <a href="{{ route('insurance.claims.index',$company->company_slug) }}" class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus {{ request()->routeIs('insurance.claims.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
                                 <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                {{ t('service_center.claims') }}
+                                {{ t('insurance_company.claims') }}
                             </a>
                         </li>
 
+                  
                         <li class="sidebar-nav-item">
-                            <a href="{{ route('service-center.tow-offers.index') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus {{ request()->routeIs('service-center.tow-offers.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
-                                <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                                </svg>
-                                {{ t('service_center.tow_offers') }}
-                            </a>
-                        </li>
-                        
-                        <li class="sidebar-nav-item">
-                            <a href="{{ route('service-center.complaints.index') }}" 
+                            <a href="{{ route('insurance.complaints.index',$company->company_slug) }}" 
                                class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus
-                                      {{ request()->routeIs('service-center.complaints.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                                      {{ request()->routeIs('insurance.complaints.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
                                 <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                {{ t('service_center.complaints_inquiries') }}
+                                {{ t('insurance_company.complaints_inquiries') }}
                             </a>
                         </li>
 
-                        <li class="sidebar-nav-item">
-                            <a href="{{ route('service-center.verification.index') }}" 
-                               class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus
-                                      {{ request()->routeIs('service-center.verification.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
-                                <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {{ t('service_center.verification') }}
-                            </a>
-                        </li>
 
                         <li class="sidebar-nav-item">
-                            <a href="{{ route('service-center.profile.show') }}" 
+                            <a href="{{ route('insurance.profile.show',$company->company_slug) }}" 
                                class="flex items-center px-4 py-3 rounded-lg transition-colors duration-200 focus-visible:focus
-                                      {{ request()->routeIs('service-center.profile.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
+                                      {{ request()->routeIs('insurance.profile.*') ? 'bg-gold-500 text-dark-900' : 'text-gray-300 hover:bg-gray-800 hover:text-white' }}">
                                 <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                                {{ t('service_center.profile') }}
+                                {{ t('insurance_company.profile') }}
                             </a>
                         </li>
 
@@ -430,8 +412,8 @@
                                 <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                {{ t('service_center.appointments') }}
-                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('service_center.coming_soon') }}</span>
+                                {{ t('insurance_company.appointments') }}
+                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('insurance_company.coming_soon') }}</span>
                             </a>
                         </li>
 
@@ -440,8 +422,8 @@
                                 <svg class="w-5 h-5 {{ $isRtl ? 'ml-3' : 'mr-3' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
-                                {{ t('service_center.reports') }}
-                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('service_center.coming_soon') }}</span>
+                                {{ t('insurance_company.reports') }}
+                                <span class="text-xs bg-gray-700 px-2 py-1 rounded {{ $isRtl ? 'mr-auto' : 'ml-auto' }}">{{ t('insurance_company.coming_soon') }}</span>
                             </a>
                         </li>
                     </ul>
@@ -452,13 +434,13 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3 {{ $isRtl ? 'space-x-reverse' : '' }}">
                             <div class="w-10 h-10 bg-gold-500 rounded-lg flex items-center justify-center">
-                                <span class="text-dark-900 font-bold">{{ substr(auth('service_center')->user()->legal_name, 0, 1) }}</span>
+                                <span class="text-dark-900 font-bold">{{ substr(auth('insurance_company')->user()->legal_name, 0, 1) }}</span>
                             </div>
                             <div class="hidden lg:block">
-                                <p class="text-white text-sm font-medium">{{ Str::limit(auth('service_center')->user()->legal_name, 20) }}</p>
+                                <p class="text-white text-sm font-medium">{{ Str::limit(auth('insurance_company')->user()->legal_name, 20) }}</p>
                             </div>
                         </div>
-                        <form method="POST" action="{{ route('service-center.logout') }}">
+                        <form method="POST" action="{{ route('insurance.logout',$company->company_slug) }}">
                             @csrf
                             <button type="submit" class="p-2 text-gray-400 hover:text-red-400 rounded-lg transition-colors focus-visible:focus" title="{{ t('auth.logout') }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,8 +458,8 @@
                 <header class="desktop-header hidden lg:block bg-white border-b border-gray-200 px-8 py-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900">@yield('title', t('service_center.dashboard'))</h2>
-                            <p class="text-gray-600">{{ t('auth.welcome_back') }}, {{ auth('service_center')->user()->legal_name }}</p>
+                            <h2 class="text-2xl font-bold text-gray-900">@yield('title', t('insurance_company.dashboard'))</h2>
+                            <p class="text-gray-600">{{ t('auth.welcome_back') }}, {{ auth('insurance_company')->user()->legal_name }}</p>
                         </div>
                         <x-language-switcher class="bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100" />
                     </div>
