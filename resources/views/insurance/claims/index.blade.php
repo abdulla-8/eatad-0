@@ -11,24 +11,30 @@
             <p class="text-gray-600 mt-1">{{ t($company->translation_group . '.manage_all_claims') }}</p>
         </div>
         
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
-                <div class="text-xs text-gray-600">{{ t($company->translation_group . '.total') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</div>
-                <div class="text-xs text-gray-600">{{ t($company->translation_group . '.pending') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-green-600">{{ $stats['approved'] }}</div>
-                <div class="text-xs text-gray-600">{{ t($company->translation_group . '.approved') }}</div>
-            </div>
-            <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
-                <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
-                <div class="text-xs text-gray-600">{{ t($company->translation_group . '.rejected') }}</div>
-            </div>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('insurance.claims.create', $company->company_slug) }}" class="px-6 py-2.5 text-white rounded-lg font-medium hover:opacity-90 transition-opacity" style="background: {{ $company->primary_color }};">
+                {{ t($company->translation_group . '.create_claim') }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
+            <div class="text-xs text-gray-600">{{ t($company->translation_group . '.total') }}</div>
+        </div>
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</div>
+            <div class="text-xs text-gray-600">{{ t($company->translation_group . '.pending') }}</div>
+        </div>
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-green-600">{{ $stats['approved'] }}</div>
+            <div class="text-xs text-gray-600">{{ t($company->translation_group . '.approved') }}</div>
+        </div>
+        <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm">
+            <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
+            <div class="text-xs text-gray-600">{{ t($company->translation_group . '.rejected') }}</div>
         </div>
     </div>
 
@@ -152,7 +158,11 @@
                     </div>
 
                     <!-- Action -->
-                    <div class="flex justify-end">
+                    <div class="flex justify-end gap-2">
+                        <a href="{{ route('insurance.claims.edit', [$company->company_slug, $claim->id]) }}" 
+                           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">
+                            {{ t($company->translation_group . '.edit') }}
+                        </a>
                         <a href="{{ route('insurance.claims.show', [$company->company_slug, $claim->id]) }}" 
                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
                            style="background: {{ $company->primary_color }}20; color: {{ $company->primary_color }};">
