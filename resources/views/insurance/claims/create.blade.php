@@ -3,228 +3,15 @@
 @section('title', t($company->translation_group . '.new_claim'))
 
 @push('styles')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+@endpush
 
-<style>
-    .form-section {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        border: 1px solid #e5e7eb;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .form-section:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    
-    .form-input {
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 12px 16px;
-        transition: all 0.3s ease;
-        background: #fafafa;
-    }
-    
-    .form-input:focus {
-        background: white;
-        border-color: {{ $company->primary_color }};
-        box-shadow: 0 0 0 3px {{ $company->primary_color }}20;
-        outline: none;
-    }
-    
-    .form-input:hover {
-        border-color: #d1d5db;
-        background: white;
-    }
-    
-    .section-header {
-        background: linear-gradient(135deg, {{ $company->primary_color }}10, {{ $company->primary_color }}05);
-        border-bottom: 1px solid #e5e7eb;
-        padding: 24px;
-    }
-    
-    .section-content {
-        padding: 24px;
-    }
-    
-    .input-group {
-        position: relative;
-    }
-    
-    .input-icon {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6b7280;
-        pointer-events: none;
-        z-index: 10;
-    }
-    
-    /* RTL Support for Icons */
-    [dir="rtl"] .input-icon {
-        right: 12px;
-        left: auto;
-    }
-    
-    [dir="ltr"] .input-icon,
-    html:not([dir="rtl"]) .input-icon {
-        left: 12px;
-        right: auto;
-    }
-    
-    .input-with-icon {
-        padding-left: 44px;
-        padding-right: 16px;
-    }
-    
-    [dir="rtl"] .input-with-icon {
-        padding-right: 44px;
-        padding-left: 16px;
-    }
-    
-    /* File Input Styling */
-    .file-input-wrapper {
-        position: relative;
-        overflow: hidden;
-        display: inline-block;
-        width: 100%;
-    }
-    
-    .file-input-display {
-        border: 2px dashed #d1d5db;
-        border-radius: 12px;
-        padding: 20px;
-        text-align: center;
-        transition: all 0.3s ease;
-        background: #fafafa;
-        cursor: pointer;
-        min-height: 120px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .file-input-display:hover {
-        border-color: {{ $company->primary_color }};
-        background: {{ $company->primary_color }}05;
-    }
-    
-    .file-input-display.has-files {
-        border-color: {{ $company->primary_color }};
-        background: {{ $company->primary_color }}10;
-    }
-    
-    .file-input-hidden {
-        position: absolute;
-        left: -9999px;
-        opacity: 0;
-    }
-    
-    .file-list {
-        margin-top: 12px;
-        padding: 12px;
-        background: #f8fafc;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .file-item {
-        display: flex;
-        align-items: center;
-        justify-content: between;
-        padding: 8px 12px;
-        background: white;
-        border-radius: 6px;
-        margin-bottom: 8px;
-        border: 1px solid #e2e8f0;
-        transition: all 0.2s ease;
-    }
-    
-    .file-item:hover {
-        border-color: {{ $company->primary_color }};
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .file-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .file-info {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .file-name {
-        font-weight: 500;
-        color: #374151;
-        font-size: 14px;
-    }
-    
-    .file-size {
-        color: #6b7280;
-        font-size: 12px;
-    }
-    
-    .file-remove {
-        background: #ef4444;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 8px;
-        font-size: 12px;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-    
-    .file-remove:hover {
-        background: #dc2626;
-    }
-    
-    .info-card {
-        border-radius: 12px;
-        padding: 16px;
-        border: 1px solid;
-    }
-    
-    .btn-primary {
-        background: {{ $company->primary_color }};
-        border: 2px solid {{ $company->primary_color }};
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-primary:hover {
-        background: {{ $company->primary_color }}dd;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px {{ $company->primary_color }}40;
-    }
-    
-    .btn-secondary {
-        background: #6b7280;
-        border: 2px solid #6b7280;
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-secondary:hover {
-        background: #4b5563;
-        transform: translateY(-1px);
-    }
-</style>
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 @endpush
 
 @section('content')
-<div class="max-w-full md:max-w-5xl mx-auto space-y-8 p-2 md:p-6 ">
+<div class="max-w-4xl mx-auto space-y-6 ">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
         <a href="{{ route('insurance.claims.index', $company->company_slug) }}" 
@@ -744,6 +531,280 @@
             </div>
         </div>
     </form>
+
+    <style>
+    .form-section {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .form-input {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+    
+    .form-input:focus {
+        background: white;
+        border-color: {{ $company->primary_color }};
+        box-shadow: 0 0 0 3px {{ $company->primary_color }}20;
+        outline: none;
+    }
+    
+    .form-input:hover {
+        border-color: #d1d5db;
+        background: white;
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, {{ $company->primary_color }}10, {{ $company->primary_color }}05);
+        border-bottom: 1px solid #e5e7eb;
+        padding: 24px;
+    }
+    
+    .section-content {
+        padding: 24px;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        pointer-events: none;
+        z-index: 10;
+    }
+    
+    /* RTL Support for Icons */
+    [dir="rtl"] .input-icon {
+        right: 12px;
+        left: auto;
+    }
+    
+    [dir="ltr"] .input-icon,
+    html:not([dir="rtl"]) .input-icon {
+        left: 12px;
+        right: auto;
+    }
+    
+    .input-with-icon {
+        padding-left: 44px;
+        padding-right: 16px;
+    }
+    
+    [dir="rtl"] .input-with-icon {
+        padding-right: 44px;
+        padding-left: 16px;
+    }
+    
+    /* File Input Styling */
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .file-input-display {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #fafafa;
+        cursor: pointer;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .file-input-display:hover {
+        border-color: {{ $company->primary_color }};
+        background: {{ $company->primary_color }}05;
+    }
+    
+    .file-input-display.has-files {
+        border-color: {{ $company->primary_color }};
+        background: {{ $company->primary_color }}10;
+    }
+    
+    .file-input-hidden {
+        position: absolute;
+        left: -9999px;
+        opacity: 0;
+    }
+    
+    .file-list {
+        margin-top: 12px;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        padding: 8px 12px;
+        background: white;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    
+    .file-item:hover {
+        border-color: {{ $company->primary_color }};
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .file-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .file-info {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .file-name {
+        font-weight: 500;
+        color: #374151;
+        font-size: 14px;
+    }
+    
+    .file-size {
+        color: #6b7280;
+        font-size: 12px;
+    }
+    
+    .file-remove {
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    
+    .file-remove:hover {
+        background: #dc2626;
+    }
+    
+    .info-card {
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid;
+    }
+    
+    .btn-primary {
+        background: {{ $company->primary_color }};
+        border: 2px solid {{ $company->primary_color }};
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: {{ $company->primary_color }}dd;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px {{ $company->primary_color }}40;
+    }
+    
+    .btn-secondary {
+        background: #6b7280;
+        border: 2px solid #6b7280;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #4b5563;
+        transform: translateY(-1px);
+    }
+</style>
+<style>
+.file-list {
+    margin-top: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.file-remove {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.file-remove:hover {
+    background-color: #dc2626;
+}
+
+.file-input-display.has-files {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+}
+</style>
 </div>
 
 
