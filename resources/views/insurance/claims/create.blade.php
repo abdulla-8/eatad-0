@@ -4,6 +4,20 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .user-section {
+        transition: all 0.3s ease;
+    }
+    
+    .user-section.hidden {
+        display: none;
+    }
+    
+    .form-radio:checked + span {
+        color: #2563eb;
+        font-weight: 600;
+    }
+</style>
 @endpush
 
 @push('scripts')
@@ -51,18 +65,96 @@
                             {{ t($company->translation_group . '.insurance_user') }} 
                             <span class="text-red-500">*</span>
                         </label>
-                        <div class="relative">
-                            <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <select name="insurance_user_id" class="form-input input-with-icon w-full @error('insurance_user_id') border-red-500 @enderror" required>
-                                <option value="">{{ t($company->translation_group . '.select_user') }}</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('insurance_user_id') == $user->id ? 'selected' : '' }}>{{ $user->full_name }} ({{ $user->phone }})</option>
-                                @endforeach
-                            </select>
+                        
+                        <!-- User Type Toggle -->
+                        <div class="mb-4">
+                            <div class="flex items-center space-x-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="user_type" value="existing" checked 
+                                           class="form-radio text-blue-600" 
+                                           onchange="toggleUserType('existing')">
+                                    <span class="ml-2 text-sm font-medium text-gray-700">
+                                        {{ t($company->translation_group . '.existing_user') ?? 'Existing User' }}
+                                    </span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="user_type" value="new" 
+                                           class="form-radio text-blue-600" 
+                                           onchange="toggleUserType('new')">
+                                    <span class="ml-2 text-sm font-medium text-gray-700">
+                                        {{ t($company->translation_group . '.new_user') ?? 'New User' }}
+                                    </span>
+                                </label>
+                            </div>
                         </div>
-                        @error('insurance_user_id')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
+
+                        <!-- Existing User Selection -->
+                        <div id="existing-user-section" class="user-section">
+                            <div class="relative">
+                                <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <select name="insurance_user_id" class="form-input input-with-icon w-full @error('insurance_user_id') border-red-500 @enderror">
+                                    <option value="">{{ t($company->translation_group . '.select_user') }}</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}" {{ old('insurance_user_id') == $user->id ? 'selected' : '' }}>{{ $user->full_name }} ({{ $user->phone }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('insurance_user_id')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
+                        </div>
+
+                        <!-- New User Registration -->
+                        <div id="new-user-section" class="user-section hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ t($company->translation_group . '.full_name') ?? 'Full Name' }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="new_user_full_name" value="{{ old('new_user_full_name') }}" 
+                                           class="form-input w-full @error('new_user_full_name') border-red-500 @enderror" 
+                                           placeholder="{{ t($company->translation_group . '.enter_full_name') ?? 'Enter full name' }}">
+                                    @error('new_user_full_name')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ t($company->translation_group . '.phone') ?? 'Phone Number' }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="new_user_phone" value="{{ old('new_user_phone') }}" 
+                                           class="form-input w-full @error('new_user_phone') border-red-500 @enderror" 
+                                           placeholder="{{ t($company->translation_group . '.enter_phone') ?? 'Enter phone number' }}">
+                                    @error('new_user_phone')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ t($company->translation_group . '.national_id') ?? 'National ID' }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="new_user_national_id" value="{{ old('new_user_national_id') }}" 
+                                           class="form-input w-full @error('new_user_national_id') border-red-500 @enderror" 
+                                           placeholder="{{ t($company->translation_group . '.enter_national_id') ?? 'Enter national ID' }}">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ t($company->translation_group . '.national_id_password_note') ?? 'This will be used as the login password' }}
+                                    </p>
+                                    @error('new_user_national_id')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ t($company->translation_group . '.policy_number') ?? 'Policy Number' }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="new_user_policy_number" value="{{ old('new_user_policy_number') }}" 
+                                           class="form-input w-full @error('new_user_policy_number') border-red-500 @enderror" 
+                                           placeholder="{{ t($company->translation_group . '.enter_policy_number') ?? 'Enter policy number' }}">
+                                    @error('new_user_policy_number')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="input-group">
@@ -1150,7 +1242,7 @@ document.getElementById('claimForm').addEventListener('submit', function(e) {
         if (!plateNumber) {
             document.querySelector('[name="vehicle_plate_number"]').focus();
         } else {
-            document.querySelector('[name="chassis_number"]').focus();
+            document.querySelector('[name="vehicle_plate_number"]').focus();
         }
         return false;
     }
@@ -1183,8 +1275,56 @@ document.querySelector('[name="vehicle_location"]').addEventListener('input', fu
     }
 });
 
+// Toggle between existing and new user sections
+function toggleUserType(userType) {
+    const existingSection = document.getElementById('existing-user-section');
+    const newSection = document.getElementById('new-user-section');
+    const existingSelect = document.querySelector('[name="insurance_user_id"]');
+    const newUserFields = document.querySelectorAll('[name^="new_user_"]');
+    
+    if (userType === 'existing') {
+        existingSection.classList.remove('hidden');
+        newSection.classList.add('hidden');
+        existingSelect.required = true;
+        newUserFields.forEach(field => field.required = false);
+    } else {
+        existingSection.classList.add('hidden');
+        newSection.classList.remove('hidden');
+        existingSelect.required = false;
+        newUserFields.forEach(field => field.required = true);
+    }
+}
 
-
-
+// Initialize form validation for user type toggle
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial state
+    toggleUserType('existing');
+    
+    // Add validation for user type selection
+    document.getElementById('claimForm').addEventListener('submit', function(e) {
+        const userType = document.querySelector('input[name="user_type"]:checked').value;
+        
+        if (userType === 'existing') {
+            const userId = document.querySelector('[name="insurance_user_id"]').value;
+            if (!userId) {
+                e.preventDefault();
+                alert('{{ t($company->translation_group . ".please_select_user") ?? "Please select an existing user" }}');
+                document.querySelector('[name="insurance_user_id"]').focus();
+                return false;
+            }
+        } else if (userType === 'new') {
+            const fullName = document.querySelector('[name="new_user_full_name"]').value.trim();
+            const phone = document.querySelector('[name="new_user_phone"]').value.trim();
+            const nationalId = document.querySelector('[name="new_user_national_id"]').value.trim();
+            const policyNumber = document.querySelector('[name="new_user_policy_number"]').value.trim();
+            
+            if (!fullName || !phone || !nationalId || !policyNumber) {
+                e.preventDefault();
+                alert('{{ t($company->translation_group . ".please_fill_all_new_user_fields") ?? "Please fill all new user fields" }}');
+                return false;
+            }
+        }
+    });
+});
 </script>
 @endsection

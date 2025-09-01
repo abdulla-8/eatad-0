@@ -688,3 +688,9 @@ Route::prefix('{companySlug}/user')->name('insurance.user.')->middleware(['compa
         });
     });
 });
+
+// ==== VEHICLE LOCATION ROUTES (Public - No Auth Required) ====
+Route::prefix('vehicle-location')->name('vehicle.location.')->group(function () {
+    Route::get('/{hash}', [\App\Http\Controllers\VehicleLocationController::class, 'showForm'])->name('form');
+    Route::post('/{hash}', [\App\Http\Controllers\VehicleLocationController::class, 'submitLocation'])->name('submit');
+});

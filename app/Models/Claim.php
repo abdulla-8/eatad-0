@@ -84,6 +84,11 @@ class Claim extends Model
         return $this->hasOne(ClaimInspection::class);
     }
 
+    public function vehicleLocationRequest(): HasOne
+    {
+        return $this->hasOne(VehicleLocationRequest::class);
+    }
+
     // Scopes
     public function scopePending($query)
     {
