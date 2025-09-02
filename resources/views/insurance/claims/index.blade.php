@@ -102,7 +102,7 @@
                                 {{ t('insurance_company' . '.' . $claim->status) }}
                             </span>
                             
-                            @if($claim->status === 'pending')
+                            @if($claim->status === 'pending' || $claim->status === 'location_submitted')
                                 <div class="flex gap-2">
                                     <button onclick="approveModal({{ $claim->id }})" 
                                             class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">

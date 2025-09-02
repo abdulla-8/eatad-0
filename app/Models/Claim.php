@@ -126,7 +126,9 @@ class Claim extends Model
             'service_center_rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected by Service Center'],
             'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved - Awaiting Delivery'],
             'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
-            'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
+            'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed'],
+            'location_review' => ['class' => 'bg-orange-100 text-orange-800', 'text' => 'Location Review'],
+            'location_submitted' => ['class' => 'bg-teal-100 text-teal-800', 'text' => 'Location Submitted']
         ];
 
         return $badges[$this->status] ?? $badges['pending'];
@@ -152,7 +154,9 @@ public function getUserStatusBadgeAttribute(): array
         'rejected' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Rejected'],
         'parts_approved' => ['class' => 'bg-purple-100 text-purple-800', 'text' => 'Parts Approved'],
         'in_progress' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'In Progress'],
-        'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed']
+        'completed' => ['class' => 'bg-gray-100 text-gray-800', 'text' => 'Completed'],
+        'location_review' => ['class' => 'bg-orange-100 text-orange-800', 'text' => 'Location Review'],
+        'location_submitted' => ['class' => 'bg-teal-100 text-teal-800', 'text' => 'Location Submitted']
     ];
 
     return $badges[$status] ?? $badges['pending'];

@@ -56,6 +56,7 @@ class VehicleLocationController extends Controller
                 'vehicle_location' => $request->city . ', ' . $request->district . ($request->notes ? ' - ' . $request->notes : ''),
                 'vehicle_location_lat' => $request->location_lat,
                 'vehicle_location_lng' => $request->location_lng,
+                'status' => (!$claim->is_vehicle_working ? 'location_submitted' : $claim->status),
             ]);
 
             Log::info('Vehicle location submitted', [

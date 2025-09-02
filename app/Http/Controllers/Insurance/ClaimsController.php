@@ -163,7 +163,7 @@ class ClaimsController extends Controller
                 'is_vehicle_working' => $request->is_vehicle_working,
                 'repair_receipt_ready' => $request->repair_receipt_ready,
                 'notes' => $request->notes,
-                'status' => 'pending'
+                'status' => 'location_review'
             ];
 
             $claim = Claim::create($claimData);
