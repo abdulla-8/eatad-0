@@ -59,6 +59,9 @@ class VehicleLocationController extends Controller
                 'status' => (!$claim->is_vehicle_working ? 'location_submitted' : $claim->status),
             ]);
 
+            // Soft delete the location request after successful update
+            $locationRequest->delete();
+
             Log::info('Vehicle location submitted', [
                 'claim_id' => $claim->id,
                 'hash' => $hash,

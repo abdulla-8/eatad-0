@@ -572,7 +572,7 @@
                     <h3 class="text-lg font-bold">{{ t($company->translation_group . '.quick_actions') }}</h3>
                 </div>
                 <div class="p-6 space-y-3">
-                    @if($locationRequestURL)
+                    @if($locationRequestURL && $claim->status === 'location_review')
                         <div class="flex gap-2">
                             <a href="{{ $locationRequestURL }}" 
                                class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors text-center">
@@ -587,7 +587,7 @@
                             </button>
                         </div>
                     @endif
-                    @if($claim->status === 'pending')
+                    @if($claim->status === 'pending' || $claim->status === 'location_submitted')
                         <button onclick="approveModal()" 
                                 class="w-full px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
                             {{ t($company->translation_group . '.approve_claim') }}
@@ -675,7 +675,7 @@
 </div>
 
 <!-- Approve Modal -->
-@if($claim->status === 'pending')
+@if($claim->status === 'pending' || $claim->status === 'location_submitted')
 <div id="approveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b">

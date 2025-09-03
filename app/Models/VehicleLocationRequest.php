@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class VehicleLocationRequest extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'claim_id',
+        'insurance_user_id',
         'public_hash',
         'city',
         'district',
@@ -41,6 +45,11 @@ class VehicleLocationRequest extends Model
     public function claim(): BelongsTo
     {
         return $this->belongsTo(Claim::class);
+    }
+
+    public function insuranceUser(): BelongsTo
+    {
+        return $this->belongsTo(InsuranceUser::class);
     }
 
     public function getPublicUrlAttribute(): string
