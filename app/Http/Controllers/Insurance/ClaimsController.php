@@ -58,6 +58,7 @@ class ClaimsController extends Controller
 
     public function show(Request $request, $companyRoute, $claim)
     {
+        $hostname = $request->schemeAndHttpHost();
         $company = Auth::guard('insurance_company')->user();
 
         // الحصول على الـ Claim ID من الـ route parameters
@@ -72,7 +73,9 @@ class ClaimsController extends Controller
             abort(404, 'Claim not found');
         }
 
-        return view('insurance.claims.show', compact('claim', 'company'));
+        $locationRequest = VehicleLocationRequest::where('claim_id', $claim->id)->first();
+        $locationRequestURL = $locationRequest ? $hostname . '/vehicle-location/' . $locationRequest->public_hash : null;
+        return view('insurance.claims.show', compact('claim', 'company', 'locationRequestURL'));
     }
 
     public function create(Request $request)
@@ -172,6 +175,7 @@ class ClaimsController extends Controller
             if ($request->is_vehicle_working == 0) {
                 VehicleLocationRequest::create([
                     'claim_id' => $claim->id,
+                    'insurance_user_id' => $insuranceUserId,
                     'is_completed' => false
                 ]);
             }
@@ -332,6 +336,7 @@ class ClaimsController extends Controller
             if ($request->is_vehicle_working == 0 && !$claim->vehicleLocationRequest) {
                 VehicleLocationRequest::create([
                     'claim_id' => $claim->id,
+                    'insurance_user_id' => $insuranceUserId,
                     'is_completed' => false
                 ]);
             }
