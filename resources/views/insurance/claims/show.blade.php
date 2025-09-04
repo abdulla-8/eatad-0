@@ -572,7 +572,22 @@
                     <h3 class="text-lg font-bold">{{ t($company->translation_group . '.quick_actions') }}</h3>
                 </div>
                 <div class="p-6 space-y-3">
-                    @if($claim->status === 'pending')
+                    @if($locationRequestURL && $claim->status === 'location_review')
+                        <div class="flex gap-2">
+                            <a href="{{ $locationRequestURL }}" 
+                               class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors text-center">
+                                {{ t($company->translation_group . '.view_vehicle_location') }}
+                            </a>
+                            <button onclick="copyLocationURL(event,'{{ $locationRequestURL }}')" 
+                                    class="px-4 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors flex items-center justify-center"
+                                    title="{{ t($company->translation_group . '.copy_link') }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
+                    @if($claim->status === 'pending' || $claim->status === 'location_submitted')
                         <button onclick="approveModal()" 
                                 class="w-full px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
                             {{ t($company->translation_group . '.approve_claim') }}
@@ -660,7 +675,7 @@
 </div>
 
 <!-- Approve Modal -->
-@if($claim->status === 'pending')
+@if($claim->status === 'pending' || $claim->status === 'location_submitted')
 <div id="approveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b">
@@ -773,6 +788,58 @@ document.getElementById('approveModal').addEventListener('click', function(e) {
 document.getElementById('rejectModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal('rejectModal');
 });
+
+
 </script>
 @endif
+<script>
+
+function copyLocationURL(event, url) {
+    navigator.clipboard.writeText(url).then(function() {
+        // Show success message
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        `;
+        button.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+        button.classList.add('bg-green-500', 'hover:bg-green-600');
+        
+        // Reset after 2 seconds
+        setTimeout(function() {
+            button.innerHTML = originalContent;
+            button.classList.remove('bg-green-500', 'hover:bg-green-600');
+            button.classList.add('bg-gray-500', 'hover:bg-gray-600');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Failed to copy URL: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Show success message even for fallback
+        const button = event.target.closest('button');
+        const originalContent = button.innerHTML;
+        button.innerHTML = `
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        `;
+        button.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+        button.classList.add('bg-green-500', 'hover:bg-green-600');
+        
+        setTimeout(function() {
+            button.innerHTML = originalContent;
+            button.classList.remove('bg-green-500', 'hover:bg-green-600');
+            button.classList.add('bg-gray-500', 'hover:bg-gray-600');
+        }, 2000);
+    });
+}
+</script>
 @endsection

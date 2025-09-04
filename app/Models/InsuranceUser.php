@@ -17,7 +17,8 @@ class InsuranceUser extends Authenticatable
         'full_name',
         'national_id',
         'policy_number',
-        'is_active'
+        'is_active',
+        'is_completed',
     ];
 
     protected $hidden = [
