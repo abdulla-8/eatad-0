@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Claim;
 use App\Models\ServiceCenter;
+use App\Models\InsuranceUser;
+use App\Models\ClaimAttachment;
+use App\Models\VehicleLocationRequest;
 
 class ClaimsController extends Controller
 {
@@ -55,6 +58,7 @@ class ClaimsController extends Controller
 
     public function show(Request $request, $companyRoute, $claim)
     {
+        $hostname = $request->schemeAndHttpHost();
         $company = Auth::guard('insurance_company')->user();
 
         // الحصول على الـ Claim ID من الـ route parameters
@@ -69,7 +73,323 @@ class ClaimsController extends Controller
             abort(404, 'Claim not found');
         }
 
-        return view('insurance.claims.show', compact('claim', 'company'));
+        $locationRequest = VehicleLocationRequest::where('claim_id', $claim->id)->first();
+        $locationRequestURL = $locationRequest ? $hostname . '/vehicle-location/' . $locationRequest->public_hash : null;
+        return view('insurance.claims.show', compact('claim', 'company', 'locationRequestURL'));
+    }
+
+    public function create(Request $request)
+    {
+        $company = Auth::guard('insurance_company')->user();
+        $users = InsuranceUser::where('insurance_company_id', $company->id)->get();
+        return view('insurance.claims.create', compact('company', 'users'));
+    }
+
+    public function store(Request $request)
+    {
+        $company = Auth::guard('insurance_company')->user();
+
+        // Check if we're creating a new user or using existing one
+        if ($request->input('user_type') === 'new') {
+            // Validate new user data
+            $request->validate([
+                'new_user_full_name' => 'required|string|max:255',
+                'new_user_phone' => 'required|string|max:20|unique:insurance_users,phone',
+                'new_user_national_id' => 'required|string|max:20|unique:insurance_users,national_id',
+                // 'new_user_policy_number' => 'required|string|max:100',
+                'policy_number' => 'required|string|max:100',
+                'vehicle_plate_number' => 'nullable|string|max:50',
+                'chassis_number' => 'nullable|string|max:100',
+                'vehicle_brand' => 'nullable|string|max:100',
+                'vehicle_type' => 'nullable|string|max:100',
+                'vehicle_model' => 'nullable|string|max:100',
+                'vehicle_location' => 'required_if:is_vehicle_working,0|string|nullable',
+                'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
+                'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
+                'is_vehicle_working' => 'required|boolean',
+                'repair_receipt_ready' => 'required|boolean',
+                'notes' => 'nullable|string|max:1000',
+                'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'damage_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'estimation_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            ]);
+
+            // Create new insurance user
+            $newUser = $this->createInsuranceUser($request, $company);
+            $insuranceUserId = $newUser->id;
+        } else {
+            // Validate existing user data
+            $request->validate([
+                'insurance_user_id' => 'required|exists:insurance_users,id',
+                'policy_number' => 'required|string|max:100',
+                'vehicle_plate_number' => 'nullable|string|max:50',
+                'chassis_number' => 'nullable|string|max:100',
+                'vehicle_brand' => 'nullable|string|max:100',
+                'vehicle_type' => 'nullable|string|max:100',
+                'vehicle_model' => 'nullable|string|max:100',
+                'vehicle_location' => 'required_if:is_vehicle_working,0|string|nullable',
+                'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
+                'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
+                'is_vehicle_working' => 'required|boolean',
+                'repair_receipt_ready' => 'required|boolean',
+                'notes' => 'nullable|string|max:1000',
+                'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'damage_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'estimation_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            ]);
+
+            $insuranceUserId = $request->insurance_user_id;
+        }
+
+        if (!$request->vehicle_plate_number && !$request->chassis_number) {
+            return back()->withErrors(['vehicle_info' => 'Either vehicle plate number or chassis number is required'])
+                ->withInput();
+        }
+
+        try {
+            $claimData = [
+                'insurance_user_id' => $insuranceUserId,
+                'insurance_company_id' => $company->id,
+                'policy_number' => $request->policy_number,
+                'vehicle_plate_number' => $request->vehicle_plate_number,
+                'chassis_number' => $request->chassis_number,
+                'vehicle_brand' => $request->vehicle_brand,
+                'vehicle_type' => $request->vehicle_type,
+                'vehicle_model' => $request->vehicle_model,
+                'vehicle_location' => $request->vehicle_location,
+                'vehicle_location_lat' => $request->vehicle_location_lat,
+                'vehicle_location_lng' => $request->vehicle_location_lng,
+                'is_vehicle_working' => $request->is_vehicle_working,
+                'repair_receipt_ready' => $request->repair_receipt_ready,
+                'notes' => $request->notes,
+                'status' => 'location_review'
+            ];
+
+            $claim = Claim::create($claimData);
+
+            // Create vehicle location request if vehicle is not working
+            if ($request->is_vehicle_working == 0) {
+                VehicleLocationRequest::create([
+                    'claim_id' => $claim->id,
+                    'insurance_user_id' => $insuranceUserId,
+                    'is_completed' => false
+                ]);
+            }
+
+            $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
+            
+            foreach ($fileTypes as $type) {
+                if ($request->hasFile($type)) {
+                    $files = $request->file($type);
+                    if (!is_array($files)) {
+                        $files = [$files];
+                    }
+
+                    foreach ($files as $file) {
+                        $this->storeAttachment($claim, $file, $type);
+                    }
+                }
+            }
+
+            $successMessage = 'Claim submitted successfully. Claim number: ' . $claim->claim_number;
+            if ($request->input('user_type') === 'new') {
+                $successMessage .= ' New user account created with phone: ' . $request->new_user_phone . ' and password: ' . $request->new_user_national_id;
+            }
+
+            // Add location form URL if vehicle is not working
+            if ($request->is_vehicle_working == 0) {
+                $locationRequest = VehicleLocationRequest::where('claim_id', $claim->id)->first();
+                if ($locationRequest) {
+                    $successMessage .= ' Location form URL: ' . $locationRequest->public_url;
+                }
+            }
+
+            return redirect()->route('insurance.claims.show', [
+                'companyRoute' => $company->company_slug,
+                'claim' => $claim->id
+            ])->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to submit claim. Please try again.')
+                ->withInput();
+        }
+    }
+
+    /**
+     * Create a new insurance user during claim creation
+     */
+    private function createInsuranceUser(Request $request, $company)
+    {
+        $userData = [
+            'insurance_company_id' => $company->id,
+            'phone' => $request->new_user_phone,
+            'password' => bcrypt($request->new_user_national_id), // Use national_id as password
+            'full_name' => $request->new_user_full_name,
+            'national_id' => $request->new_user_national_id,
+            'policy_number' => $request->policy_number,
+            'is_active' => true,
+            'is_completed' => false
+        ];
+
+        return InsuranceUser::create($userData);
+    }
+
+    public function edit(Request $request, $companyRoute, $claim)
+    {
+        $company = Auth::guard('insurance_company')->user();
+        $claim = Claim::where('id', $claim)->where('insurance_company_id', $company->id)->firstOrFail();
+        $users = InsuranceUser::where('insurance_company_id', $company->id)->get();
+        return view('insurance.claims.edit', compact('claim', 'company', 'users'));
+    }
+
+    public function update(Request $request, $companyRoute, $claim)
+    {
+        $company = Auth::guard('insurance_company')->user();
+        $claim = Claim::where('id', $claim)->where('insurance_company_id', $company->id)->firstOrFail();
+
+        // Check if we're creating a new user or using existing one
+        if ($request->input('user_type') === 'new') {
+            // Validate new user data
+            $request->validate([
+                'new_user_full_name' => 'required|string|max:255',
+                'new_user_phone' => 'required|string|max:20|unique:insurance_users,phone',
+                'new_user_national_id' => 'required|string|max:20|unique:insurance_users,national_id',
+                'new_user_policy_number' => 'required|string|max:100',
+                'policy_number' => 'required|string|max:100',
+                'vehicle_plate_number' => 'nullable|string|max:50',
+                'chassis_number' => 'nullable|string|max:100',
+                'vehicle_brand' => 'nullable|string|max:100',
+                'vehicle_type' => 'nullable|string|max:100',
+                'vehicle_model' => 'nullable|string|max:100',
+                'vehicle_location' => 'required_if:is_vehicle_working,0|string|nullable',
+                'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
+                'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
+                'is_vehicle_working' => 'required|boolean',
+                'repair_receipt_ready' => 'required|boolean',
+                'notes' => 'nullable|string|max:1000',
+                'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'damage_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'estimation_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            ]);
+
+            // Create new insurance user
+            $newUser = $this->createInsuranceUser($request, $company);
+            $insuranceUserId = $newUser->id;
+        } else {
+            // Validate existing user data
+            $request->validate([
+                'insurance_user_id' => 'required|exists:insurance_users,id',
+                'policy_number' => 'required|string|max:100',
+                'vehicle_plate_number' => 'nullable|string|max:50',
+                'chassis_number' => 'nullable|string|max:100',
+                'vehicle_brand' => 'nullable|string|max:100',
+                'vehicle_type' => 'nullable|string|max:100',
+                'vehicle_model' => 'nullable|string|max:100',
+                'vehicle_location' => 'required_if:is_vehicle_working,0|string|nullable',
+                'vehicle_location_lat' => 'nullable|numeric|between:-90,90',
+                'vehicle_location_lng' => 'nullable|numeric|between:-180,180',
+                'is_vehicle_working' => 'required|boolean',
+                'repair_receipt_ready' => 'required|boolean',
+                'notes' => 'nullable|string|max:1000',
+                'policy_image.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'registration_form.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'repair_receipt.*' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'damage_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+                'estimation_report.*' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            ]);
+
+            $insuranceUserId = $request->insurance_user_id;
+        }
+
+        if (!$request->vehicle_plate_number && !$request->chassis_number) {
+            return back()->withErrors(['vehicle_info' => 'Either vehicle plate number or chassis number is required'])
+                ->withInput();
+        }
+
+        try {
+            // Prepare claim data for update
+            $claimData = [
+                'insurance_user_id' => $insuranceUserId,
+                'policy_number' => $request->policy_number,
+                'vehicle_plate_number' => $request->vehicle_plate_number,
+                'chassis_number' => $request->chassis_number,
+                'vehicle_brand' => $request->vehicle_brand,
+                'vehicle_type' => $request->vehicle_type,
+                'vehicle_model' => $request->vehicle_model,
+                'vehicle_location' => $request->vehicle_location,
+                'vehicle_location_lat' => $request->vehicle_location_lat,
+                'vehicle_location_lng' => $request->vehicle_location_lng,
+                'is_vehicle_working' => $request->is_vehicle_working,
+                'repair_receipt_ready' => $request->repair_receipt_ready,
+                'notes' => $request->notes,
+            ];
+
+            $claim->update($claimData);
+
+            // Create vehicle location request if vehicle is not working and doesn't already have one
+            if ($request->is_vehicle_working == 0 && !$claim->vehicleLocationRequest) {
+                VehicleLocationRequest::create([
+                    'claim_id' => $claim->id,
+                    'insurance_user_id' => $insuranceUserId,
+                    'is_completed' => false
+                ]);
+            }
+
+            $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
+            
+            foreach ($fileTypes as $type) {
+                if ($request->hasFile($type)) {
+                    $files = $request->file($type);
+                    if (!is_array($files)) {
+                        $files = [$files];
+                    }
+
+                    foreach ($files as $file) {
+                        $this->storeAttachment($claim, $file, $type);
+                    }
+                }
+            }
+
+            $successMessage = 'Claim updated successfully.';
+            if ($request->input('user_type') === 'new') {
+                $successMessage .= ' New user account created with phone: ' . $request->new_user_phone . ' and password: ' . $request->new_user_national_id;
+            }
+
+            return redirect()->route('insurance.claims.show', [
+                'companyRoute' => $company->company_slug,
+                'claim' => $claim->id
+            ])->with('success', $successMessage);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update claim. Please try again.')
+                ->withInput();
+        }
+    }
+    
+    private function storeAttachment(Claim $claim, $file, string $type): ClaimAttachment
+    {
+        $originalName = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $size = $file->getSize();
+        $mimeType = $file->getMimeType();
+        
+        $filename = $claim->id . '_' . $type . '_' . time() . '_' . uniqid() . '.' . $extension;
+        $path = $file->storeAs('claims/' . $claim->id . '/' . $type, $filename, 'public');
+
+        return ClaimAttachment::create([
+            'claim_id' => $claim->id,
+            'type' => $type,
+            'file_path' => $path,
+            'file_name' => $originalName,
+            'file_size' => $size,
+            'mime_type' => $mimeType
+        ]);
     }
 
     public function approve(Request $request, $companyRoute, $claim)
