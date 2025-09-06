@@ -1,6 +1,6 @@
 @extends('insurance.layouts.app')
 
-@section('title', t($company->translation_group . '.claim_details'))
+@section('title', t('insurance_company' . '.claim_details'))
 
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
@@ -15,24 +15,24 @@
             </a>
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">{{ $claim->claim_number }}</h1>
-                <p class="text-gray-600">{{ t($company->translation_group . '.claim_details') }}</p>
+                <p class="text-gray-600">{{ t('insurance_company' . '.claim_details') }}</p>
             </div>
         </div>
         
         <div class="flex items-center gap-4">
             <span class="px-4 py-2 rounded-full text-sm font-medium {{ $claim->status_badge['class'] }}">
-                {{ t($company->translation_group . '.' . $claim->status) }}
+                {{ t('insurance_company' . '.' . $claim->status) }}
             </span>
             
             @if($claim->status === 'pending')
                 <div class="flex gap-3">
                     <button onclick="approveModal()" 
                             class="px-6 py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
-                        {{ t($company->translation_group . '.approve') }}
+                        {{ t('insurance_company' . '.approve') }}
                     </button>
                     <button onclick="rejectModal()" 
                             class="px-6 py-2.5 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
-                        {{ t($company->translation_group . '.reject') }}
+                        {{ t('insurance_company' . '.reject') }}
                     </button>
                 </div>
             @endif
@@ -143,8 +143,8 @@
         {{ substr($claim->insuranceUser->full_name, 0, 2) }}
       </div>
       <div>
-        <h3 class="text-lg font-bold">{{ t($company->translation_group . '.user_information') }}</h3>
-        <p class="text-gray-600 text-sm">{{ t($company->translation_group . '.contact_details') }}</p>
+        <h3 class="text-lg font-bold">{{ t('insurance_company' . '.user_information') }}</h3>
+        <p class="text-gray-600 text-sm">{{ t('insurance_company' . '.contact_details') }}</p>
       </div>
     </div>
   </div>
@@ -157,7 +157,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A7 7 0 0112 15a7 7 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.name') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.name') }}</span>
         </div>
         <span class="font-medium">{{ $claim->insuranceUser->full_name }}</span>
       </div>
@@ -168,7 +168,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h2l3.6 7.59a1 1 0 01-.36 1.41l-2.6 1.54a11 11 0 005.6 5.6l1.54-2.6a1 1 0 011.41-.36L19 19v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.phone') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.phone') }}</span>
         </div>
         <span class="font-medium">{{ $claim->insuranceUser->formatted_phone }}</span>
       </div>
@@ -179,7 +179,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.national_id') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.national_id') }}</span>
         </div>
         <span class="font-medium font-mono text-sm">{{ $claim->insuranceUser->formatted_national_id }}</span>
       </div>
@@ -192,7 +192,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 13l1.5-4.5a1 1 0 011-1h13a1 1 0 011 1l1.5 4.5M5 16h14v2a2 2 0 01-2 2H7a2 2 0 01-2-2v-2z" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.vehicle_brand') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.vehicle_brand') }}</span>
         </div>
         <span class="font-medium">{{ $claim->vehicle_brand }}</span>
       </div>
@@ -203,7 +203,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h-2v-6h2m-1-4h.01" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.vehicle_type') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.vehicle_type') }}</span>
         </div>
         <span class="font-medium">{{ $claim->vehicle_type }}</span>
       </div>
@@ -214,7 +214,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.vehicle_model') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.vehicle_model') }}</span>
         </div>
         <span class="font-medium">{{ $claim->vehicle_model }}</span>
       </div>
@@ -231,7 +231,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
             </svg>
         </div>
-        <h3 class="text-lg md:text-xl font-bold text-gray-800">{{ t($company->translation_group . '.important_numbers') }}</h3>
+        <h3 class="text-lg md:text-xl font-bold text-gray-800">{{ t('insurance_company' . '.important_numbers') }}</h3>
     </div>
     
     @if($claim->vehicle_plate_number)
@@ -241,7 +241,7 @@
             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
             </svg>
-            <span class="text-sm font-medium text-gray-600">{{ t($company->translation_group . '.vehicle_plate_number') }}</span>
+            <span class="text-sm font-medium text-gray-600">{{ t('insurance_company' . '.vehicle_plate_number') }}</span>
         </div>
         
         <!-- تصميم اللوحة -->
@@ -314,7 +314,7 @@
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span class="text-sm font-medium text-gray-600">{{ t($company->translation_group . '.chassis_number') }}</span>
+                <span class="text-sm font-medium text-gray-600">{{ t('insurance_company' . '.chassis_number') }}</span>
             </div>
             <span class="font-mono text-sm md:text-base font-semibold text-gray-900 bg-gray-100 px-3 py-1 rounded-md break-all">{{ $claim->chassis_number }}</span>
         </div>
@@ -328,7 +328,7 @@
                 <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <span class="text-sm font-medium text-gray-600">{{ t($company->translation_group . '.policy_number') }}</span>
+                <span class="text-sm font-medium text-gray-600">{{ t('insurance_company' . '.policy_number') }}</span>
             </div>
             <span class="font-mono text-sm md:text-base font-semibold text-gray-900 bg-gray-100 px-3 py-1 rounded-md break-all">{{ $claim->policy_number }}</span>
         </div>
@@ -348,8 +348,8 @@
         </svg>
       </div>
       <div>
-        <h3 class="text-lg font-bold">{{ t($company->translation_group . '.claim_information') }}</h3>
-        <p class="text-gray-600 text-sm">{{ t($company->translation_group . '.details_of_claim') }}</p>
+        <h3 class="text-lg font-bold">{{ t('insurance_company' . '.claim_information') }}</h3>
+        <p class="text-gray-600 text-sm">{{ t('insurance_company' . '.details_of_claim') }}</p>
       </div>
     </div>
   </div>
@@ -366,10 +366,10 @@
           <svg class="w-5 h-5 {{ $claim->is_vehicle_working ? 'text-green-500' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $claim->is_vehicle_working ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12' }}" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.vehicle_working') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.vehicle_working') }}</span>
         </div>
         <span class="font-semibold {{ $claim->is_vehicle_working ? 'text-green-600' : 'text-red-600' }}">
-          {{ $claim->is_vehicle_working ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
+          {{ $claim->is_vehicle_working ? t('insurance_company' . '.yes') : t('insurance_company' . '.no') }}
         </span>
       </div>
 
@@ -378,10 +378,10 @@
           <svg class="w-5 h-5 {{ $claim->repair_receipt_ready ? 'text-green-500' : 'text-red-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.receipt_ready') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.receipt_ready') }}</span>
         </div>
         <span class="font-semibold {{ $claim->repair_receipt_ready ? 'text-green-600' : 'text-red-600' }}">
-          {{ $claim->repair_receipt_ready ? t($company->translation_group . '.yes') : t($company->translation_group . '.no') }}
+          {{ $claim->repair_receipt_ready ? t('insurance_company' . '.yes') : t('insurance_company' . '.no') }}
         </span>
       </div>
 
@@ -390,7 +390,7 @@
           <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 12v-6m6 6H6a2 2 0 01-2-2v-6a2 2 0 012-2h12a2 2 0 012 2v6a2 2 0 01-2 2z" />
           </svg>
-          <span class="text-gray-600 text-sm">{{ t($company->translation_group . '.submitted') }}</span>
+          <span class="text-gray-600 text-sm">{{ t('insurance_company' . '.submitted') }}</span>
         </div>
         <span class="font-medium">{{ $claim->created_at->format('M d, Y H:i') }}</span>
       </div>
@@ -404,7 +404,7 @@
             @if(!empty($claim->vehicle_location))
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-bold">{{ t($company->translation_group . '.vehicle_location') }}</h3>
+                    <h3 class="text-lg font-bold">{{ t('insurance_company' . '.vehicle_location') }}</h3>
                 </div>
                 <div class="p-6">
                     <p class="text-gray-700 mb-4">{{ $claim->vehicle_location }}</p>
@@ -416,7 +416,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            {{ t($company->translation_group . '.view_on_map') }}
+                            {{ t('insurance_company' . '.view_on_map') }}
                         </a>
                     @endif
                 </div>
@@ -427,7 +427,7 @@
             @if($claim->status === 'rejected' && $claim->rejection_reason)
             <div class="bg-red-50 border border-red-200 rounded-xl">
                 <div class="p-6 border-b border-red-200">
-                    <h3 class="text-lg font-bold text-red-800">{{ t($company->translation_group . '.rejection_reason') }}</h3>
+                    <h3 class="text-lg font-bold text-red-800">{{ t('insurance_company' . '.rejection_reason') }}</h3>
                 </div>
                 <div class="p-6">
                     <p class="text-red-700">{{ $claim->rejection_reason }}</p>
@@ -453,7 +453,7 @@
             @if($claim->notes)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-bold">{{ t($company->translation_group . '.notes') }}</h3>
+                    <h3 class="text-lg font-bold">{{ t('insurance_company' . '.notes') }}</h3>
                 </div>
                 <div class="p-6">
                     <p class="text-gray-700">{{ $claim->notes }}</p>
@@ -468,7 +468,7 @@
             @if($claim->service_center_id)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-bold">{{ t($company->translation_group . '.assigned_service_center') }}</h3>
+                    <h3 class="text-lg font-bold">{{ t('insurance_company' . '.assigned_service_center') }}</h3>
                 </div>
                 <div class="p-6 space-y-4">
                     <div>
@@ -495,7 +495,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            {{ t($company->translation_group . '.view_on_map') }}
+                            {{ t('insurance_company' . '.view_on_map') }}
                         </a>
                     @endif
                 </div>
@@ -543,22 +543,22 @@
             @if($claim->tow_service_offered)
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-bold">{{ t($company->translation_group . '.tow_service') }}</h3>
+                    <h3 class="text-lg font-bold">{{ t('insurance_company' . '.tow_service') }}</h3>
                 </div>
                 <div class="p-6 space-y-3">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">{{ t($company->translation_group . '.offered') }}</span>
-                        <span class="font-medium text-blue-600">{{ t($company->translation_group . '.yes') }}</span>
+                        <span class="text-gray-600">{{ t('insurance_company' . '.offered') }}</span>
+                        <span class="font-medium text-blue-600">{{ t('insurance_company' . '.yes') }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">{{ t($company->translation_group . '.status') }}</span>
+                        <span class="text-gray-600">{{ t('insurance_company' . '.status') }}</span>
                         <span class="font-medium {{ is_null($claim->tow_service_accepted) ? 'text-yellow-600' : ($claim->tow_service_accepted ? 'text-green-600' : 'text-red-600') }}">
                             @if(is_null($claim->tow_service_accepted))
-                                {{ t($company->translation_group . '.waiting_response') }}
+                                {{ t('insurance_company' . '.waiting_response') }}
                             @elseif($claim->tow_service_accepted)
-                                {{ t($company->translation_group . '.accepted') }}
+                                {{ t('insurance_company' . '.accepted') }}
                             @else
-                                {{ t($company->translation_group . '.declined') }}
+                                {{ t('insurance_company' . '.declined') }}
                             @endif
                         </span>
                     </div>
@@ -569,18 +569,18 @@
             <!-- Quick Actions -->
             <div class="bg-white rounded-xl shadow-sm border">
                 <div class="p-6 border-b">
-                    <h3 class="text-lg font-bold">{{ t($company->translation_group . '.quick_actions') }}</h3>
+                    <h3 class="text-lg font-bold">{{ t('insurance_company' . '.quick_actions') }}</h3>
                 </div>
                 <div class="p-6 space-y-3">
                     @if($locationRequestURL && $claim->status === 'location_review')
                         <div class="flex gap-2">
                             <a href="{{ $locationRequestURL }}" 
                                class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors text-center">
-                                {{ t($company->translation_group . '.view_vehicle_location') }}
+                                {{ t('insurance_company' . '.view_vehicle_location') }}
                             </a>
                             <button onclick="copyLocationURL(event,'{{ $locationRequestURL }}')" 
                                     class="px-4 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors flex items-center justify-center"
-                                    title="{{ t($company->translation_group . '.copy_link') }}">
+                                    title="{{ t('insurance_company' . '.copy_link') }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                                 </svg>
@@ -590,11 +590,11 @@
                     @if($claim->status === 'pending' || $claim->status === 'location_submitted')
                         <button onclick="approveModal()" 
                                 class="w-full px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
-                            {{ t($company->translation_group . '.approve_claim') }}
+                            {{ t('insurance_company' . '.approve_claim') }}
                         </button>
                         <button onclick="rejectModal()" 
                                 class="w-full px-4 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
-                            {{ t($company->translation_group . '.reject_claim') }}
+                            {{ t('insurance_company' . '.reject_claim') }}
                         </button>
                     @endif
                     
@@ -608,7 +608,7 @@
                     
                     <a href="{{ route('insurance.claims.index', $company->company_slug) }}" 
                        class="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors text-center block">
-                        {{ t($company->translation_group . '.back_to_claims') }}
+                        {{ t('insurance_company' . '.back_to_claims') }}
                     </a>
                 </div>
             </div>
@@ -620,10 +620,10 @@
     <div class="bg-white rounded-xl shadow-sm border">
         <div class="p-6 border-b">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold">{{ t($company->translation_group . '.attachments') }}</h3>
+                <h3 class="text-lg font-bold">{{ t('insurance_company' . '.attachments') }}</h3>
                 <span class="px-3 py-1 rounded-full text-sm font-medium"
                       style="background: {{ $company->primary_color }}20; color: {{ $company->primary_color }};">
-                    {{ $claim->attachments->count() }} {{ t($company->translation_group . '.files') }}
+                    {{ $claim->attachments->count() }} {{ t('insurance_company' . '.files') }}
                 </span>
             </div>
         </div>
@@ -631,7 +631,7 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($claim->attachments->groupBy('type') as $type => $attachments)
                     <div class="border border-gray-200 rounded-lg p-4">
-                        <h4 class="font-medium text-gray-900 mb-3">{{ t($company->translation_group . '.' . $type) }}</h4>
+                        <h4 class="font-medium text-gray-900 mb-3">{{ t('insurance_company' . '.' . $type) }}</h4>
                         <div class="space-y-2">
                             @foreach($attachments as $attachment)
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
@@ -679,37 +679,37 @@
 <div id="approveModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b">
-            <h3 class="text-xl font-bold">{{ t($company->translation_group . '.approve_claim') }} {{ $claim->claim_number }}</h3>
+            <h3 class="text-xl font-bold">{{ t('insurance_company' . '.approve_claim') }} {{ $claim->claim_number }}</h3>
         </div>
         
         <form method="POST" action="{{ route('insurance.claims.approve', [$company->company_slug, $claim->id]) }}" class="p-6 space-y-6">
             @csrf
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t($company->translation_group . '.select_service_center') }} *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('insurance_company' . '.select_service_center') }} *</label>
                 <select name="service_center_id" id="serviceCenterSelect" required 
                         class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                         style="focus:ring-color: {{ $company->primary_color }};">
-                    <option value="">{{ t($company->translation_group . '.loading') }}</option>
+                    <option value="">{{ t('insurance_company' . '.loading') }}</option>
                 </select>
             </div>
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t($company->translation_group . '.notes_optional') }}</label>
+                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('insurance_company' . '.notes_optional') }}</label>
                 <textarea name="notes" rows="4" 
                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                           style="focus:ring-color: {{ $company->primary_color }};"
-                          placeholder="{{ t($company->translation_group . '.additional_notes') }}"></textarea>
+                          placeholder="{{ t('insurance_company' . '.additional_notes') }}"></textarea>
             </div>
             
             <div class="flex gap-4 pt-4">
                 <button type="submit" class="flex-1 py-3 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
                         style="background: {{ $company->primary_color }};">
-                    {{ t($company->translation_group . '.approve_claim') }}
+                    {{ t('insurance_company' . '.approve_claim') }}
                 </button>
                 <button type="button" onclick="closeModal('approveModal')" 
                         class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
-                    {{ t($company->translation_group . '.cancel') }}
+                    {{ t('insurance_company' . '.cancel') }}
                 </button>
             </div>
         </form>
@@ -720,27 +720,27 @@
 <div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl max-w-md w-full">
         <div class="p-6 border-b">
-            <h3 class="text-xl font-bold">{{ t($company->translation_group . '.reject_claim') }} {{ $claim->claim_number }}</h3>
+            <h3 class="text-xl font-bold">{{ t('insurance_company' . '.reject_claim') }} {{ $claim->claim_number }}</h3>
         </div>
         
         <form method="POST" action="{{ route('insurance.claims.reject', [$company->company_slug, $claim->id]) }}" class="p-6 space-y-6">
             @csrf
             
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t($company->translation_group . '.rejection_reason') }} *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('insurance_company' . '.rejection_reason') }} *</label>
                 <textarea name="rejection_reason" rows="4" required 
                           class="w-full border-gray-300 rounded-lg focus:ring-2 focus:border-transparent px-4 py-2.5"
                           style="focus:ring-color: {{ $company->primary_color }};"
-                          placeholder="{{ t($company->translation_group . '.explain_rejection_reason') }}"></textarea>
+                          placeholder="{{ t('insurance_company' . '.explain_rejection_reason') }}"></textarea>
             </div>
             
             <div class="flex gap-4 pt-4">
                 <button type="submit" class="flex-1 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors">
-                    {{ t($company->translation_group . '.reject_claim') }}
+                    {{ t('insurance_company' . '.reject_claim') }}
                 </button>
                 <button type="button" onclick="closeModal('rejectModal')" 
                         class="flex-1 py-3 bg-gray-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
-                    {{ t($company->translation_group . '.cancel') }}
+                    {{ t('insurance_company' . '.cancel') }}
                 </button>
             </div>
         </form>
@@ -753,19 +753,19 @@ fetch('{{ route("insurance.claims.service-centers", $company->company_slug) }}')
     .then(response => response.json())
     .then(data => {
         const select = document.getElementById('serviceCenterSelect');
-        select.innerHTML = '<option value="">{{ t($company->translation_group . ".select_service_center") }}</option>';
+        select.innerHTML = '<option value="">{{ t('insurance_company' . ".select_service_center") }}</option>';
         data.forEach(center => {
             let claimsCount = center.accepted_claims_count ?? 0;
             let claimsText = claimsCount > 0 
-                ? `(${claimsCount} {{ t($company->translation_group . ".accepted_claims") }})`
-                : `({{ t($company->translation_group . ".no_accepted_claims") }})`;
+                ? `(${claimsCount} {{ t('insurance_company' . ".accepted_claims") }})`
+                : `({{ t('insurance_company' . ".no_accepted_claims") }})`;
             let areaText = center.area ? ` - ${center.area}` : '';
             select.innerHTML += `<option value="${center.id}">${center.name}${areaText} ${claimsText}</option>`;
         });
     })
     .catch(error => {
         const select = document.getElementById('serviceCenterSelect');
-        select.innerHTML = '<option value="">{{ t($company->translation_group . ".error_loading") }}</option>';
+        select.innerHTML = '<option value="">{{ t('insurance_company' . ".error_loading") }}</option>';
     });
 
 function approveModal() {

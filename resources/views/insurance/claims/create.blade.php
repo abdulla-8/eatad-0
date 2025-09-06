@@ -1,6 +1,6 @@
 @extends('insurance.layouts.app')
 
-@section('title', t($company->translation_group . '.new_claim'))
+@section('title', t('insurance_company' . '.new_claim'))
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -35,8 +35,8 @@
             </svg>
         </a>
         <div>
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ t($company->translation_group . '.submit_new_claim') }}</h1>
-            <p class="text-gray-600 text-lg">{{ t($company->translation_group . '.fill_claim_details') }}</p>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ t('insurance_company' . '.submit_new_claim') }}</h1>
+            <p class="text-gray-600 text-lg">{{ t('insurance_company' . '.fill_claim_details') }}</p>
         </div>
     </div>
 
@@ -53,16 +53,16 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    {{ t($company->translation_group . '.basic_information') }}
+                    {{ t('insurance_company' . '.basic_information') }}
                 </h2>
-                <p class="text-gray-600 mt-2">{{ t($company->translation_group . '.basic_info_description') }}</p>
+                <p class="text-gray-600 mt-2">{{ t('insurance_company' . '.basic_info_description') }}</p>
             </div>
             
             <div class="section-content">
                 <div class="grid md:grid-cols-2 gap-6">
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.insurance_user') }} 
+                            {{ t('insurance_company' . '.insurance_user') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         
@@ -74,7 +74,7 @@
                                            class="form-radio text-blue-600" 
                                            onchange="toggleUserType('existing')">
                                     <span class="ml-2 text-sm font-medium text-gray-700">
-                                        {{ t($company->translation_group . '.existing_user') ?? 'Existing User' }}
+                                        {{ t('insurance_company' . '.existing_user') ?? 'Existing User' }}
                                     </span>
                                 </label>
                                 <label class="flex items-center">
@@ -82,7 +82,7 @@
                                            class="form-radio text-blue-600" 
                                            onchange="toggleUserType('new')">
                                     <span class="ml-2 text-sm font-medium text-gray-700">
-                                        {{ t($company->translation_group . '.new_user') ?? 'New User' }}
+                                        {{ t('insurance_company' . '.new_user') ?? 'New User' }}
                                     </span>
                                 </label>
                             </div>
@@ -95,7 +95,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 <select name="insurance_user_id" class="form-input input-with-icon w-full @error('insurance_user_id') border-red-500 @enderror">
-                                    <option value="">{{ t($company->translation_group . '.select_user') }}</option>
+                                    <option value="">{{ t('insurance_company' . '.select_user') }}</option>
                                     @foreach($users as $user)
                                         <option value="{{ $user->id }}" {{ old('insurance_user_id') == $user->id ? 'selected' : '' }}>{{ $user->full_name }} ({{ $user->phone }})</option>
                                     @endforeach
@@ -109,48 +109,48 @@
                             <div class="space-y-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ t($company->translation_group . '.full_name') ?? 'Full Name' }}
+                                        {{ t('insurance_company' . '.full_name') ?? 'Full Name' }}
                                         <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="new_user_full_name" value="{{ old('new_user_full_name') }}" 
                                            class="form-input w-full @error('new_user_full_name') border-red-500 @enderror" 
-                                           placeholder="{{ t($company->translation_group . '.enter_full_name') ?? 'Enter full name' }}">
+                                           placeholder="{{ t('insurance_company' . '.enter_full_name') ?? 'Enter full name' }}">
                                     @error('new_user_full_name')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ t($company->translation_group . '.phone') ?? 'Phone Number' }}
+                                        {{ t('insurance_company' . '.phone') ?? 'Phone Number' }}
                                         <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="new_user_phone" value="{{ old('new_user_phone') }}" 
                                            class="form-input w-full @error('new_user_phone') border-red-500 @enderror" 
-                                           placeholder="{{ t($company->translation_group . '.enter_phone') ?? 'Enter phone number' }}">
+                                           placeholder="{{ t('insurance_company' . '.enter_phone') ?? 'Enter phone number' }}">
                                     @error('new_user_phone')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ t($company->translation_group . '.national_id') ?? 'National ID' }}
+                                        {{ t('insurance_company' . '.national_id') ?? 'National ID' }}
                                         <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="new_user_national_id" value="{{ old('new_user_national_id') }}" 
                                            class="form-input w-full @error('new_user_national_id') border-red-500 @enderror" 
-                                           placeholder="{{ t($company->translation_group . '.enter_national_id') ?? 'Enter national ID' }}">
+                                           placeholder="{{ t('insurance_company' . '.enter_national_id') ?? 'Enter national ID' }}">
                                     <p class="text-xs text-gray-500 mt-1">
-                                        {{ t($company->translation_group . '.national_id_password_note') ?? 'This will be used as the login password' }}
+                                        {{ t('insurance_company' . '.national_id_password_note') ?? 'This will be used as the login password' }}
                                     </p>
                                     @error('new_user_national_id')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        {{ t($company->translation_group . '.policy_number') ?? 'Policy Number' }}
+                                        {{ t('insurance_company' . '.policy_number') ?? 'Policy Number' }}
                                         <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="new_user_policy_number" value="{{ old('new_user_policy_number') }}" 
                                            class="form-input w-full @error('new_user_policy_number') border-red-500 @enderror" 
-                                           placeholder="{{ t($company->translation_group . '.enter_policy_number') ?? 'Enter policy number' }}">
+                                           placeholder="{{ t('insurance_company' . '.enter_policy_number') ?? 'Enter policy number' }}">
                                     @error('new_user_policy_number')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
                                 </div>
                             </div>
@@ -159,7 +159,7 @@
 
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.policy_number') }} 
+                            {{ t('insurance_company' . '.policy_number') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
@@ -168,14 +168,14 @@
                             </svg>
                             <input type="text" name="policy_number" value="{{ old('policy_number') }}" 
                                    class="form-input input-with-icon w-full @error('policy_number') border-red-500 @enderror" 
-                                   placeholder="{{ t($company->translation_group . '.enter_policy_number') }}" required>
+                                   placeholder="{{ t('insurance_company' . '.enter_policy_number') }}" required>
                         </div>
                         @error('policy_number')<p class="text-red-500 text-sm mt-2">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.vehicle_working') }} 
+                            {{ t('insurance_company' . '.vehicle_working') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
@@ -183,8 +183,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                             <select name="is_vehicle_working" id="is_vehicle_working" class="form-input input-with-icon w-full over-flow-hidden" required>
-                                <option  value="1" {{ old('is_vehicle_working') == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.yes') }}</option>
-                                <option  value="0" {{ old('is_vehicle_working') == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.no') }}</option>
+                                <option  value="1" {{ old('is_vehicle_working') == '1' ? 'selected' : '' }}>{{ t('insurance_company' . '.yes') }}</option>
+                                <option  value="0" {{ old('is_vehicle_working') == '0' ? 'selected' : '' }}>{{ t('insurance_company' . '.no') }}</option>
                             </select>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
 
 <div class="input-group">
     <label class="block text-sm font-semibold text-gray-700 mb-3">
-        {{ t($company->translation_group . '.vehicle_plate_number') }}
+        {{ t('insurance_company' . '.vehicle_plate_number') }}
     </label>
     <div class="flex border border-gray-300 p-2 rounded-lg bg-white shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 w-fit {{ $isRtl ? 'flex-row-reverse' : 'flex-row-reverse' }}">
         <!-- محتوى اللوحة -->
@@ -261,7 +261,7 @@
 
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.chassis_number') }}
+                            {{ t('insurance_company' . '.chassis_number') }}
                         </label>
                         <div class="relative">
                             <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,13 +269,13 @@
                             </svg>
                             <input type="text" name="chassis_number" value="{{ old('chassis_number') }}" 
                                    class="form-input input-with-icon w-full"
-                                   placeholder="{{ t($company->translation_group . '.enter_chassis_number') }}">
+                                   placeholder="{{ t('insurance_company' . '.enter_chassis_number') }}">
                         </div>
                     </div>
              
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.vehicle_brand') }}
+                            {{ t('insurance_company' . '.vehicle_brand') }}
                         </label>
                         <div class="relative">
                             <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,13 +283,13 @@
                             </svg>
                             <input type="text" name="vehicle_brand" value="{{ old('vehicle_brand') }}"
                                    class="form-input input-with-icon w-full"
-                                   placeholder="{{ t($company->translation_group . '.enter_vehicle_brand') }}">
+                                   placeholder="{{ t('insurance_company' . '.enter_vehicle_brand') }}">
                         </div>
                     </div>
 
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.vehicle_type') }}
+                            {{ t('insurance_company' . '.vehicle_type') }}
                         </label>
                         <div class="relative">
                             <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,13 +297,13 @@
                             </svg>
                             <input type="text" name="vehicle_type" value="{{ old('vehicle_type') }}"
                                    class="form-input input-with-icon w-full"
-                                   placeholder="{{ t($company->translation_group . '.enter_vehicle_type') }}">
+                                   placeholder="{{ t('insurance_company' . '.enter_vehicle_type') }}">
                         </div>
                     </div>
 
                     <div class="input-group md:col-span-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.vehicle_model') }}
+                            {{ t('insurance_company' . '.vehicle_model') }}
                         </label>
                         <div class="relative">
                             <svg class="input-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,7 +311,7 @@
                             </svg>
                             <input type="text" name="vehicle_model" value="{{ old('vehicle_model') }}"
                                    class="form-input input-with-icon w-full"
-                                   placeholder="{{ t($company->translation_group . '.enter_vehicle_model') }}">
+                                   placeholder="{{ t('insurance_company' . '.enter_vehicle_model') }}">
                         </div>
                     </div>
                 </div>
@@ -324,7 +324,7 @@
 
                 <div class="input-group mt-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        {{ t($company->translation_group . '.repair_receipt') }} 
+                        {{ t('insurance_company' . '.repair_receipt') }} 
                         <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -332,8 +332,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5 4h4"></path>
                         </svg>
                         <select name="repair_receipt_ready" class="form-input input-with-icon w-full" required>
-                            <option value="1" {{ old('repair_receipt_ready') == '1' ? 'selected' : '' }}>{{ t($company->translation_group . '.ready_now') }}</option>
-                            <option value="0" {{ old('repair_receipt_ready') == '0' ? 'selected' : '' }}>{{ t($company->translation_group . '.will_add_later') }}</option>
+                            <option value="1" {{ old('repair_receipt_ready') == '1' ? 'selected' : '' }}>{{ t('insurance_company' . '.ready_now') }}</option>
+                            <option value="0" {{ old('repair_receipt_ready') == '0' ? 'selected' : '' }}>{{ t('insurance_company' . '.will_add_later') }}</option>
                         </select>
                     </div>
                 </div>
@@ -350,21 +350,21 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                     </div>
-                    {{ t($company->translation_group . '.vehicle_location') }}
+                    {{ t('insurance_company' . '.vehicle_location') }}
                     <span class="text-red-500 text-sm" id="location-required-indicator">*</span>
                 </h2>
-                <p class="text-gray-600 mt-2">{{ t($company->translation_group . '.location_description') }}</p>
+                <p class="text-gray-600 mt-2">{{ t('insurance_company' . '.location_description') }}</p>
             </div>
             
             <div class="section-content">
                 <div class="input-group mb-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        {{ t($company->translation_group . '.location_description') }}
+                        {{ t('insurance_company' . '.location_description') }}
                         <span class="text-red-500" id="location-text-required">*</span>
                     </label>
                     <textarea name="vehicle_location" id="vehicle_location" rows="4"
                         class="form-input w-full"
-                        placeholder="{{ t($company->translation_group . '.describe_vehicle_location') }}">{{ old('vehicle_location') }}</textarea>
+                        placeholder="{{ t('insurance_company' . '.describe_vehicle_location') }}">{{ old('vehicle_location') }}</textarea>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-4 mb-6">
@@ -377,7 +377,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
-                        {{ t($company->translation_group . '.use_current_location') }}
+                        {{ t('insurance_company' . '.use_current_location') }}
                     </button>
                     
                     <button type="button" onclick="openMap()" 
@@ -385,7 +385,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
                         </svg>
-                        {{ t($company->translation_group . '.pick_on_map') }}
+                        {{ t('insurance_company' . '.pick_on_map') }}
                     </button>
                 </div>
 
@@ -395,7 +395,7 @@
                 </div>
                 
                 <div id="location-error" class="hidden info-card bg-red-50 border-red-200 text-red-700 mt-4">
-                    <p class="text-sm">{{ t($company->translation_group . '.location_required_when_not_working') }}</p>
+                    <p class="text-sm">{{ t('insurance_company' . '.location_required_when_not_working') }}</p>
                 </div>
             </div>
         </div>
@@ -409,9 +409,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                         </svg>
                     </div>
-                    {{ t($company->translation_group . '.required_documents') }}
+                    {{ t('insurance_company' . '.required_documents') }}
                 </h2>
-                <p class="text-gray-600 mt-2">{{ t($company->translation_group . '.upload_required_files') }}</p>
+                <p class="text-gray-600 mt-2">{{ t('insurance_company' . '.upload_required_files') }}</p>
             </div>
             
             <div class="section-content">
@@ -419,16 +419,16 @@
                     <!-- Policy Image -->
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.policy_image') }} 
-                            <span class="text-gray-500 text-xs">({{ t($company->translation_group . '.optional') }})</span>
+                            {{ t('insurance_company' . '.policy_image') }} 
+                            <span class="text-gray-500 text-xs">({{ t('insurance_company' . '.optional') }})</span>
                         </label>
                         <div class="file-input-wrapper">
                             <div class="file-input-display" onclick="document.getElementById('policy_image').click()">
                                 <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                 </svg>
-                                <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_supported') }}</p>
+                                <p class="text-gray-600 font-medium">{{ t('insurance_company' . '.click_to_upload') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.file_types_supported') }}</p>
                             </div>
                             <input type="file" id="policy_image" name="policy_image[]" multiple accept="image/*,.pdf" 
                                    class="file-input-hidden" onchange="handleFileSelect(this, 'policy_image_list')">
@@ -439,16 +439,16 @@
                     <!-- Registration Form -->
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.registration_form') }}
-                            <span class="text-yellow-600 text-xs">({{ t($company->translation_group . '.conditional') }})</span>
+                            {{ t('insurance_company' . '.registration_form') }}
+                            <span class="text-yellow-600 text-xs">({{ t('insurance_company' . '.conditional') }})</span>
                         </label>
                         <div class="file-input-wrapper">
                             <div class="file-input-display" onclick="document.getElementById('registration_form').click()">
                                 <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.required_if_no_plate_chassis') }}</p>
+                                <p class="text-gray-600 font-medium">{{ t('insurance_company' . '.click_to_upload') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.required_if_no_plate_chassis') }}</p>
                             </div>
                             <input type="file" id="registration_form" name="registration_form[]" multiple accept="image/*,.pdf" 
                                    class="file-input-hidden" onchange="handleFileSelect(this, 'registration_form_list')">
@@ -459,7 +459,7 @@
                     <!-- Damage Report -->
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.damage_report') }} 
+                            {{ t('insurance_company' . '.damage_report') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         <div class="file-input-wrapper">
@@ -467,8 +467,8 @@
                                 <svg class="w-8 h-8 mb-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.94-.833-2.664 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                 </svg>
-                                <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.report_required') }}</p>
+                                <p class="text-gray-600 font-medium">{{ t('insurance_company' . '.click_to_upload') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.report_required') }}</p>
                             </div>
                             <input type="file" id="damage_report" name="damage_report[]" multiple accept="image/*,.pdf" 
                                    class="file-input-hidden @error('damage_report.*') border-red-500 @enderror" 
@@ -481,7 +481,7 @@
                     <!-- Estimation Report -->
                     <div class="input-group">
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
-                            {{ t($company->translation_group . '.estimation_report') }} 
+                            {{ t('insurance_company' . '.estimation_report') }} 
                             <span class="text-red-500">*</span>
                         </label>
                         <div class="file-input-wrapper">
@@ -489,8 +489,8 @@
                                 <svg class="w-8 h-8 mb-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
-                                <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.cost_estimation_required') }}</p>
+                                <p class="text-gray-600 font-medium">{{ t('insurance_company' . '.click_to_upload') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.cost_estimation_required') }}</p>
                             </div>
                             <input type="file" id="estimation_report" name="estimation_report[]" multiple accept="image/*,.pdf" 
                                    class="file-input-hidden @error('estimation_report.*') border-red-500 @enderror" 
@@ -504,14 +504,14 @@
                 <!-- Repair Receipt Section -->
                 <div id="repair-receipt-section" style="display: none;" class="mt-6">
                     <div class="input-group">
-                        <label class="block text-sm font-semibold text-gray-700 mb-3">{{ t($company->translation_group . '.repair_receipt') }}</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">{{ t('insurance_company' . '.repair_receipt') }}</label>
                         <div class="file-input-wrapper">
                             <div class="file-input-display" onclick="document.getElementById('repair_receipt').click()">
                                 <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.repair_receipt_description') }}</p>
+                                <p class="text-gray-600 font-medium">{{ t('insurance_company' . '.click_to_upload') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.repair_receipt_description') }}</p>
                             </div>
                             <input type="file" id="repair_receipt" name="repair_receipt[]" multiple accept="image/*,.pdf" 
                                    class="file-input-hidden" onchange="handleFileSelect(this, 'repair_receipt_list')">
@@ -527,12 +527,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <div>
-                            <h4 class="font-semibold mb-2">{{ t($company->translation_group . '.file_upload_tips') }}</h4>
+                            <h4 class="font-semibold mb-2">{{ t('insurance_company' . '.file_upload_tips') }}</h4>
                             <ul class="text-sm space-y-1">
-                                <li>• {{ t($company->translation_group . '.max_file_size_5mb') }}</li>
-                                <li>• {{ t($company->translation_group . '.supported_formats') }}: JPEG, PNG, PDF</li>
-                                <li>• {{ t($company->translation_group . '.multiple_files_allowed') }}</li>
-                                <li>• {{ t($company->translation_group . '.clear_readable_images') }}</li>
+                                <li>• {{ t('insurance_company' . '.max_file_size_5mb') }}</li>
+                                <li>• {{ t('insurance_company' . '.supported_formats') }}: JPEG, PNG, PDF</li>
+                                <li>• {{ t('insurance_company' . '.multiple_files_allowed') }}</li>
+                                <li>• {{ t('insurance_company' . '.clear_readable_images') }}</li>
                             </ul>
                         </div>
                     </div>
@@ -549,14 +549,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
                     </div>
-                    {{ t($company->translation_group . '.additional_notes') }}
+                    {{ t('insurance_company' . '.additional_notes') }}
                 </h2>
-                <p class="text-gray-600 mt-2">{{ t($company->translation_group . '.notes_optional_description') }}</p>
+                <p class="text-gray-600 mt-2">{{ t('insurance_company' . '.notes_optional_description') }}</p>
             </div>
             <div class="section-content">
                 <textarea name="notes" rows="5" 
                           class="form-input w-full"
-                          placeholder="{{ t($company->translation_group . '.any_additional_information') }}">{{ old('notes') }}</textarea>
+                          placeholder="{{ t('insurance_company' . '.any_additional_information') }}">{{ old('notes') }}</textarea>
             </div>
         </div>
 
@@ -569,9 +569,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    {{ t($company->translation_group . '.review_submit') }}
+                    {{ t('insurance_company' . '.review_submit') }}
                 </h2>
-                <p class="text-gray-600 mt-2">{{ t($company->translation_group . '.review_before_submit') }}</p>
+                <p class="text-gray-600 mt-2">{{ t('insurance_company' . '.review_before_submit') }}</p>
             </div>
             <div class="section-content">
                 <!-- Important Notes -->
@@ -581,12 +581,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.94-.833-2.664 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                         </svg>
                         <div>
-                            <h4 class="font-semibold mb-2">{{ t($company->translation_group . '.important_notes') }}</h4>
+                            <h4 class="font-semibold mb-2">{{ t('insurance_company' . '.important_notes') }}</h4>
                             <ul class="text-sm space-y-1">
-                                <li>• {{ t($company->translation_group . '.ensure_all_info_correct') }}</li>
-                                <li>• {{ t($company->translation_group . '.required_files_uploaded') }}</li>
-                                <li>• {{ t($company->translation_group . '.claim_review_time') }}</li>
-                                <li>• {{ t($company->translation_group . '.notification_updates') }}</li>
+                                <li>• {{ t('insurance_company' . '.ensure_all_info_correct') }}</li>
+                                <li>• {{ t('insurance_company' . '.required_files_uploaded') }}</li>
+                                <li>• {{ t('insurance_company' . '.claim_review_time') }}</li>
+                                <li>• {{ t('insurance_company' . '.notification_updates') }}</li>
                             </ul>
                         </div>
                     </div>
@@ -599,20 +599,20 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
-                        {{ t($company->translation_group . '.submit_claim') }}
+                        {{ t('insurance_company' . '.submit_claim') }}
                     </button>
                     <a href="{{ route('insurance.claims.index', $company->company_slug) }}" 
                        class="btn-secondary text-white flex items-center justify-center gap-3 flex-1">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
-                        {{ t($company->translation_group . '.cancel') }}
+                        {{ t('insurance_company' . '.cancel') }}
                     </a>
                 </div>
                 
                 @if($errors->any())
                     <div class="info-card bg-red-50 border-red-200 text-red-700 mt-4">
-                        <h4 class="font-semibold mb-2">{{ t($company->translation_group . '.please_fix_errors') }}</h4>
+                        <h4 class="font-semibold mb-2">{{ t('insurance_company' . '.please_fix_errors') }}</h4>
                         <ul class="text-sm space-y-1">
                             @foreach($errors->all() as $error)
                                 <li>• {{ $error }}</li>
@@ -1078,8 +1078,8 @@ function handleFileSelect(input, listId) {
             <svg class="w-8 h-8 mb-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <p class="text-green-600 font-medium">${files.length} {{ t($company->translation_group . '.files_selected') }}</p>
-            <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.click_to_change') }}</p>
+            <p class="text-green-600 font-medium">${files.length} {{ t('insurance_company' . '.files_selected') }}</p>
+            <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.click_to_change') }}</p>
         `;
         
         // عرض قائمة الملفات
@@ -1096,7 +1096,7 @@ function handleFileSelect(input, listId) {
                     </div>
                 </div>
                 <button type="button" class="file-remove" onclick="removeFile('${input.name}', ${index}, '${listId}')">
-                    {{ t($company->translation_group . '.remove') }}
+                    {{ t('insurance_company' . '.remove') }}
                 </button>
             </div>
         `).join('');
@@ -1129,8 +1129,8 @@ function resetFileDisplay(displayArea, listContainer) {
         <svg class="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
         </svg>
-        <p class="text-gray-600 font-medium">{{ t($company->translation_group . '.click_to_upload') }}</p>
-        <p class="text-xs text-gray-500 mt-1">{{ t($company->translation_group . '.file_types_supported') }}</p>
+        <p class="text-gray-600 font-medium">{{ t('insurance_company' . '.click_to_upload') }}</p>
+        <p class="text-xs text-gray-500 mt-1">{{ t('insurance_company' . '.file_types_supported') }}</p>
     `;
     listContainer.style.display = 'none';
 }
@@ -1151,15 +1151,15 @@ function getLocation() {
             document.getElementById('lng').value = position.coords.longitude;
 
             const locationInfo = document.getElementById('location-info');
-            locationInfo.innerHTML = `<p class="text-sm">${'{{ t($company->translation_group . ".location_set") }}'}: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}</p>`;
+            locationInfo.innerHTML = `<p class="text-sm">${'{{ t('insurance_company' . ".location_set") }}'}: ${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}</p>`;
             locationInfo.classList.remove('hidden');
             
             document.getElementById('location-error').classList.add('hidden');
         }, function(error) {
-            alert('{{ t($company->translation_group . ".location_error") }}');
+            alert('{{ t('insurance_company' . ".location_error") }}');
         });
     } else {
-        alert('{{ t($company->translation_group . ".geolocation_not_supported") }}');
+        alert('{{ t('insurance_company' . ".geolocation_not_supported") }}');
     }
 }
 
@@ -1178,7 +1178,7 @@ function openMap() {
             document.getElementById('lng').value = e.latlng.lng;
 
             const locationInfo = document.getElementById('location-info');
-            locationInfo.innerHTML = `<p class="text-sm">${'{{ t($company->translation_group . ".location_set") }}'}: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}</p>`;
+            locationInfo.innerHTML = `<p class="text-sm">${'{{ t('insurance_company' . ".location_set") }}'}: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}</p>`;
             locationInfo.classList.remove('hidden');
             
             document.getElementById('location-error').classList.add('hidden');
@@ -1238,7 +1238,7 @@ document.getElementById('claimForm').addEventListener('submit', function(e) {
 
     if (!plateNumber && !chassisNumber) {
         e.preventDefault();
-        alert('{{ t($company->translation_group . ".vehicle_info_required") }}');
+        alert('{{ t('insurance_company' . ".vehicle_info_required") }}');
         if (!plateNumber) {
             document.querySelector('[name="vehicle_plate_number"]').focus();
         } else {
@@ -1253,12 +1253,12 @@ document.getElementById('claimForm').addEventListener('submit', function(e) {
             document.getElementById('location-error').classList.remove('hidden');
             document.querySelector('[name="vehicle_location"]').focus();
             document.querySelector('[name="vehicle_location"]').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            alert('{{ t($company->translation_group . ".location_required_when_not_working") }}');
+            alert('{{ t('insurance_company' . ".location_required_when_not_working") }}');
             return false;
         }
         
         if (!lat || !lng) {
-            const confirmSubmit = confirm('{{ t($company->translation_group . ".location_coordinates_missing_confirm") }}');
+            const confirmSubmit = confirm('{{ t('insurance_company' . ".location_coordinates_missing_confirm") }}');
             if (!confirmSubmit) {
                 e.preventDefault();
                 return false;
@@ -1308,7 +1308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const userId = document.querySelector('[name="insurance_user_id"]').value;
             if (!userId) {
                 e.preventDefault();
-                alert('{{ t($company->translation_group . ".please_select_user") ?? "Please select an existing user" }}');
+                alert('{{ t('insurance_company' . ".please_select_user") ?? "Please select an existing user" }}');
                 document.querySelector('[name="insurance_user_id"]').focus();
                 return false;
             }
@@ -1320,7 +1320,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!fullName || !phone || !nationalId || !policyNumber) {
                 e.preventDefault();
-                alert('{{ t($company->translation_group . ".please_fill_all_new_user_fields") ?? "Please fill all new user fields" }}');
+                alert('{{ t('insurance_company' . ".please_fill_all_new_user_fields") ?? "Please fill all new user fields" }}');
                 return false;
             }
         }
