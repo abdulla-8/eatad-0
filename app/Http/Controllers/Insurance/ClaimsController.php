@@ -170,14 +170,15 @@ class ClaimsController extends Controller
             ];
 
             $claim = Claim::create($claimData);
-
             // Create vehicle location request if vehicle is not working
             if ($request->is_vehicle_working == 0) {
+                // dd($insuranceUserId);
                 VehicleLocationRequest::create([
                     'claim_id' => $claim->id,
                     'insurance_user_id' => $insuranceUserId,
                     'is_completed' => false
                 ]);
+                
             }
 
             $fileTypes = ['policy_image', 'registration_form', 'repair_receipt', 'damage_report', 'estimation_report'];
@@ -207,14 +208,13 @@ class ClaimsController extends Controller
                     $successMessage .= ' Location form URL: ' . $locationRequest->public_url;
                 }
             }
-
             return redirect()->route('insurance.claims.show', [
                 'companyRoute' => $company->company_slug,
                 'claim' => $claim->id
             ])->with('success', $successMessage);
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to submit claim. Please try again.')
+            return back()->with('error', 'Failed to submit claim. Please try again.' . $e->getMessage())
                 ->withInput();
         }
     }
@@ -396,12 +396,10 @@ class ClaimsController extends Controller
     {
         $company = Auth::guard('insurance_company')->user();
         $claimId = $request->route('claim');
-
         $claim = Claim::where('id', $claimId)
             ->where('insurance_company_id', $company->id)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending','location_submitted'])
             ->first();
-
         if (!$claim) {
             abort(404, 'Claim not found or not eligible for approval');
         }
@@ -423,7 +421,6 @@ class ClaimsController extends Controller
                 'notes' => $request->notes,
                 // لا تولد كود التوصيل هنا ولا ترسل إشعار للمستخدم
             ];
-
             $claim->update($approvalData);
 
             return redirect()->route('insurance.claims.show', [
