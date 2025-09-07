@@ -389,6 +389,12 @@ Route::prefix('service-center')->name('service-center.')->group(function () {
             Route::get('/history', [VerificationController::class, 'history'])->name('history');
             Route::post('/verify-delivery', [VerificationController::class, 'verifyDeliveryCode'])->name('verify-delivery');
         });
+        
+// Tow service availability update route
+        Route::put('/profile/tow-service-availability', function () {
+            return app(\App\Http\Controllers\Profile\UnifiedProfileController::class)->updateTowServiceAvailability(request());
+        })->name('profile.tow-service-availability');
+
     });
 });
 

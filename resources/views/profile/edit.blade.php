@@ -170,6 +170,60 @@
                     </div>
                 </div>
 
+  <!-- Tow Service Availability Toggle (for Service Centers) -->
+  @if( $userType === 'service_center')
+                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ t('profile'. '.tow_service_availability') }}</h3>
+                                        <p class="text-sm text-gray-600">{{ t('profile'. '.tow_service_availability_description') }}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Toggle Switch -->
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" 
+                                           name="has_tow_service" 
+                                           value="1" 
+                                           class="sr-only peer"
+                                           {{ old('has_tow_service', $user->has_tow_service ?? false) ? 'checked' : '' }}>
+                                    <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <span class="ml-3 text-sm font-medium text-gray-700">
+                                        {{ old('has_tow_service', $user->has_tow_service ?? false) ? t('profile'. '.enabled') : t('profile'. '.disabled') }}
+                                    </span>
+                                </label>
+                            </div>
+                            
+                            <!-- Status Indicator -->
+                            <div class="mt-4 flex items-center gap-2">
+                                @if(old('has_tow_service', $user->has_tow_service ?? false))
+                                    <div class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                        </svg>
+                                        {{ t('profile'. '.tow_service_enabled') }}
+                                    </div>
+                                @else
+                                    <div class="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                        </svg>
+                                        {{ t('profile'. '.tow_service_disabled') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+
+
                 <!-- Form Actions -->
                 <div class="border-t border-gray-200 px-4 md:px-8 py-6">
                     <div class="flex gap-2 md:gap-4 ">
@@ -231,4 +285,95 @@
         }, 5000);
     </script>
 @endif
+
+<script>
+// Toggle switch functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.querySelector('input[name="has_tow_service"]');
+    const statusText = document.querySelector('.ml-3.text-sm.font-medium.text-gray-700');
+    const statusIndicator = document.querySelector('.mt-4 .flex.items-center.gap-2');
+    
+    if (toggle) {
+        toggle.addEventListener('change', function() {
+            // Show loading state
+            const originalText = statusText.textContent;
+            statusText.textContent = 'جاري التحديث...';
+            
+            // Make AJAX request
+            fetch('{{ $userType === "insurance_company" ? route("insurance.profile.tow-service-availability", ["companyRoute" => $user->company_slug]) : route("service-center.profile.tow-service-availability") }}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    has_tow_service: this.checked
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    if (this.checked) {
+                        statusText.textContent = '{{ t("profile.enabled") }}';
+                        statusIndicator.innerHTML = `
+                            <div class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                </svg>
+                                {{ t('profile.tow_service_enabled') }}
+                            </div>
+                        `;
+                    } else {
+                        statusText.textContent = '{{ t("profile.disabled") }}';
+                        statusIndicator.innerHTML = `
+                            <div class="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                </svg>
+                                {{ t('profile.tow_service_disabled') }}
+                            </div>
+                        `;
+                    }
+                    
+                    // Show success message
+                    showNotification('تم تحديث حالة توفر خدمة السحب بنجاح', 'success');
+                } else {
+                    // Revert toggle state
+                    this.checked = !this.checked;
+                    statusText.textContent = originalText;
+                    showNotification(data.error || 'حدث خطأ أثناء التحديث', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert toggle state
+                this.checked = !this.checked;
+                statusText.textContent = originalText;
+                showNotification('حدث خطأ أثناء التحديث', 'error');
+            });
+        });
+    }
+});
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    notification.innerHTML = `
+        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+        ${message}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 4000);
+}
+</script>
+
 @endsection
