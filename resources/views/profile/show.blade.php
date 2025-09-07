@@ -430,6 +430,81 @@
                     </div>
                 </div>
 
+
+<!-- Tow Service Availability Status (for Service Centers) -->
+@if( $userType === 'service_center')
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="border-b border-gray-200 px-6 py-4">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                <div class="w-6 h-6 rounded-lg flex items-center justify-center mr-2 rtl:mr-0 rtl:ml-2" style="background-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}20;">
+                    <svg class="w-4 h-4" style="color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                    </svg>
+                </div>
+                {{ t('profile'. '.tow_service_status') }}
+            </h3>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex items-center justify-between p-6 rounded-xl {{ $user->has_tow_service ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' : 'bg-gradient-to-r from-red-50 to-rose-50 border border-red-200' }}">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center {{ $user->has_tow_service ? 'bg-green-100' : 'bg-red-100' }}">
+                        @if($user->has_tow_service)
+                            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                        @else
+                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        @endif
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold {{ $user->has_tow_service ? 'text-green-800' : 'text-red-800' }}">
+                            {{ $user->has_tow_service ? t('profile'. '.tow_service_enabled') : t('profile'. '.tow_service_disabled') }}
+                        </h4>
+                        <p class="text-sm {{ $user->has_tow_service ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $user->has_tow_service ? t('profile'. '.tow_service_available_description') : t('profile'. '.tow_service_unavailable_description') }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Status Badge -->
+                <div class="flex items-center gap-2">
+                    <span class="px-4 py-2 rounded-full text-sm font-medium {{ $user->has_tow_service ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ $user->has_tow_service ? t('profile'. '.available') : t('profile'. '.unavailable') }}
+                    </span>
+                    
+                    <!-- Edit Button -->
+                    <a href="{{ $userType === 'insurance_company' ? route('insurance.profile.edit', ['companyRoute' => $user->company_slug]) : route('service-center.profile.edit') }}" 
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors border border-gray-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        {{ t('profile'. '.edit') }}
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Additional Information -->
+            @if($user->has_tow_service)
+                <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        <div>
+                            <h5 class="font-medium text-blue-900">{{ t('profile'. '.tow_service_info') }}</h5>
+                            <p class="text-sm text-blue-700 mt-1">{{ t('profile'. '.tow_service_info_description') }}</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+@endif
+
+
                 <!-- Quick Actions -->
                 <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
                     <div class="border-b border-gray-200 px-6 py-4">

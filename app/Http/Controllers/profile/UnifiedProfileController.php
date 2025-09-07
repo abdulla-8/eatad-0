@@ -552,4 +552,65 @@ class UnifiedProfileController extends Controller
                 return redirect()->back();
         }
     }
+
+    /**
+ * Update tow service availability specifically
+ */
+public function updateTowServiceAvailability(Request $request)
+{
+    Log::info('DEBUG: Update Tow Service Availability Method Started', [
+        'user_id' => auth()->id(),
+        'has_tow_service' => $request->has_tow_service
+    ]);
+
+    $userType = $this->getCurrentUserType();
+    $user = $this->getCurrentUser();
+    
+    if (!$user) {
+        Log::error('DEBUG: No authenticated user found in tow service update');
+        return response()->json(['error' => 'المستخدم غير مسجل الدخول'], 403);
+    }
+
+    // Only allow insurance companies and service centers
+    if (!in_array($userType, ['insurance_company', 'service_center'])) {
+        return response()->json(['error' => 'غير مسموح بتحديث هذه المعلومة'], 403);
+    }
+
+    $request->validate([
+        'has_tow_service' => 'required|boolean'
+    ], [
+        'has_tow_service.required' => 'حالة توفر خدمة السحب مطلوبة',
+        'has_tow_service.boolean' => 'حالة توفر خدمة السحب يجب أن تكون صحيحة أو خاطئة'
+    ]);
+
+    try {
+        $user->update([
+            'has_tow_service' => (bool)$request->has_tow_service
+        ]);
+
+        Log::info('DEBUG: Tow service availability updated successfully', [
+            'user_id' => $user->id,
+            'user_type' => $userType,
+            'has_tow_service' => $user->has_tow_service
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث حالة توفر خدمة السحب بنجاح',
+            'has_tow_service' => $user->has_tow_service
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('DEBUG: Tow service availability update failed', [
+            'user_id' => $user->id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => 'حدث خطأ أثناء تحديث حالة توفر خدمة السحب'
+        ], 500);
+    }
+}
 }
