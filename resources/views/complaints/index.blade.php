@@ -1,7 +1,7 @@
 {{-- resources/views/complaints/index.blade.php --}}
 @extends($userType === 'insurance_company' ? 'insurance.layouts.app' : ($userType === 'service_center' ? 'service-center.layouts.app' : 'insurance-user.layouts.app'))
 
-@section('title', t($translationGroup . '.complaints_inquiries'))
+@section('title', t('complaints' . '.complaints_inquiries'))
 
 @section('content')
 @php
@@ -18,8 +18,8 @@
     <!-- Header with Stats -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ t($translationGroup . '.complaints_inquiries') }}</h1>
-            <p class="text-gray-600 mt-1">{{ t($translationGroup . '.manage_complaints_inquiries') }}</p>
+            <h1 class="text-3xl font-bold text-gray-900">{{ t('complaints' . '.complaints_inquiries') }}</h1>
+            <p class="text-gray-600 mt-1">{{ t('complaints' . '.manage_complaints_inquiries') }}</p>
             
             <!-- Show company name for insurance users -->
             @if($userType === 'insurance_user' && $user->company)
@@ -32,7 +32,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
-            {{ t($translationGroup . '.add_new_complaint') }}
+            {{ t('complaints' . '.add_new_complaint') }}
         </button>
     </div>
 
@@ -40,27 +40,27 @@
     <div class="md:grid grid-cols-2 lg:grid-cols-6 gap-3">
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-blue-600">{{ $stats['total'] }}</div>
-            <div class="text-xs text-gray-600">{{ t($translationGroup . '.total') }}</div>
+            <div class="text-xs text-gray-600">{{ t('complaints' . '.total') }}</div>
         </div>
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-red-600">{{ $stats['unread'] }}</div>
-            <div class="text-xs text-gray-600">{{ t($translationGroup . '.unread') }}</div>
+            <div class="text-xs text-gray-600">{{ t('complaints' . '.unread') }}</div>
         </div>
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-green-600">{{ $stats['read'] }}</div>
-            <div class="text-xs text-gray-600">{{ t($translationGroup . '.read') }}</div>
+            <div class="text-xs text-gray-600">{{ t('complaints' . '.read') }}</div>
         </div>
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-blue-600">{{ $stats['inquiry'] }}</div>
-            <div class="text-xs text-gray-600">{{ t($translationGroup . '.inquiries') }}</div>
+            <div class="text-xs text-gray-600">{{ t('complaints' . '.inquiries') }}</div>
         </div>
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-yellow-600">{{ $stats['complaint'] }}</div>
-            <div class="text-xs text-gray-600">{{ t($translationGroup . '.complaints') }}</div>
+            <div class="text-xs text-gray-600">{{ t('complaints' . '.complaints') }}</div>
         </div>
         <div class="bg-white rounded-lg border px-4 py-3 text-center shadow-sm mb-4">
             <div class="text-2xl font-bold text-gray-600">{{ $stats['other'] }}</div>
-            <div class="text-xs text-gray-600">{{ t($translationGroup . '.other') }}</div>
+            <div class="text-xs text-gray-600">{{ t('complaints' . '.other') }}</div>
         </div>
     </div>
 
@@ -69,7 +69,7 @@
         <div class="p-6">
             <form method="GET" class="flex flex-col lg:flex-row gap-4">
                 <div class="flex-1">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($translationGroup . '.search') }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('complaints' . '.search') }}</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 {{ app()->getLocale() === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3' }} flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,27 +77,27 @@
                             </svg>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}" 
-                               placeholder="{{ t($translationGroup . '.search_placeholder') }}"
+                               placeholder="{{ t('complaints' . '.search_placeholder') }}"
                                class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ app()->getLocale() === 'ar' ? 'pr-10' : 'pl-10' }} py-2.5">
                     </div>
                 </div>
                 
                 <div class="lg:w-48">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($translationGroup . '.request_type') }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('complaints' . '.request_type') }}</label>
                     <select name="type" class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
-                        <option value="">{{ t($translationGroup . '.all_types') }}</option>
-                        <option value="inquiry" {{ request('type') === 'inquiry' ? 'selected' : '' }}>{{ t($translationGroup . '.inquiry') }}</option>
-                        <option value="complaint" {{ request('type') === 'complaint' ? 'selected' : '' }}>{{ t($translationGroup . '.complaint') }}</option>
-                        <option value="other" {{ request('type') === 'other' ? 'selected' : '' }}>{{ t($translationGroup . '.other') }}</option>
+                        <option value="">{{ t('complaints' . '.all_types') }}</option>
+                        <option value="inquiry" {{ request('type') === 'inquiry' ? 'selected' : '' }}>{{ t('complaints' . '.inquiry') }}</option>
+                        <option value="complaint" {{ request('type') === 'complaint' ? 'selected' : '' }}>{{ t('complaints' . '.complaint') }}</option>
+                        <option value="other" {{ request('type') === 'other' ? 'selected' : '' }}>{{ t('complaints' . '.other') }}</option>
                     </select>
                 </div>
                 
                 <div class="lg:w-48">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($translationGroup . '.status') }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('complaints' . '.status') }}</label>
                     <select name="status" class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5">
-                        <option value="">{{ t($translationGroup . '.all_status') }}</option>
-                        <option value="unread" {{ request('status') === 'unread' ? 'selected' : '' }}>{{ t($translationGroup . '.unread') }}</option>
-                        <option value="read" {{ request('status') === 'read' ? 'selected' : '' }}>{{ t($translationGroup . '.read') }}</option>
+                        <option value="">{{ t('complaints' . '.all_status') }}</option>
+                        <option value="unread" {{ request('status') === 'unread' ? 'selected' : '' }}>{{ t('complaints' . '.unread') }}</option>
+                        <option value="read" {{ request('status') === 'read' ? 'selected' : '' }}>{{ t('complaints' . '.read') }}</option>
                     </select>
                 </div>
                 
@@ -106,24 +106,24 @@
                         <svg class="w-4 h-4 inline {{ app()->getLocale() === 'ar' ? 'ml-2' : 'mr-2' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                         </svg>
-                        {{ t($translationGroup . '.filter') }}
+                        {{ t('complaints' . '.filter') }}
                     </button>
                     
                     @if(request()->hasAny(['status', 'type', 'search']))
                         @if($userType === 'insurance_company')
                             <a href="{{ route('insurance.complaints.index', ['companyRoute' => $companySlug]) }}" 
                                class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
-                                {{ t($translationGroup . '.clear') }}
+                                {{ t('complaints' . '.clear') }}
                             </a>
                         @elseif($userType === 'insurance_user')
                             <a href="{{ route('insurance.user.complaints.index', ['companySlug' => $companySlug]) }}" 
                                class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
-                                {{ t($translationGroup . '.clear') }}
+                                {{ t('complaints' . '.clear') }}
                             </a>
                         @else
                             <a href="{{ route('service-center.complaints.index') }}" 
                                class="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors">
-                                {{ t($translationGroup . '.clear') }}
+                                {{ t('complaints' . '.clear') }}
                             </a>
                         @endif
                     @endif
@@ -194,7 +194,7 @@
                                 @if($userType === 'insurance_user')
                                     <div class="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
                                         <div class="flex flex-wrap items-center gap-2 text-xs {{ $isRtl ? 'flex-row-reverse' : '' }}">
-                                            <span class="text-blue-700 font-medium">{{ t($translationGroup . '.complainant') }}:</span>
+                                            <span class="text-blue-700 font-medium">{{ t('complaints' . '.complainant') }}:</span>
                                             <span class="text-blue-800">{{ $user->full_name }}</span>
                                             <span class="text-blue-400">•</span>
                                             <span class="text-blue-600">{{ $user->policy_number }}</span>
@@ -207,15 +207,15 @@
                         <!-- النوع وحالة القراءة - جنباً إلى جنب -->
                         <div class="flex items-center gap-2 {{ $isRtl ? 'mr-3 flex-row-reverse' : 'ml-3' }}">
                             <span class="px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium border {{ $complaint->type_badge['class'] ?? 'bg-gray-100 text-gray-800' }} whitespace-nowrap">
-                                {{ t($translationGroup . '.' . $complaint->type) }}
+                                {{ t('complaints' . '.' . $complaint->type) }}
                             </span>
                             <span class="px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium border {{ $complaint->is_read ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300' }} whitespace-nowrap">
-                                {{ $complaint->is_read ? t($translationGroup . '.read') : t($translationGroup . '.unread') }}
+                                {{ $complaint->is_read ? t('complaints' . '.read') : t('complaints' . '.unread') }}
                             </span>
                             
                             @if($userType === 'insurance_user')
                                 <span class="px-2 md:px-3 py-1 md:py-1.5 rounded-full text-xs md:text-sm font-medium border {{ $complaint->complainant_type_badge['class'] ?? 'bg-indigo-100 text-indigo-800' }} whitespace-nowrap">
-                                    {{ $complaint->complainant_type_badge['text'] ?? t($translationGroup . '.insurance_user') }}
+                                    {{ $complaint->complainant_type_badge['text'] ?? t('complaints' . '.insurance_user') }}
                                 </span>
                             @endif
                         </div>
@@ -273,7 +273,7 @@
                                     </svg>
                                 </div>
                                 <span class="text-sm md:text-base text-emerald-600 font-medium flex items-center gap-1">
-                                    {{ t($translationGroup . '.has_attachment') }}
+                                    {{ t('complaints' . '.has_attachment') }}
                                     <svg class="w-3 h-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                     </svg>
@@ -289,7 +289,7 @@
                             <a href="{{ route('insurance.complaints.edit', ['companyRoute' => $companySlug, 'id' => $complaint->id]) }}" 
                                class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 hover:shadow-md transition-all duration-200 border border-yellow-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
                                 @if($isRtl)
-                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <span class="hidden sm:inline">{{ t('complaints' . '.edit') }}</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
@@ -297,14 +297,14 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
-                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <span class="hidden sm:inline">{{ t('complaints' . '.edit') }}</span>
                                 @endif
                             </a>
                         @elseif($userType === 'insurance_user')
                             <a href="{{ route('insurance.user.complaints.edit', ['companySlug' => $companySlug, 'id' => $complaint->id]) }}" 
                                class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 hover:shadow-md transition-all duration-200 border border-yellow-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
                                 @if($isRtl)
-                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <span class="hidden sm:inline">{{ t('complaints' . '.edit') }}</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
@@ -312,14 +312,14 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
-                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <span class="hidden sm:inline">{{ t('complaints' . '.edit') }}</span>
                                 @endif
                             </a>
                         @else
                             <a href="{{ route('service-center.complaints.edit', $complaint->id) }}" 
                                class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-yellow-50 text-yellow-700 rounded-lg font-medium hover:bg-yellow-100 hover:shadow-md transition-all duration-200 border border-yellow-200 text-sm md:text-base {{ $isRtl ? 'flex-row-reverse' : '' }}">
                                 @if($isRtl)
-                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <span class="hidden sm:inline">{{ t('complaints' . '.edit') }}</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
@@ -327,7 +327,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
-                                    <span class="hidden sm:inline">{{ t($translationGroup . '.edit') }}</span>
+                                    <span class="hidden sm:inline">{{ t('complaints' . '.edit') }}</span>
                                 @endif
                             </a>
                         @endif
@@ -340,9 +340,9 @@
                                     <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
-                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <span>{{ t('complaints' . '.read_more') }}</span>
                                 @else
-                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <span>{{ t('complaints' . '.read_more') }}</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
@@ -355,9 +355,9 @@
                                     <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
-                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <span>{{ t('complaints' . '.read_more') }}</span>
                                 @else
-                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <span>{{ t('complaints' . '.read_more') }}</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
@@ -370,9 +370,9 @@
                                     <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
-                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <span>{{ t('complaints' . '.read_more') }}</span>
                                 @else
-                                    <span>{{ t($translationGroup . '.read_more') }}</span>
+                                    <span>{{ t('complaints' . '.read_more') }}</span>
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
@@ -398,8 +398,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                 </svg>
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t($translationGroup . '.no_complaints_found') }}</h3>
-            <p class="text-gray-600">{{ t($translationGroup . '.no_complaints_description') }}</p>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ t('complaints' . '.no_complaints_found') }}</h3>
+            <p class="text-gray-600">{{ t('complaints' . '.no_complaints_description') }}</p>
         </div>
     </div>
 @endif
@@ -417,7 +417,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900">{{ t($translationGroup . '.add_new_complaint') }}</h3>
+                <h3 class="text-xl font-bold text-gray-900">{{ t('complaints' . '.add_new_complaint') }}</h3>
             </div>
             <button onclick="closeModal('complaintModal')" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -438,22 +438,22 @@
             <!-- Show user info for insurance users -->
             @if($userType === 'insurance_user')
                 <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h4 class="font-medium text-blue-900 mb-2">{{ t($translationGroup . '.complainant_info') }}</h4>
+                    <h4 class="font-medium text-blue-900 mb-2">{{ t('complaints' . '.complainant_info') }}</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
-                            <span class="text-blue-700 font-medium">{{ t($translationGroup . '.name') }}:</span>
+                            <span class="text-blue-700 font-medium">{{ t('complaints' . '.name') }}:</span>
                             <span class="text-blue-800">{{ $user->full_name }}</span>
                         </div>
                         <div>
-                            <span class="text-blue-700 font-medium">{{ t($translationGroup . '.policy_number') }}:</span>
+                            <span class="text-blue-700 font-medium">{{ t('complaints' . '.policy_number') }}:</span>
                             <span class="text-blue-800">{{ $user->policy_number }}</span>
                         </div>
                         <div>
-                            <span class="text-blue-700 font-medium">{{ t($translationGroup . '.phone') }}:</span>
+                            <span class="text-blue-700 font-medium">{{ t('complaints' . '.phone') }}:</span>
                             <span class="text-blue-800">{{ $user->phone }}</span>
                         </div>
                         <div>
-                            <span class="text-blue-700 font-medium">{{ t($translationGroup . '.company') }}:</span>
+                            <span class="text-blue-700 font-medium">{{ t('complaints' . '.company') }}:</span>
                             <span class="text-blue-800">{{ optional($user->company)->legal_name ?? 'غير محدد' }}</span>
                         </div>
                     </div>
@@ -463,7 +463,7 @@
             <div class="space-y-6">
                 <!-- Type Selection -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">{{ t($translationGroup . '.type') }} *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">{{ t('complaints' . '.type') }} *</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <label class="relative cursor-pointer">
                             <input type="radio" name="type" value="inquiry" class="sr-only" required>
@@ -475,8 +475,8 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <div class="font-medium text-gray-900">{{ t($translationGroup . '.inquiry') }}</div>
-                                        <div class="text-sm text-gray-500">{{ t($translationGroup . '.inquiry_desc') }}</div>
+                                        <div class="font-medium text-gray-900">{{ t('complaints' . '.inquiry') }}</div>
+                                        <div class="text-sm text-gray-500">{{ t('complaints' . '.inquiry_desc') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -492,8 +492,8 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <div class="font-medium text-gray-900">{{ t($translationGroup . '.complaint') }}</div>
-                                        <div class="text-sm text-gray-500">{{ t($translationGroup . '.complaint_desc') }}</div>
+                                        <div class="font-medium text-gray-900">{{ t('complaints' . '.complaint') }}</div>
+                                        <div class="text-sm text-gray-500">{{ t('complaints' . '.complaint_desc') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -509,8 +509,8 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <div class="font-medium text-gray-900">{{ t($translationGroup . '.other') }}</div>
-                                        <div class="text-sm text-gray-500">{{ t($translationGroup . '.other_desc') }}</div>
+                                        <div class="font-medium text-gray-900">{{ t('complaints' . '.other') }}</div>
+                                        <div class="text-sm text-gray-500">{{ t('complaints' . '.other_desc') }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -520,7 +520,7 @@
                 
                 <!-- Subject -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($translationGroup . '.subject') }} *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('complaints' . '.subject') }} *</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 {{ app()->getLocale() === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3' }} flex items-center pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -529,21 +529,21 @@
                         </div>
                         <input type="text" name="subject" required 
                                class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ app()->getLocale() === 'ar' ? 'pr-10' : 'pl-10' }} py-2.5"
-                               placeholder="{{ t($translationGroup . '.subject_placeholder') }}">
+                               placeholder="{{ t('complaints' . '.subject_placeholder') }}">
                     </div>
                 </div>
                 
                 <!-- Description -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($translationGroup . '.description') }} *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('complaints' . '.description') }} *</label>
                     <textarea name="description" rows="4" required 
                               class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent px-4 py-2.5 resize-none"
-                              placeholder="{{ t($translationGroup . '.description_placeholder') }}"></textarea>
+                              placeholder="{{ t('complaints' . '.description_placeholder') }}"></textarea>
                 </div>
                 
                 <!-- Enhanced File Upload -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t($translationGroup . '.attachment') }}</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ t('complaints' . '.attachment') }}</label>
                     <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
                         <div class="space-y-1 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -551,12 +551,12 @@
                             </svg>
                             <div class="flex text-sm text-gray-600">
                                 <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                    <span>{{ t($translationGroup . '.upload_file') }}</span>
+                                    <span>{{ t('complaints' . '.upload_file') }}</span>
                                     <input id="file-upload" name="attachment" type="file" class="sr-only" accept=".jpeg,.png,.jpg,.pdf,.doc,.docx" onchange="handleFilePreview(this)">
                                 </label>
-                                <p class="pl-1">{{ t($translationGroup . '.drag_drop') }}</p>
+                                <p class="pl-1">{{ t('complaints' . '.drag_drop') }}</p>
                             </div>
-                            <p class="text-xs text-gray-500">{{ t($translationGroup . '.attachment_note') }}</p>
+                            <p class="text-xs text-gray-500">{{ t('complaints' . '.attachment_note') }}</p>
                         </div>
                     </div>
                     
@@ -588,11 +588,11 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                     </svg>
-                    {{ t($translationGroup . '.submit_complaint') }}
+                    {{ t('complaints' . '.submit_complaint') }}
                 </button>
                 <button type="button" onclick="closeModal('complaintModal')" 
                         class="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
-                    {{ t($translationGroup . '.cancel') }}
+                    {{ t('complaints' . '.cancel') }}
                 </button>
             </div>
         </form>
