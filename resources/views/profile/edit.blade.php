@@ -1,7 +1,7 @@
 {{-- resources/views/profile/edit.blade.php --}}
 @extends($userType === 'insurance_company' ? 'insurance.layouts.app' : ($userType === 'service_center' ? 'service-center.layouts.app' : 'insurance-user.layouts.app'))
 
-@section('title', t($company->translation_group . '.edit_profile'))
+@section('title', t('profile'. '.edit_profile'))
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -25,8 +25,8 @@
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ t($company->translation_group . '.edit_profile') }}</h1>
-                    <p class="text-gray-600 mt-1">{{ t($company->translation_group . '.update_personal_information') }}</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ t('profile'. '.edit_profile') }}</h1>
+                    <p class="text-gray-600 mt-1">{{ t('profile'. '.update_personal_information') }}</p>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                             </svg>
                         </div>
-                        {{ t($company->translation_group . '.edit_personal_information') }}
+                        {{ t('profile'. '.edit_personal_information') }}
                     </h2>
                 </div>
 
@@ -136,7 +136,7 @@
                                             </svg>
                                         @endif
                                     </div>
-                                    {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}
+                                    {{ t('profile'. '.' . $field) ?? $info['label'] }}
                                 </label>
                                 
                                 @if(str_contains($field, 'address'))
@@ -145,7 +145,7 @@
                                               rows="3"
                                               class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:border-transparent px-4 py-3 transition-all duration-200 @error($field) border-red-500 @enderror"
                                               style="focus:ring-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};"
-                                              placeholder="{{ t($company->translation_group . '.enter') }} {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}">{{ old($field, $user->$field) }}</textarea>
+                                              placeholder="{{ t('profile'. '.enter') }} {{ t('profile'. '.' . $field) ?? $info['label'] }}">{{ old($field, $user->$field) }}</textarea>
                                 @else
                                     <input type="{{ str_contains($field, 'count') || str_contains($field, 'technicians') ? 'number' : 'text' }}" 
                                            id="{{ $field }}" 
@@ -154,7 +154,7 @@
                                            {{ str_contains($field, 'count') || str_contains($field, 'technicians') ? 'min="0"' : '' }}
                                            class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:border-transparent px-4 py-3 transition-all duration-200 @error($field) border-red-500 @enderror"
                                            style="focus:ring-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};"
-                                           placeholder="{{ t($company->translation_group . '.enter') }} {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}">
+                                           placeholder="{{ t('profile'. '.enter') }} {{ t('profile'. '.' . $field) ?? $info['label'] }}">
                                 @endif
                                 
                                 @error($field)
@@ -179,7 +179,7 @@
                             <svg class="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
                             </svg>
-                            {{ t($company->translation_group . '.save_changes') }}
+                            {{ t('profile'. '.save_changes') }}
                         </button>
                         
                         @if($userType === 'insurance_company')
@@ -195,7 +195,7 @@
                             <svg class="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                             </svg>
-                            {{ t($company->translation_group . '.cancel') }}
+                            {{ t('profile'. '.cancel') }}
                         </a>
                     </div>
                 </div>
@@ -223,7 +223,7 @@
         <svg class="w-4 h-4 inline mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
-        {{ t($company->translation_group . '.please_fix_errors_below') }}
+        {{ t('profile'. '.please_fix_errors_below') }}
     </div>
     <script>
         setTimeout(() => {
