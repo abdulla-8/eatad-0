@@ -418,6 +418,7 @@ class ClaimsController extends Controller
             $approvalData = [
                 'status' => 'pending',
                 'service_center_id' => $serviceCenter->id,
+                'service_center_expires_at' => now()->addMinutes(30),
                 'notes' => $request->notes,
                 // لا تولد كود التوصيل هنا ولا ترسل إشعار للمستخدم
             ];
