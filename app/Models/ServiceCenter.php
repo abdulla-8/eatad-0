@@ -65,6 +65,9 @@ class ServiceCenter extends Authenticatable
         'has_tow_service' => 'boolean',
         'tow_trucks_count' => 'integer',
         'daily_tow_capacity' => 'integer',
+        'classification',
+        'classification_photo', 
+        'classification_rating'
     ];
 
     /**
@@ -264,4 +267,22 @@ class ServiceCenter extends Authenticatable
     {
         return $this->morphMany(Complaint::class, 'complainant');
     }
+
+    // Add accessor for classification status
+public function getClassificationStatusAttribute()
+{
+    return $this->classification === 'classified' ? 'مصنف' : 'غير مصنف';
+}
+
+// Add accessor for rating stars
+public function getRatingStarsAttribute()
+{
+    if (!$this->classification_rating) return '';
+    
+    $stars = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $stars .= $i <= $this->classification_rating ? '★' : '☆';
+    }
+    return $stars;
+}
 }

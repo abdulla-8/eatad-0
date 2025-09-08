@@ -132,7 +132,7 @@
                                             </svg>
                                         @else
                                             <svg class="w-4 h-4" style="color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                             </svg>
                                         @endif
                                     </div>
@@ -224,6 +224,93 @@
 
 
 
+                <!-- Service Center Classification Section (for Service Centers) -->
+@if($userType === 'service_center')
+    <div class="mt-8 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-purple-100">
+                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">{{ t('profile.service_center_classification') }}</h3>
+                <p class="text-sm text-gray-600">{{ t('profile.service_center_classification_description') }}</p>
+            </div>
+        </div>
+
+        <!-- Classification Type Selection -->
+        <div class="space-y-4">
+            <div class="flex gap-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="classification" value="unclassified" 
+                           {{ old('classification', $user->classification ?? 'unclassified') === 'unclassified' ? 'checked' : '' }}
+                           class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                    <span class="ml-2 text-sm font-medium text-gray-700">{{ t('profile.unclassified') }}</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="classification" value="classified" 
+                           {{ old('classification', $user->classification ?? 'unclassified') === 'classified' ? 'checked' : '' }}
+                           class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                    <span class="ml-2 text-sm font-medium text-gray-700">{{ t('profile.classified') }}</span>
+                </label>
+            </div>
+
+            <!-- Classified Options (shown when classified is selected) -->
+            <div id="classified-options" class="space-y-6 {{ old('classification', $user->classification ?? 'unclassified') === 'classified' ? '' : 'hidden' }}">
+                
+                <!-- Photo Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ t('profile.classification_photo') }}
+                    </label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-purple-400 transition-colors">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="classification_photo" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-purple-500">
+                                    <span>{{ t('profile.upload_photo') }}</span>
+                                    <input id="classification_photo" name="classification_photo" type="file" class="sr-only" accept="image/*">
+                                </label>
+                                <p class="pl-1">{{ t('profile.or_drag_drop') }}</p>
+                            </div>
+                            <p class="text-xs text-gray-500">{{ t('profile.photo_requirements') }}</p>
+                        </div>
+                    </div>
+                    @if($user->classification_photo)
+                        <div class="mt-2">
+                            <img src="{{ asset('storage/' . $user->classification_photo) }}" alt="Current photo" class="h-20 w-20 object-cover rounded-lg">
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Star Rating -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ t('profile.classification_rating') }}
+                    </label>
+                    <div class="flex items-center space-x-1 rtl:space-x-reverse">
+                        @for($i = 1; $i <= 5; $i++)
+                            <button type="button" 
+                                    class="star-rating text-2xl text-gray-300 hover:text-yellow-400 focus:outline-none focus:text-yellow-400 transition-colors"
+                                    data-rating="{{ $i }}">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </button>
+                        @endfor
+                        <input type="hidden" name="classification_rating" id="classification_rating" value="{{ old('classification_rating', $user->classification_rating ?? 0) }}">
+                        <span class="ml-2 text-sm text-gray-600" id="rating-text">{{ t('profile.select_rating') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@endif
+
                 <!-- Form Actions -->
                 <div class="border-t border-gray-200 px-4 md:px-8 py-6">
                     <div class="flex gap-2 md:gap-4 ">
@@ -287,93 +374,123 @@
 @endif
 
 <script>
-// Toggle switch functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const toggle = document.querySelector('input[name="has_tow_service"]');
-    const statusText = document.querySelector('.ml-3.text-sm.font-medium.text-gray-700');
-    const statusIndicator = document.querySelector('.mt-4 .flex.items-center.gap-2');
-    
-    if (toggle) {
-        toggle.addEventListener('change', function() {
-            // Show loading state
-            const originalText = statusText.textContent;
-            statusText.textContent = 'جاري التحديث...';
-            
-            // Make AJAX request
-            fetch('{{ $userType === "insurance_company" ? route("insurance.profile.tow-service-availability", ["companyRoute" => $user->company_slug]) : route("service-center.profile.tow-service-availability") }}', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    has_tow_service: this.checked
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update UI
-                    if (this.checked) {
-                        statusText.textContent = '{{ t("profile.enabled") }}';
-                        statusIndicator.innerHTML = `
-                            <div class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                                {{ t('profile.tow_service_enabled') }}
-                            </div>
-                        `;
-                    } else {
-                        statusText.textContent = '{{ t("profile.disabled") }}';
-                        statusIndicator.innerHTML = `
-                            <div class="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                                </svg>
-                                {{ t('profile.tow_service_disabled') }}
-                            </div>
-                        `;
-                    }
-                    
-                    // Show success message
-                    showNotification('تم تحديث حالة توفر خدمة السحب بنجاح', 'success');
-                } else {
-                    // Revert toggle state
-                    this.checked = !this.checked;
-                    statusText.textContent = originalText;
-                    showNotification(data.error || 'حدث خطأ أثناء التحديث', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Revert toggle state
-                this.checked = !this.checked;
-                statusText.textContent = originalText;
-                showNotification('حدث خطأ أثناء التحديث', 'error');
-            });
-        });
-    }
-});
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle classified options visibility
+            const classificationRadios = document.querySelectorAll('input[name="classification"]');
+            const classifiedOptions = document.getElementById('classified-options');
+            const ratingInput = document.getElementById('classification_rating');
+            const ratingText = document.getElementById('rating-text');
+            const photoInput = document.getElementById('classification_photo');
 
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-    }`;
-    notification.innerHTML = `
-        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-        </svg>
-        ${message}
-    `;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 4000);
-}
-</script>
+            // Endpoint (only for service center)
+            const classificationUpdateUrl = "{{ $userType === 'service_center' ? route('service-center.profile.classification.update') : '' }}";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            function sendClassificationAjax() {
+                if (!classificationUpdateUrl) return; // only service center
+
+                const checked = document.querySelector('input[name="classification"]:checked');
+                if (!checked) return;
+
+                const formData = new FormData();
+                formData.append('classification', checked.value);
+
+                // Only send rating/photo if classified
+                if (checked.value === 'classified') {
+                    const ratingVal = ratingInput?.value || '';
+                    if (ratingVal) formData.append('classification_rating', ratingVal);
+                    if (photoInput && photoInput.files && photoInput.files[0]) {
+                        formData.append('classification_photo', photoInput.files[0]);
+                    }
+                }
+
+                // Spoof PUT for Laravel when using FormData
+                formData.append('_method', 'PUT');
+
+                fetch(classificationUpdateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken || '',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(async (res) => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw data;
+                    // Optional: show lightweight success feedback
+                    console.log('Classification updated', data);
+                })
+                .catch((err) => {
+                    console.error('Failed to update classification', err);
+                });
+            }
+
+            classificationRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'classified') {
+                        classifiedOptions.classList.remove('hidden');
+                    } else {
+                        classifiedOptions.classList.add('hidden');
+                    }
+                    // Trigger AJAX on change
+                    sendClassificationAjax();
+                });
+            });
+
+            // Star rating functionality
+            const stars = document.querySelectorAll('.star-rating');
+            stars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    ratingInput.value = rating;
+
+                    // Update star display
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-400');
+                        } else {
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+
+                    // Update rating text
+                    const ratingTexts = {
+                        1: '{{ t("profile.very_poor") }}',
+                        2: '{{ t("profile.poor") }}',
+                        3: '{{ t("profile.average") }}',
+                        4: '{{ t("profile.good") }}',
+                        5: '{{ t("profile.excellent") }}'
+                    };
+                    ratingText.textContent = ratingTexts[rating] || '{{ t("profile.select_rating") }}';
+
+                    // Trigger AJAX after selecting rating
+                    sendClassificationAjax();
+                });
+            });
+
+            // Trigger AJAX when user selects a photo
+            if (photoInput) {
+                photoInput.addEventListener('change', function() {
+                    sendClassificationAjax();
+                });
+            }
+
+            // Initialize rating display
+            const currentRating = parseInt(ratingInput.value);
+            if (currentRating > 0) {
+                const starsInit = document.querySelectorAll('.star-rating');
+                starsInit.forEach((star, index) => {
+                    if (index < currentRating) {
+                        star.classList.remove('text-gray-300');
+                        star.classList.add('text-yellow-400');
+                    }
+                });
+            }
+        });
+    </script>
 
 @endsection
+

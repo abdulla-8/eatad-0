@@ -430,6 +430,74 @@
                     </div>
                 </div>
 
+                <!-- Service Center Classification Details (for Service Centers) -->
+@if($userType === 'service_center')
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="border-b border-gray-200 px-6 py-4">
+            <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                <div class="w-6 h-6 rounded-lg flex items-center justify-center mr-2 rtl:mr-0 rtl:ml-2" style="background-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}20;">
+                    <svg class="w-4 h-4" style="color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                {{ t('profile.service_center_classification') }}
+            </h3>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Classification Status -->
+                <div class="text-center">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
+                        {{ $user->classification === 'classified' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                        @if($user->classification === 'classified')
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        @else
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        @endif
+                        {{ $user->classification === 'classified' ? t('profile.classified') : t('profile.unclassified') }}
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">{{ t('profile.classification_status') }}</p>
+                </div>
+
+                <!-- Classification Photo -->
+                @if($user->classification === 'classified' && $user->classification_photo)
+                    <div class="text-center">
+                        <div class="inline-block">
+                            <img src="{{ asset('storage/' . $user->classification_photo) }}" 
+                                 alt="{{ t('profile.classification_photo') }}" 
+                                 class="w-24 h-24 object-cover rounded-lg shadow-md">
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">{{ t('profile.classification_photo') }}</p>
+                    </div>
+                @endif
+
+                <!-- Classification Rating -->
+                @if($user->classification === 'classified' && $user->classification_rating)
+                    <div class="text-center">
+                        <div class="flex justify-center items-center space-x-1 rtl:space-x-reverse">
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg class="w-6 h-6 {{ $i <= $user->classification_rating ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                     fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            @endfor
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            {{ $user->classification_rating }}/5 {{ t('profile.stars') }}
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+@endif
+
 
 <!-- Tow Service Availability Status (for Service Centers) -->
 @if( $userType === 'service_center')
