@@ -26,6 +26,7 @@ class Claim extends Model
         'status',
         'rejection_reason',
         'service_center_id',
+        'service_center_expires_at',
         'tow_request_id',
         'tow_service_offered',
         'tow_service_accepted',
@@ -50,7 +51,8 @@ class Claim extends Model
         'vehicle_arrived_at_center' => 'datetime',
         'parts_received_at' => 'datetime',
         'service_center_approved_at' => 'datetime',    // ← Cast للحقل الجديد
-        'service_center_rejected_at' => 'datetime'     // ← Cast للحقل الجديد
+        'service_center_rejected_at' => 'datetime',     // ← Cast للحقل الجديد
+        'service_center_expires_at' => 'datetime'
     ];
 
     // Relations

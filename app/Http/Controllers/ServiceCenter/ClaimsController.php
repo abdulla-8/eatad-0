@@ -390,6 +390,13 @@ class ClaimsController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
+        if ($claim->service_center_expires_at && now()->greaterThan($claim->service_center_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This claim assignment has expired.'
+            ], 422);
+        }
+
         $request->validate([
             'approval_note' => 'nullable|string|max:1000'
         ]);
@@ -421,6 +428,13 @@ class ClaimsController extends Controller
             ->where('id', $id)
             ->where('status', 'pending')
             ->firstOrFail();
+
+        if ($claim->service_center_expires_at && now()->greaterThan($claim->service_center_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'انتهت صلاحية هذا الطلب.'
+            ], 422);
+        }
 
         $request->validate([
             'rejection_reason' => 'required|string|max:1000'

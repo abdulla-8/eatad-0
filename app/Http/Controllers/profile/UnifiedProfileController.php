@@ -204,6 +204,86 @@ class UnifiedProfileController extends Controller
         }
     }
 
+    public function updateClassification(\Illuminate\Http\Request $request)
+    {
+        \Illuminate\Support\Facades\Log::info('DEBUG: Update Classification Method Started', [
+            'user_id' => auth()->id(),
+            'payload' => $request->except(['classification_photo'])
+        ]);
+
+        $userType = $this->getCurrentUserType();
+        $user = $this->getCurrentUser();
+
+        if (!$user) {
+            return response()->json(['error' => 'المستخدم غير مسجل الدخول'], 403);
+        }
+
+        if ($userType !== 'service_center') {
+            return response()->json(['error' => 'غير مسموح بتحديث هذا الحقل'], 403);
+        }
+
+        $validated = $request->validate([
+            'classification' => 'required|in:classified,unclassified',
+            'classification_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'classification_rating' => 'nullable|integer|min:1|max:5',
+        ], [
+            'classification.required' => 'نوع التصنيف مطلوب',
+            'classification.in' => 'نوع التصنيف غير صالح',
+            'classification_photo.image' => 'الصورة يجب أن تكون ملف صورة صالح',
+            'classification_photo.mimes' => 'نوع الصورة غير مدعوم',
+            'classification_photo.max' => 'حجم الصورة يجب ألا يتجاوز 2MB',
+            'classification_rating.integer' => 'التقييم يجب أن يكون رقمًا',
+            'classification_rating.min' => 'أقل تقييم هو 1',
+            'classification_rating.max' => 'أعلى تقييم هو 5',
+        ]);
+
+        try {
+            // If unclassified, clear photo and rating
+            if ($validated['classification'] === 'unclassified') {
+                $updateData = [
+                    'classification' => 'unclassified',
+                    'classification_photo' => null,
+                    'classification_rating' => null,
+                ];
+            } else {
+                $updateData = [
+                    'classification' => 'classified',
+                ];
+
+                if ($request->hasFile('classification_photo')) {
+                    $path = $request->file('classification_photo')->store('classifications', 'public');
+                    $updateData['classification_photo'] = $path;
+                }
+
+                if ($request->filled('classification_rating')) {
+                    $updateData['classification_rating'] = (int) $request->input('classification_rating');
+                }
+            }
+
+            $user->update($updateData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم تحديث تصنيف مركز الصيانة بنجاح',
+                'data' => [
+                    'classification' => $user->classification,
+                    'classification_photo' => $user->classification_photo,
+                    'classification_rating' => $user->classification_rating,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('DEBUG: Classification update failed', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'حدث خطأ أثناء تحديث التصنيف'
+            ], 500);
+        }
+    }
+
     private function getCurrentUserType()
     {
         if (auth('insurance_company')->check()) {
@@ -552,4 +632,65 @@ class UnifiedProfileController extends Controller
                 return redirect()->back();
         }
     }
+
+    /**
+ * Update tow service availability specifically
+ */
+public function updateTowServiceAvailability(Request $request)
+{
+    Log::info('DEBUG: Update Tow Service Availability Method Started', [
+        'user_id' => auth()->id(),
+        'has_tow_service' => $request->has_tow_service
+    ]);
+
+    $userType = $this->getCurrentUserType();
+    $user = $this->getCurrentUser();
+    
+    if (!$user) {
+        Log::error('DEBUG: No authenticated user found in tow service update');
+        return response()->json(['error' => 'المستخدم غير مسجل الدخول'], 403);
+    }
+
+    // Only allow insurance companies and service centers
+    if (!in_array($userType, ['insurance_company', 'service_center'])) {
+        return response()->json(['error' => 'غير مسموح بتحديث هذه المعلومة'], 403);
+    }
+
+    $request->validate([
+        'has_tow_service' => 'required|boolean'
+    ], [
+        'has_tow_service.required' => 'حالة توفر خدمة السحب مطلوبة',
+        'has_tow_service.boolean' => 'حالة توفر خدمة السحب يجب أن تكون صحيحة أو خاطئة'
+    ]);
+
+    try {
+        $user->update([
+            'has_tow_service' => (bool)$request->has_tow_service
+        ]);
+
+        Log::info('DEBUG: Tow service availability updated successfully', [
+            'user_id' => $user->id,
+            'user_type' => $userType,
+            'has_tow_service' => $user->has_tow_service
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث حالة توفر خدمة السحب بنجاح',
+            'has_tow_service' => $user->has_tow_service
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('DEBUG: Tow service availability update failed', [
+            'user_id' => $user->id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => 'حدث خطأ أثناء تحديث حالة توفر خدمة السحب'
+        ], 500);
+    }
+}
 }

@@ -218,7 +218,7 @@
             <h3 class="text-xl font-bold">{{ t('insurance_company' . '.approve_claim') }}</h3>
         </div>
         
-        <form id="approveForm" method="POST" class="p-6 space-y-6">
+        <form id="approveForm" method="POST" action="" class="p-6 space-y-6">
             @csrf
             
             <div>
@@ -259,7 +259,7 @@
             <h3 class="text-xl font-bold">{{ t('insurance_company' . '.reject_claim') }}</h3>
         </div>
         
-        <form id="rejectForm" method="POST" class="p-6 space-y-6">
+        <form id="rejectForm" method="POST" action="" class="p-6 space-y-6">
             @csrf
             
             <div>

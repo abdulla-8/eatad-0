@@ -1,7 +1,7 @@
 {{-- resources/views/profile/edit.blade.php --}}
 @extends($userType === 'insurance_company' ? 'insurance.layouts.app' : ($userType === 'service_center' ? 'service-center.layouts.app' : 'insurance-user.layouts.app'))
 
-@section('title', t($company->translation_group . '.edit_profile'))
+@section('title', t('profile'. '.edit_profile'))
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -25,8 +25,8 @@
                     </svg>
                 </a>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ t($company->translation_group . '.edit_profile') }}</h1>
-                    <p class="text-gray-600 mt-1">{{ t($company->translation_group . '.update_personal_information') }}</p>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ t('profile'. '.edit_profile') }}</h1>
+                    <p class="text-gray-600 mt-1">{{ t('profile'. '.update_personal_information') }}</p>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
                                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                             </svg>
                         </div>
-                        {{ t($company->translation_group . '.edit_personal_information') }}
+                        {{ t('profile'. '.edit_personal_information') }}
                     </h2>
                 </div>
 
@@ -132,11 +132,11 @@
                                             </svg>
                                         @else
                                             <svg class="w-4 h-4" style="color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }}" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                             </svg>
                                         @endif
                                     </div>
-                                    {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}
+                                    {{ t('profile'. '.' . $field) ?? $info['label'] }}
                                 </label>
                                 
                                 @if(str_contains($field, 'address'))
@@ -145,7 +145,7 @@
                                               rows="3"
                                               class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:border-transparent px-4 py-3 transition-all duration-200 @error($field) border-red-500 @enderror"
                                               style="focus:ring-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};"
-                                              placeholder="{{ t($company->translation_group . '.enter') }} {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}">{{ old($field, $user->$field) }}</textarea>
+                                              placeholder="{{ t('profile'. '.enter') }} {{ t('profile'. '.' . $field) ?? $info['label'] }}">{{ old($field, $user->$field) }}</textarea>
                                 @else
                                     <input type="{{ str_contains($field, 'count') || str_contains($field, 'technicians') ? 'number' : 'text' }}" 
                                            id="{{ $field }}" 
@@ -154,7 +154,7 @@
                                            {{ str_contains($field, 'count') || str_contains($field, 'technicians') ? 'min="0"' : '' }}
                                            class="w-full border border-gray-300 rounded-xl focus:ring-2 focus:border-transparent px-4 py-3 transition-all duration-200 @error($field) border-red-500 @enderror"
                                            style="focus:ring-color: {{ $profileData['colors']['primary'] ?? '#3b82f6' }};"
-                                           placeholder="{{ t($company->translation_group . '.enter') }} {{ t($company->translation_group . '.' . $field) ?? $info['label'] }}">
+                                           placeholder="{{ t('profile'. '.enter') }} {{ t('profile'. '.' . $field) ?? $info['label'] }}">
                                 @endif
                                 
                                 @error($field)
@@ -170,6 +170,147 @@
                     </div>
                 </div>
 
+  <!-- Tow Service Availability Toggle (for Service Centers) -->
+  @if( $userType === 'service_center')
+                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-blue-100">
+                                        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ t('profile'. '.tow_service_availability') }}</h3>
+                                        <p class="text-sm text-gray-600">{{ t('profile'. '.tow_service_availability_description') }}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Toggle Switch -->
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" 
+                                           name="has_tow_service" 
+                                           value="1" 
+                                           class="sr-only peer"
+                                           {{ old('has_tow_service', $user->has_tow_service ?? false) ? 'checked' : '' }}>
+                                    <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
+                                    <span class="ml-3 text-sm font-medium text-gray-700">
+                                        {{ old('has_tow_service', $user->has_tow_service ?? false) ? t('profile'. '.enabled') : t('profile'. '.disabled') }}
+                                    </span>
+                                </label>
+                            </div>
+                            
+                            <!-- Status Indicator -->
+                            <div class="mt-4 flex items-center gap-2">
+                                @if(old('has_tow_service', $user->has_tow_service ?? false))
+                                    <div class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                                        </svg>
+                                        {{ t('profile'. '.tow_service_enabled') }}
+                                    </div>
+                                @else
+                                    <div class="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                                        </svg>
+                                        {{ t('profile'. '.tow_service_disabled') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+
+
+                <!-- Service Center Classification Section (for Service Centers) -->
+@if($userType === 'service_center')
+    <div class="mt-8 p-6 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-purple-100">
+                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">{{ t('profile.service_center_classification') }}</h3>
+                <p class="text-sm text-gray-600">{{ t('profile.service_center_classification_description') }}</p>
+            </div>
+        </div>
+
+        <!-- Classification Type Selection -->
+        <div class="space-y-4">
+            <div class="flex gap-6">
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="classification" value="unclassified" 
+                           {{ old('classification', $user->classification ?? 'unclassified') === 'unclassified' ? 'checked' : '' }}
+                           class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                    <span class="ml-2 text-sm font-medium text-gray-700">{{ t('profile.unclassified') }}</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                    <input type="radio" name="classification" value="classified" 
+                           {{ old('classification', $user->classification ?? 'unclassified') === 'classified' ? 'checked' : '' }}
+                           class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500">
+                    <span class="ml-2 text-sm font-medium text-gray-700">{{ t('profile.classified') }}</span>
+                </label>
+            </div>
+
+            <!-- Classified Options (shown when classified is selected) -->
+            <div id="classified-options" class="space-y-6 {{ old('classification', $user->classification ?? 'unclassified') === 'classified' ? '' : 'hidden' }}">
+                
+                <!-- Photo Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ t('profile.classification_photo') }}
+                    </label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-purple-400 transition-colors">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="classification_photo" class="relative cursor-pointer bg-white rounded-md font-medium text-purple-600 hover:text-purple-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-purple-500">
+                                    <span>{{ t('profile.upload_photo') }}</span>
+                                    <input id="classification_photo" name="classification_photo" type="file" class="sr-only" accept="image/*">
+                                </label>
+                                <p class="pl-1">{{ t('profile.or_drag_drop') }}</p>
+                            </div>
+                            <p class="text-xs text-gray-500">{{ t('profile.photo_requirements') }}</p>
+                        </div>
+                    </div>
+                    @if($user->classification_photo)
+                        <div class="mt-2">
+                            <img src="{{ asset('storage/' . $user->classification_photo) }}" alt="Current photo" class="h-20 w-20 object-cover rounded-lg">
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Star Rating -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ t('profile.classification_rating') }}
+                    </label>
+                    <div class="flex items-center space-x-1 rtl:space-x-reverse">
+                        @for($i = 1; $i <= 5; $i++)
+                            <button type="button" 
+                                    class="star-rating text-2xl text-gray-300 hover:text-yellow-400 focus:outline-none focus:text-yellow-400 transition-colors"
+                                    data-rating="{{ $i }}">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </button>
+                        @endfor
+                        <input type="hidden" name="classification_rating" id="classification_rating" value="{{ old('classification_rating', $user->classification_rating ?? 0) }}">
+                        <span class="ml-2 text-sm text-gray-600" id="rating-text">{{ t('profile.select_rating') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@endif
+
                 <!-- Form Actions -->
                 <div class="border-t border-gray-200 px-4 md:px-8 py-6">
                     <div class="flex gap-2 md:gap-4 ">
@@ -179,7 +320,7 @@
                             <svg class="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
                             </svg>
-                            {{ t($company->translation_group . '.save_changes') }}
+                            {{ t('profile'. '.save_changes') }}
                         </button>
                         
                         @if($userType === 'insurance_company')
@@ -195,7 +336,7 @@
                             <svg class="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                             </svg>
-                            {{ t($company->translation_group . '.cancel') }}
+                            {{ t('profile'. '.cancel') }}
                         </a>
                     </div>
                 </div>
@@ -223,7 +364,7 @@
         <svg class="w-4 h-4 inline mr-2 rtl:mr-0 rtl:ml-2" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
-        {{ t($company->translation_group . '.please_fix_errors_below') }}
+        {{ t('profile'. '.please_fix_errors_below') }}
     </div>
     <script>
         setTimeout(() => {
@@ -231,4 +372,125 @@
         }, 5000);
     </script>
 @endif
+
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle classified options visibility
+            const classificationRadios = document.querySelectorAll('input[name="classification"]');
+            const classifiedOptions = document.getElementById('classified-options');
+            const ratingInput = document.getElementById('classification_rating');
+            const ratingText = document.getElementById('rating-text');
+            const photoInput = document.getElementById('classification_photo');
+
+            // Endpoint (only for service center)
+            const classificationUpdateUrl = "{{ $userType === 'service_center' ? route('service-center.profile.classification.update') : '' }}";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            function sendClassificationAjax() {
+                if (!classificationUpdateUrl) return; // only service center
+
+                const checked = document.querySelector('input[name="classification"]:checked');
+                if (!checked) return;
+
+                const formData = new FormData();
+                formData.append('classification', checked.value);
+
+                // Only send rating/photo if classified
+                if (checked.value === 'classified') {
+                    const ratingVal = ratingInput?.value || '';
+                    if (ratingVal) formData.append('classification_rating', ratingVal);
+                    if (photoInput && photoInput.files && photoInput.files[0]) {
+                        formData.append('classification_photo', photoInput.files[0]);
+                    }
+                }
+
+                // Spoof PUT for Laravel when using FormData
+                formData.append('_method', 'PUT');
+
+                fetch(classificationUpdateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken || '',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(async (res) => {
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw data;
+                    // Optional: show lightweight success feedback
+                    console.log('Classification updated', data);
+                })
+                .catch((err) => {
+                    console.error('Failed to update classification', err);
+                });
+            }
+
+            classificationRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'classified') {
+                        classifiedOptions.classList.remove('hidden');
+                    } else {
+                        classifiedOptions.classList.add('hidden');
+                    }
+                    // Trigger AJAX on change
+                    sendClassificationAjax();
+                });
+            });
+
+            // Star rating functionality
+            const stars = document.querySelectorAll('.star-rating');
+            stars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    ratingInput.value = rating;
+
+                    // Update star display
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-400');
+                        } else {
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+
+                    // Update rating text
+                    const ratingTexts = {
+                        1: '{{ t("profile.very_poor") }}',
+                        2: '{{ t("profile.poor") }}',
+                        3: '{{ t("profile.average") }}',
+                        4: '{{ t("profile.good") }}',
+                        5: '{{ t("profile.excellent") }}'
+                    };
+                    ratingText.textContent = ratingTexts[rating] || '{{ t("profile.select_rating") }}';
+
+                    // Trigger AJAX after selecting rating
+                    sendClassificationAjax();
+                });
+            });
+
+            // Trigger AJAX when user selects a photo
+            if (photoInput) {
+                photoInput.addEventListener('change', function() {
+                    sendClassificationAjax();
+                });
+            }
+
+            // Initialize rating display
+            const currentRating = parseInt(ratingInput.value);
+            if (currentRating > 0) {
+                const starsInit = document.querySelectorAll('.star-rating');
+                starsInit.forEach((star, index) => {
+                    if (index < currentRating) {
+                        star.classList.remove('text-gray-300');
+                        star.classList.add('text-yellow-400');
+                    }
+                });
+            }
+        });
+    </script>
+
 @endsection
+
